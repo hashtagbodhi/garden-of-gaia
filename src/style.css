@@ -571,3 +571,8 @@ h1 em { font-family: var(--serif); }
   .place[data-home] .lede { font-size: 1.08rem; line-height: 1.35; max-width: 31ch; text-wrap: balance; }
   .place[data-home] .row { justify-content: center; margin-top: 8px; }
 }
+
+/* ---- stepping along the shelf from a product ---- */
+.step { display: flex; align-items: center; gap: 14px; font-family: var(--sans); font-size: var(--t-small); color: var(--ink-2); margin-top: 2px; }
+.step .arrow { width: 36px; height: 36px; font-size: 1rem; }
+@media (max-width: 820px) { .step { display: none; } }

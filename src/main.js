@@ -90,13 +90,15 @@ for (const p of catalog) {
   const t = `${p.handle} ${p.name}`.toLowerCase();
   const cls = /tin|resin-incense|frankincense|candle|cacao/.test(t) ? 0.72 : /smudge|palo|tea-bags|gift-card/.test(t) ? 0.8 : /tincture|oil|spray|syrup|elixir/.test(t) && !/bundle/.test(t) ? 0.84 : /balm|sticky-chai/.test(t) && !/bundle|collection/.test(t) ? 0.78 : /bundle|collection|trinity|moringa-moringa/.test(t) ? 1.08 : 1;   // rough real-world size, so a tin is not as tall as a tea bag
   const k = Math.min(2.05 / c.w, 2.45 / c.h) * cls;
-  byId[p.station].items.push({ p, w: c.w * k, h: c.h * k, jx: rr(-0.22, 0.22), jz: rr(-0.25, 0.25), ph: rnd() * 6.28, hover: 0, pos: new THREE.Vector3() });
+  byId[p.station].items.push({ p, w: c.w * k, h: c.h * k, w0: c.w * k, h0: c.h * k, jx: rr(-0.22, 0.22), jz: rr(-0.25, 0.25), ph: rnd() * 6.28, hover: 0, pos: new THREE.Vector3() });
 }
 for (const s of STATIONS) s.items.forEach((it, i) => { it.station = s; it.index = i; });
 
 function layout(s) {
   const n = s.items.length;
   if (!n) { s.camPos = V(s.cam); s.camLook = V(s.look); s.witchPos = V(s.witch); return; }
+  if (portrait) return cabinetLayout(s);   // phones: products on the cabinet's shelves
+  s.cab = false; for (const it of s.items) { it.w = it.w0; it.h = it.h0; it.k = 1; it.out = null; }
   const per = portrait ? Math.min(3, n) : n <= 5 ? n : Math.ceil(n / (n > 10 ? 3 : 2));
   const rows = Math.ceil(n / per);
   s.D = s.p.clone().addScaledVector(s.f, s.dOff);
@@ -120,8 +122,35 @@ function layout(s) {
   if (s.beside) { const w = s.propH * sprites[s.prop].w / sprites[s.prop].h; s.propPos = s.D.clone().addScaledVector(s.r, half + w / 2 + 0.2).addScaledVector(s.f, -0.6); }
   if (built) placeItems(s);
 }
-/* Phones: one row to swipe along. Sarah stands just behind it and walks with you. */
-const STEP = 3.3;
+/* A worn wooden cabinet in each clearing. Products stand on its shelves; you see them all at a glance,
+   then move along them one by one, close up. */
+const CAB = { H: 10, shelves: [0.253, 0.418, 0.578, 0.75], rowH: [1.2, 1.44, 1.44, 1.52], x0: 0.105, x1: 0.89 };
+function cabinetLayout(s) {
+  const n = s.items.length, sp = sprites.cabinet, W = CAB.H * (sp.w / sp.h);
+  s.cab = true; s.lined = portrait; s.mid = 0;
+  s.D = s.p.clone().addScaledVector(s.f, s.flat ? s.propH / 2 + 2.5 : s.propH > 15 ? 8 : s.beside ? 3.2 : 6);
+  const rows = Math.min(4, Math.max(n > 5 ? 2 : 1, Math.ceil(n / 4))), per = Math.ceil(n / rows), first = rows === 4 ? 0 : 1;
+  const left = -W / 2 + CAB.x0 * W, innerW = (CAB.x1 - CAB.x0) * W, slot = innerW / per;
+  s.items.forEach((it, i) => {
+    const r = Math.min(3, first + Math.floor(i / per)), inRow = Math.min(per, n - Math.floor(i / per) * per), j = i % per;
+    const k = Math.min((CAB.rowH[r] * 0.94) / it.h0, (slot * 0.8) / it.w0);
+    it.w = it.w0 * k; it.h = it.h0 * k; it.k = 1; it.row = r; it.out = null; it.pedType = 0;
+    it.top = CAB.H * (1 - CAB.shelves[r]);
+    const x = left + (innerW - inRow * slot) / 2 + (j + 0.5) * slot + it.jx * 0.3;
+    it.pos.copy(s.D).addScaledVector(s.r, x).addScaledVector(s.f, 0.4).setY(it.top - 0.09 + it.h / 2);
+  });
+  s.half = W / 2;
+  s.witchPos = s.D.clone().addScaledVector(s.r, W / 2 + 1.1).addScaledVector(s.f, 1.6);   // beside the cabinet, clear of the title
+  if (s.beside) { const w = s.propH * sprites[s.prop].w / sprites[s.prop].h; s.propPos = s.D.clone().addScaledVector(s.r, W / 2 + w / 2 + 2.6).addScaledVector(s.f, -1.2); }
+  else s.propPos = null;
+  // the whole cabinet, standing in the garden
+  const d = CAB.H / 0.7 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  s.wide = { camPos: s.D.clone().addScaledVector(s.r, 1.2).addScaledVector(s.f, d).setY(5.2), camLook: s.D.clone().addScaledVector(s.r, 1.2).setY(4.7) };
+  if (portrait) { s.pan = Math.min(s.pan ?? 0, n - 1); s.panTarget = s.pan; panView(s); }
+  else { s.camPos = s.wide.camPos; s.camLook = s.wide.camLook; }
+  if (built) placeItems(s);
+}
+const STEP = 1;
 function lineLayout(s) {
   const n = s.items.length;
   s.D = s.p.clone().addScaledVector(s.f, s.flat ? s.propH / 2 + 1.2 : s.propH > 15 ? 7 : 5.2);
@@ -136,10 +165,10 @@ function lineLayout(s) {
   if (built) placeItems(s);
 }
 function panView(s) {
-  const base = s.D.clone().addScaledVector(s.r, s.pan);
-  s.camPos = base.clone().addScaledVector(s.f, 9.4).setY(3.3);
-  s.camLook = base.clone().setY(2.75);
-  s.witchPos = base.clone().addScaledVector(s.r, 1.75).addScaledVector(s.f, -2.3);
+  const n = s.items.length, t = THREE.MathUtils.clamp(s.pan, 0, n - 1), a = s.items[Math.floor(t)], b = s.items[Math.min(n - 1, Math.floor(t) + 1)];
+  const at = a.pos.clone().lerp(b.pos, t - Math.floor(t));
+  s.camPos = at.clone().addScaledVector(s.f, 4.3).add(new THREE.Vector3(0, 0.15, 0));
+  s.camLook = at;
 }
 const focusOf = (s) => s.items[THREE.MathUtils.clamp(Math.round(s.panTarget / STEP), 0, s.items.length - 1)];
 function ringLayout(s) {
@@ -246,9 +275,10 @@ function placeItems(s) {
     it.ped.material.map = tex['ped' + type]; it.ped.scale.set(pw, ph, 1);
     it.ped.position.copy(it.pos).setY(ph / 2 - 0.02).addScaledVector(s.f, -0.06);
     it.shadow.position.copy(it.pos).setY(0.04); it.shadow.position.x += 0.5; it.shadow.position.z += 0.3; it.shadow.scale.set(3.4, 1, 2.2);
-    it.halo.position.copy(it.pos).addScaledVector(s.f, -0.25); it.halo.scale.set(it.w * 2.1, it.h * 1.7, 1);
+    it.halo.position.copy(it.pos).addScaledVector(s.f, -0.12); it.halo.scale.set(it.w * 2.1, it.h * 1.7, 1);
   }
   if (s.mesh && !s.flat) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
+  if (s.cabMesh) { s.cabMesh.visible = !!s.cab; s.cabMesh.position.copy(s.D).setY(CAB.H / 2); }
 }
 
 function buildWorld() {
@@ -276,7 +306,7 @@ function buildWorld() {
       it.shadow = new THREE.Mesh(shadowGeo, shadowMat); it.shadow.renderOrder = 1;
       scene.add(it.ped, it.mesh, it.halo, it.shadow); goods.push(it.mesh); upright.push(it.ped, it.mesh);
     }
-    if (s.items.length) placeItems(s);
+    if (s.items.length) { s.cabMesh = flat('cabinet', CAB.H, s.D, s.f); s.cabMesh.material.color.set(0xd8d8d8); placeItems(s); }
   }
   witch = flat('witch', 5.9, byId.gate.witchPos, byId.gate.f);
   witch.userData.witch = true; props.push(witch);
@@ -616,7 +646,7 @@ function select(it, quiet) {
   if (it.station.lined) { it.station.pan = it.station.panTarget = it.index * STEP; panView(it.station); syncFocus(); hoverItem = null; }
   document.body.classList.add('reading'); $('#detail').hidden = false;
   $('#detail-close').textContent = `Back to the ${it.station.name.replace(/^The /, '').toLowerCase()}`;
-  $('#detail-kind').textContent = it.station.label;
+  $('#detail-kind').textContent = it.station.label; $('#detail-pos').textContent = `${it.index + 1} of ${it.station.items.length}`;
   $('#detail-name').textContent = p.name; $('#detail-name').classList.toggle('long', p.name.length > 24); $('#detail-sub').textContent = p.sub; $('#detail-sub').hidden = !p.sub;
   const vs = $('#detail-variants'); vs.replaceChildren(); vs.hidden = p.variants.length < 2;
   chosen = p.variants.find((v) => v.available) || p.variants[0];
@@ -725,7 +755,7 @@ function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
   labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: priceLabel(it.p) })); box.append(d); return { it, el: d }; });
 }
-function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
+function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.2 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
@@ -784,8 +814,8 @@ canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clie
 canvas.addEventListener('pointermove', (e) => {
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
-    const perPx = (2 * 9.4 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth;
-    current.panTarget = THREE.MathUtils.clamp(current.panTarget - (e.clientX - down.last) * perPx * 1.15, -0.6, (current.items.length - 1) * STEP + 0.6);
+    const perPx = 1 / (innerWidth * 0.6);
+    current.panTarget = THREE.MathUtils.clamp(current.panTarget - (e.clientX - down.last) * perPx, -0.3, (current.items.length - 1) * STEP + 0.3);
     down.last = e.clientX; syncFocus(); return;
   }
   par.set((e.clientX / innerWidth) * 2 - 1, (e.clientY / innerHeight) * 2 - 1);
@@ -813,6 +843,7 @@ addEventListener('keydown', (e) => {
   if (!entered) return;
   if (!$('#lightbox').hidden) { if (e.key === 'Escape') $('#lightbox').hidden = true; if (e.key === 'ArrowRight') { lb.i++; showPhoto(); } if (e.key === 'ArrowLeft') { lb.i--; showPhoto(); } return; }
   if (e.key === 'Escape') { closeOverlays(); return; }
+  if (selected && !paged && (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !e.target.closest?.('input, .panel, .index')) { const L = selected.station.items, n2 = L.length; select(L[(selected.index + (e.key === 'ArrowRight' ? 1 : -1) + n2) % n2], true); e.preventDefault(); return; }
   if (selected || !current?.items.length || e.target.closest?.('.panel, .index, .column')) return;
   const n = current.items.length;
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { kb = (kb + (e.key === 'ArrowRight' ? 1 : -1) + n) % n; hoverItem = current.items[kb]; audio.play('flutter', 0.14, 1.3); }
@@ -830,6 +861,8 @@ $('#menu').addEventListener('click', (e) => { const t = e.target.closest('[data-
 $('#lightbox-close').onclick = () => { $('#lightbox').hidden = true; };
 $('#lightbox-prev').onclick = () => { lb.i--; showPhoto(); }; $('#lightbox-next').onclick = () => { lb.i++; showPhoto(); };
 $('#detail-close').onclick = () => closeOverlays();
+const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
+$('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
 $('#focus-open').onclick = () => select(focusOf(current));
 $('#focus-prev').onclick = () => { current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
 $('#focus-next').onclick = () => { current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
@@ -896,8 +929,8 @@ function frame() {
     const sc = (1 + it.hover * 0.07) * (it.station.lined ? it.k || 1 : 1); it.mesh.scale.set(it.w * sc, it.h * sc, 1);
     goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(bright, it.hover);
     it.mesh.material.color.lerp(goal, Math.min(1, dt * 6));
-    const show = it.loaded && (paged || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show;
-    it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.16 + (it.hop || 0) * 0.14 : 0.06 + it.hover * 0.12) * (0.9 + 0.1 * Math.sin(t * 1.3 + it.ph));
+    const show = it.loaded && (paged || s.cab || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show && !s.cab;
+    it.shadow.visible = show && !s.cab; it.halo.visible = show && (!s.cab || it === hoverItem || it === selected); it.halo.material.opacity = (it === selected ? 0.16 + (it.hop || 0) * 0.14 : 0.06 + it.hover * 0.12) * (0.9 + 0.1 * Math.sin(t * 1.3 + it.ph));
   }
   // every product in this clearing carries its name
   const showLabels = entered && !selected && !reading && travel.t >= 0.999;
