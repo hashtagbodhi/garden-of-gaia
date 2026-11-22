@@ -427,7 +427,7 @@ $('#ticker').append(...Array.from({ length: 2 }, () => el('div', { className: 't
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); };
 $('#to-garden').onclick = () => store.set('gaia-view', 'garden');
-$('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
+$('#ask-top').onclick = () => { closeMenu(); askSarah(); };
 mountAsk(askSarah, A('assets/img/witch-face.webp'));
 addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeBasket(); closeMenu(); } });
 addEventListener('hashchange', route);

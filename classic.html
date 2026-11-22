@@ -37,15 +37,18 @@
       <a href="#shop-altar">Ritual</a>
       <a href="#plants">Plants</a>
       <a href="#gifts">Gifts</a>
-      <button type="button" class="nav-ask" id="nav-ask">Ask Sarah <span aria-hidden="true">✦</span></button>
       <a href="#story">Our story</a>
       <a href="./" class="nav-garden">Enter the 3D garden</a>
       <button type="button" class="nav-sound" id="nav-sound">Garden sounds: on</button>
     </nav>
     <div class="head-tools">
-      <a class="garden-btn" id="to-garden" href="./" title="Walk through the shop as an interactive 3D garden"><span class="gb-orb" aria-hidden="true"></span><span class="gb-l">Enter the 3D garden</span><span class="gb-s">3D garden</span></a>
-      <button class="sound-btn" id="sound-btn" type="button" aria-pressed="true" title="Garden sounds"><span class="sb-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="sb-l">Sound</span></button>
-      <button class="basket-btn" id="basket-open" aria-haspopup="dialog">Basket <span id="basket-count">0</span></button>
+      <div class="view-switch" role="group" aria-label="How to browse the shop">
+        <a id="to-garden" class="vs-opt" href="./" title="Walk through the shop as a 3D garden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V11M12 11C12 7 9 4.5 4.5 4.5 4.5 9 7.5 11.5 12 11.5M12 14c0-3 2.5-5.5 7.5-5.5 0 4.500-3 6.500-7.500 6.500" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Garden</span></a>
+        <span class="vs-opt on" aria-current="true" title="You are in the shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.500 3.500h7M9.500 3.500v3L7 9.500V19a1.500 1.500 0 0 0 1.500 1.500h7A1.500 1.500 0 0 0 17 19V9.500l-2.500-3v-3M7 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Shop</span></span>
+      </div>
+      <button class="ask-chip" id="ask-top" type="button"><img src="./assets/img-s/witch-face.webp" alt="" width="26" height="26"><span>Ask Sarah</span></button>
+      <button class="snd" id="sound-btn" type="button" aria-pressed="true" title="Garden sounds"><span class="snd-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr">Sound</span></button>
+      <button class="basket-btn basket-pill" id="basket-open" aria-haspopup="dialog">Basket <span id="basket-count">0</span></button>
       <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav"><span class="mb-ic" aria-hidden="true"><i></i><i></i><i></i></span>Menu</button>
     </div>
   </div>

@@ -28,7 +28,7 @@ async function walk(p, tag) {
     await p.goto('http://127.0.0.1:4175/classic.html'); await p.waitForTimeout(1500);
     if (tag === 'wm') { await p.click('#menu-btn'); await p.waitForTimeout(400); await p.screenshot({ path: 'raw/_cs-wm-nav.jpg', type: 'jpeg', quality: 72 }); }
     else await p.screenshot({ path: 'raw/_cs-wd-head.jpg', type: 'jpeg', quality: 72, clip: { x: 0, y: 0, width: 1440, height: 160 } });
-    await p.click('#nav-ask'); await walk(p, tag); await ctx.close();
+    await p.click('.ask-sarah'); await walk(p, tag); await ctx.close();
   }
   const ctx = await b.newContext(devices['iPhone 13']); const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push('g ' + e));
   await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-view', JSON.stringify('garden')); localStorage.removeItem('gaia-basket'); });

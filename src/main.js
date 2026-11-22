@@ -392,7 +392,15 @@ async function loadGroveModels(s) {
   const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'); const loader = new GLTFLoader();
   for (const o of groveOrbs) {
     if (!plantModels[o.k]) continue;
-    loader.load(A(`assets/models/${o.k}/model.gltf`), (g) => {
+    const base = A(`assets/models/${o.k}/`);
+    fetch(`${base}model.json`).then((r) => r.json()).then(({ gltf, bin }) => {
+      // rebuild a binary glTF in memory: header, JSON chunk, BIN chunk
+      const pad = (n) => (4 - (n % 4)) % 4, js = new TextEncoder().encode(JSON.stringify(gltf)), raw = Uint8Array.from(atob(bin), (c) => c.charCodeAt(0));
+      const jl = js.length + pad(js.length), bl = raw.length + pad(raw.length), glb = new Uint8Array(12 + 8 + jl + 8 + bl), dv = new DataView(glb.buffer);
+      dv.setUint32(0, 0x46546c67, true); dv.setUint32(4, 2, true); dv.setUint32(8, glb.length, true);
+      dv.setUint32(12, jl, true); dv.setUint32(16, 0x4e4f534a, true); glb.fill(0x20, 20, 20 + jl); glb.set(js, 20);
+      dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004e4942, true); glb.set(raw, 28 + jl);
+      loader.parse(glb.buffer, base, (g) => {
       const root = g.scene, box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
       const sc = 1.15 / Math.max(size.x, size.y, size.z);
       root.traverse((m) => { if (m.isMesh) { const map = m.material.map; if (map) map.colorSpace = THREE.SRGBColorSpace; m.material = new THREE.MeshBasicMaterial({ map, alphaTest: 0.4, side: THREE.DoubleSide, fog: true, color: 0xdcdcdc }); } });
@@ -400,7 +408,8 @@ async function loadGroveModels(s) {
       const grp = new THREE.Group(); grp.add(root); scene.add(grp); o.model = grp; o.mh = size.y * sc;
       const hit = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); hit.scale.set(1.3, 1.3, 1); hit.userData.plant = o.k; scene.add(hit); upright.push(hit); o.hit = hit;
       placeGrove(s);
-    });
+      });
+    }).catch(() => { /* the photograph stands on its own */ });
   }
 }
 function placeGrove(s) {
@@ -1146,6 +1155,7 @@ for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${
 let askBtn = null;
 const askSarah = () => openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => A(p.img), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
 $('#gifts-top').onclick = () => openIndex('gift25');
+$('#ask-top').onclick = () => { closeOverlays(true); askSarah(); };
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };
 $('#places-prev').onclick = () => step(-1); $('#places-next').onclick = () => step(1);
 $('#gifts-open').onclick = () => openIndex('gift25');
@@ -1175,7 +1185,7 @@ $('#sale-line').textContent = SALE.line; $('#menu-sale').textContent = SALE.line
 const searchIndex = (v) => { const q = v.trim().toLowerCase(); $('#index-list').querySelectorAll('button').forEach((b) => { b.hidden = !!q && !b.textContent.toLowerCase().includes(q); }); $('#index-list').querySelectorAll('h3').forEach((h) => { let n = h.nextElementSibling, any = false; while (n && n.tagName !== 'H3') { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; }); };
 $('#index-search').oninput = (e) => searchIndex(e.target.value);
 $('#menu-search-form').onsubmit = (e) => { e.preventDefault(); const q = $('#menu-search').value; openIndex('all'); $('#index-search').value = q; searchIndex(q); };
-$('#sound-toggle').onclick = (e) => { const on = !audio.on; audio.set(on); e.currentTarget.setAttribute('aria-pressed', String(on)); e.currentTarget.textContent = on ? 'Sound on' : 'Sound off'; $('#menu-sound').textContent = on ? 'Turn sound off' : 'Turn sound on'; };
+$('#sound-toggle').onclick = (e) => { const on = !audio.on; audio.set(on); e.currentTarget.setAttribute('aria-pressed', String(on)); e.currentTarget.querySelector('.sr').textContent = on ? 'Sound on' : 'Sound off'; $('#menu-sound').textContent = on ? 'Turn sound off' : 'Turn sound on'; };
 $('#info-body').addEventListener('click', (e) => { if (e.target.closest('a[href^="#"]')) closeOverlays(true); });
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
@@ -1186,7 +1196,7 @@ $('#enter-yes').onclick = () => {
   const withSound = $('#entry-sound').checked;
   try { localStorage.setItem('gaia-21', 'true'); } catch (e) { /* private mode */ }
   audio.start(withSound);
-  $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle').textContent = withSound ? 'Sound on' : 'Sound off';
+  $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle .sr').textContent = withSound ? 'Sound on' : 'Sound off';
   $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 1000);
   $('#topbar').hidden = false; $('#hud').hidden = false;
   gsap.killTweensOf(camPos); entered = true; current = null; route(false); askBtn ||= mountAsk(askSarah, A('assets/img/witch-face.webp'));

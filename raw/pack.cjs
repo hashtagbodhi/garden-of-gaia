@@ -24,6 +24,6 @@ fs.writeFileSync(`${out}/classic.html`, fs.readFileSync('dist/classic.html', 'ut
 // images and sound
 for (const d of ['img', 'img-s', 'cut', 'card', 'thumb', 'gal', 'sfx', 'stock', 'plants']) for (const f of fs.readdirSync(`dist/assets/${d}`)) copy(`assets/${d}/${f}`);
 const walk = (d) => fs.readdirSync(`dist/${d}`, { withFileTypes: true }).forEach((e) => (e.isDirectory() ? walk(`${d}/${e.name}`) : copy(`${d}/${e.name}`)));
-walk('assets/models');   // scanned 3D plants: gltf + bin + texture
+walk('assets/models');   // scanned 3D plants: model.json + texture
 fs.writeFileSync('raw/files.json', JSON.stringify(files.map((p) => ({ path: p }))));
 console.log(files.length, 'files', (fs.readFileSync(`${out}/index.html`).length / 1024).toFixed(1) + 'KB page');

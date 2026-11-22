@@ -1186,3 +1186,15 @@ html, body { touch-action: pan-x pan-y; }
 
 /* Ask Sarah floats above the page, but not over the basket or an open menu */
 body.nav-open .ask-sarah, .sheet:not([hidden]) ~ .ask-sarah { display: none; }
+
+/* shop header: the same switch and controls as the garden */
+.head-tools { gap: 10px; }
+.head-tools .basket-pill { font-size: .86rem; }
+@media (max-width: 1240px) { .head-tools .ask-chip span { display: none; } .head-tools .ask-chip { padding: 0 5px; } }
+@media (max-width: 760px) {
+  .head-tools { gap: 7px; }
+  .head-tools .view-switch .vs-opt { padding: 0 8px; min-height: 30px; } .head-tools .view-switch .vs-opt span { display: none; }
+  .head-tools .snd, .head-tools .ask-chip { display: none; }
+  .head-tools .basket-pill { min-height: 36px; padding: 0 6px 0 12px !important; font-size: .8rem; }
+  .head-tools .basket-pill #basket-count { min-width: 23px; height: 23px; }
+}
