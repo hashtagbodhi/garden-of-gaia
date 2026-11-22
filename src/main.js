@@ -40,7 +40,8 @@ const byId = Object.fromEntries(STATIONS.map((s) => [s.id, s]));
 /* ---------- renderer ---------- */
 const canvas = $('#world');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-let dpr = Math.min(devicePixelRatio, coarse ? 1.25 : 1.5);
+let dpr = Math.min(devicePixelRatio, coarse ? 2 : 1.5);
+const dprFloor = coarse ? 1.5 : 0.8;
 renderer.setPixelRatio(dpr);
 const scene = new THREE.Scene();
 const FOG = new THREE.Color('#081726');
@@ -120,13 +121,13 @@ function layout(s) {
   if (built) placeItems(s);
 }
 /* Phones: one row to swipe along. Sarah stands just behind it and walks with you. */
-const STEP = 2.7;
+const STEP = 3.3;
 function lineLayout(s) {
   const n = s.items.length;
   s.D = s.p.clone().addScaledVector(s.f, s.flat ? s.propH / 2 + 1.2 : s.propH > 15 ? 7 : 5.2);
   s.items.forEach((it, i) => {
-    it.row = 0; it.pedType = i % 2; it.top = i % 2 ? 0.95 : 0.45; it.out = null;
-    it.pos.copy(s.D).addScaledVector(s.r, i * STEP).addScaledVector(s.f, it.jz * 0.5).setY(it.top + it.h / 2 - 0.05);
+    it.row = 0; it.pedType = i % 2; it.top = i % 2 ? 0.95 : 0.45; it.out = null; it.k = 1.35;
+    it.pos.copy(s.D).addScaledVector(s.r, i * STEP).addScaledVector(s.f, it.jz * 0.5).setY(it.top + (it.h * it.k) / 2 - 0.05);
   });
   s.mid = ((n - 1) * STEP) / 2; s.half = s.mid + 1.6;
   if (!s.flat && s.propH <= 15) s.propPos = s.D.clone().addScaledVector(s.r, s.mid).addScaledVector(s.f, -5.2);
@@ -138,7 +139,7 @@ function panView(s) {
   const base = s.D.clone().addScaledVector(s.r, s.pan);
   s.camPos = base.clone().addScaledVector(s.f, 9.4).setY(3.3);
   s.camLook = base.clone().setY(2.75);
-  s.witchPos = base.clone().addScaledVector(s.r, 1.25).addScaledVector(s.f, -2.3);
+  s.witchPos = base.clone().addScaledVector(s.r, 1.75).addScaledVector(s.f, -2.3);
 }
 const focusOf = (s) => s.items[THREE.MathUtils.clamp(Math.round(s.panTarget / STEP), 0, s.items.length - 1)];
 function ringLayout(s) {
@@ -725,7 +726,7 @@ function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
   labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: priceLabel(it.p) })); box.append(d); return { it, el: d }; });
 }
-function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.15 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
+function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
@@ -863,7 +864,7 @@ $('#enter-yes').onclick = () => {
 
 /* ---------- frame ---------- */
 const $index = $('#index'), $menu = $('#menu'); let acc = 0, frames = 0;
-const clock = new THREE.Timer(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), white = new THREE.Color(0xf2f2f2), rest = new THREE.Color(0xdfe2e4), dim = new THREE.Color(0x3c4650), goal = new THREE.Color();
+const clock = new THREE.Timer(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), white = new THREE.Color(0xf2f2f2), bright = new THREE.Color(0xffffff), rest = new THREE.Color(0xdfe2e4), dim = new THREE.Color(0x3c4650), goal = new THREE.Color();
 function frame() {
   clock.update();
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.getElapsed(), k = reduce ? 0 : 1;
@@ -892,8 +893,8 @@ function frame() {
     it.hover += ((on ? 1 : 0) - it.hover) * Math.min(1, dt * 9);
     if (it.hop > 0) it.hop = Math.max(0, it.hop - dt * 2.2);
     it.mesh.position.y = it.pos.y + it.hover * 0.14 + Math.sin(t * 1.1 + it.ph) * 0.015 * k + (it.hop > 0 ? Math.sin((1 - it.hop) * Math.PI) * 0.42 * k : 0);
-    const sc = 1 + it.hover * 0.07; it.mesh.scale.set(it.w * sc, it.h * sc, 1);
-    goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(white, it.hover);
+    const sc = (1 + it.hover * 0.07) * (it.station.lined ? it.k || 1 : 1); it.mesh.scale.set(it.w * sc, it.h * sc, 1);
+    goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(bright, it.hover);
     it.mesh.material.color.lerp(goal, Math.min(1, dt * 6));
     const show = it.loaded && (paged || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show;
     it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.16 + (it.hop || 0) * 0.14 : 0.06 + it.hover * 0.12) * (0.9 + 0.1 * Math.sin(t * 1.3 + it.ph));
@@ -932,8 +933,8 @@ function frame() {
   if (acc > 1.5) {
     const fps = frames / acc; acc = 0; frames = 0;
     if (!covered && document.visibilityState === 'visible') {
-      if (fps < 42 && dpr > 0.8) { dpr = Math.max(0.8, dpr - 0.25); resize(); }
-      else if (fps < 34 && bloomPass.enabled) bloomPass.enabled = false;
+      if (fps < 42 && bloomPass.enabled) bloomPass.enabled = false;
+      else if (fps < 36 && dpr > dprFloor) { dpr = Math.max(dprFloor, dpr - 0.25); resize(); }
     }
   }
   requestAnimationFrame(frame);

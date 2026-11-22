@@ -539,3 +539,11 @@ h1 em { font-family: var(--serif); }
   .buy .btn { min-height: 46px; }
   .focus-name { font-size: 1.85rem; } #detail-name { font-size: 2.1rem; } #detail-name.long { font-size: 1.7rem; }
 }
+
+/* ---- eyebrows in normal case ---- */
+.label, .focus .label, .prose h3, .prose summary, .index-list h3, .menu .label, .index-filter .label { text-transform: none; letter-spacing: .02em; font-size: .86rem; font-weight: 500; }
+.focus .label { font-size: .84rem; letter-spacing: .02em; }
+/* phones: keep the dark wash below the product, not over it */
+@media (max-width: 820px) {
+  .veil { background: linear-gradient(0deg, rgba(5, 12, 21, .96) 0, rgba(5, 12, 21, .9) 22%, rgba(5, 12, 21, .35) 31%, rgba(5, 12, 21, 0) 38%); }
+}
