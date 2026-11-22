@@ -1,0 +1,11 @@
+const { chromium } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); });
+  await p.goto('http://127.0.0.1:4175/classic.html'); await p.waitForTimeout(2000);
+  await p.click('#ask-top'); await p.waitForTimeout(900); await p.screenshot({ path: 'raw/_ask0.jpg', type: 'jpeg', quality: 80 });
+  await p.click('.cs-body .cs-go'); await p.waitForTimeout(500); await p.locator('.cs-opt', { hasText: 'Deeper sleep' }).click(); await p.waitForTimeout(400); await p.screenshot({ path: 'raw/_ask1.jpg', type: 'jpeg', quality: 80 });
+  await p.click('.cs-body .cs-go'); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'A warm cup' }).click(); await p.click('.cs-body .cs-go'); await p.waitForTimeout(400);
+  await p.locator('.cs-opt', { hasText: 'Evening' }).click(); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Avoiding alcohol' }).click(); await p.waitForTimeout(300); await p.screenshot({ path: 'raw/_ask4.jpg', type: 'jpeg', quality: 80 });
+  await p.click('.cs-body .cs-go'); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Up to $50' }).click(); await p.waitForTimeout(1200); await p.screenshot({ path: 'raw/_ask6.jpg', type: 'jpeg', quality: 80 });
+  console.log('errors', errs); await b.close(); })();

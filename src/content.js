@@ -43,7 +43,7 @@ export const STATIONS = [
     id: 'grove', says: 'Every product starts with a plant.', label: 'Shop by plant', name: 'Herb grove', icon: 'fx6',
     pos: [-46, 0, -8], face: [0.96, 0, 0.28], prop: 'fx3', propH: 9, side: -1,
     cam: [-30, 5, -3], look: [-46, 2, -8], witch: [-44, 0, -3],
-    line: 'Every plant we work with, drifting in the night air. Tap one to meet it, learn what it is for and see what we make with it.',
+    line: 'Every plant we work with, planted in one bed. Tap one to meet it, learn what it is for and see what we make with it.',
   },
   {
     id: 'roots', says: 'Earth is always here to nourish you.', label: 'Our roots', dOff: 7, minDist: 13, lookY: 4.4, name: 'The roots', icon: 'banyan',

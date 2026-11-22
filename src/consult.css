@@ -200,3 +200,65 @@ html.consult-on .ask-sarah { display: none; }
 
 .cs-top { display: flex; align-items: center; justify-content: space-between; }
 .cs-dots { margin: 0 auto; }
+
+/* ===== desktop, third pass: a portrait and a page. Sarah stands tall in an arched window; choices read as a list, not boxes ===== */
+@media (min-width: 861px) {
+  .cs-card, .consult.wide .cs-card { grid-template-columns: minmax(320px, 41%) minmax(0, 1fr); width: min(1120px, 100%); min-height: min(660px, 100%); border-radius: 20px; background: linear-gradient(155deg, #171029, #0a0c1c);
+    box-shadow: 0 0 0 1px rgba(240, 195, 90, .7), 0 50px 130px -30px #000, 0 0 100px -30px rgba(240, 195, 90, .35); }
+  .consult.wide .cs-card { grid-template-columns: 300px minmax(0, 1fr); width: min(1240px, 100%); }
+  .cs-orn { display: none; }
+  .cs-brand, .cs-say cite { display: none; }
+  /* her window */
+  .cs-side { padding: 26px 0 0 26px; border-right: 0; background: none; }
+  .cs-side::before { content: ''; position: absolute; inset: 26px 0 0 26px; border-radius: 999px 999px 0 0; background: radial-gradient(70% 45% at 50% 30%, rgba(246, 220, 151, .34), transparent 70%), radial-gradient(90% 60% at 50% 100%, rgba(40, 150, 120, .4), transparent 70%), linear-gradient(180deg, #3a2470, #141a3a 60%, #0d2a2a);
+    box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .75), inset 0 0 0 7px #120d24, inset 0 0 0 8px rgba(240, 195, 90, .35); }
+  .cs-fig, .consult.wide .cs-fig { left: calc(50% + 13px); bottom: 0; height: 88%; max-width: none; filter: drop-shadow(0 0 40px rgba(246, 220, 151, .4)); }
+  .cs-say { position: absolute; z-index: 3; left: 46px; right: 20px; bottom: 22px; padding: 14px 18px; border-radius: 14px; text-align: center; background: rgba(10, 11, 28, .84); box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .5); backdrop-filter: blur(6px); }
+  .cs-say p, .consult.wide .cs-say p { font-size: 1.16rem; line-height: 1.3; color: #f7dc97; }
+  /* the page */
+  .cs-in { padding: 0 clamp(28px, 4vw, 56px) 40px; }
+  .cs-top, .consult.wide .cs-top { background: linear-gradient(#150f27 62%, rgba(21, 15, 39, 0)); padding: 22px 0 16px; min-height: 84px; }
+  .cs-close { width: 44px; height: 44px; padding: 0; justify-content: center; background: none !important; box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .7); margin-left: auto; }
+  .cs-close span { display: none; }
+  .cs-close b { width: auto; height: auto; background: none; color: #f7dc97; font-size: 1rem; }
+  .cs-close:hover { background: var(--c-gold) !important; } .cs-close:hover b { color: #0b1020; }
+  .cs-kick { letter-spacing: .28em; color: var(--c-gold2); }
+  .cs-q { font-size: clamp(1.9rem, 2.7vw, 2.5rem); }
+  /* choices: a list with hairlines; the chosen line turns gold and takes a star */
+  .cs-grid { grid-template-columns: 1fr 1fr; gap: 0 34px; margin-top: 18px; }
+  .cs-grid.cs-one { grid-template-columns: 1fr; max-width: 520px; }
+  .cs-grid .cs-opt { grid-template-columns: 1fr; padding: 13px 34px 13px 2px; border-radius: 0; background: none !important; box-shadow: none; border-bottom: 1px solid rgba(246, 240, 226, .14); transition: border-color .25s; }
+  .cs-grid .cs-opt:hover { transform: none; background: none !important; box-shadow: none; border-bottom-color: rgba(240, 195, 90, .6); }
+  .cs-grid .cs-opt .cs-mark { position: absolute; right: 2px; top: 50%; translate: 0 -50%; width: auto; height: auto; grid-row: auto; background: none !important; box-shadow: none; color: var(--c-gold) !important; font-size: 1rem; opacity: 0; transition: opacity .2s; }
+  .cs-grid .cs-opt .cs-mark:empty::before { content: '✦'; }
+  .cs-grid .cs-opt:hover .cs-mark { opacity: .35; }
+  .cs-grid .cs-opt.on .cs-mark { opacity: 1; }
+  .cs-grid .cs-opt.on { background: none !important; box-shadow: none; border-bottom-color: var(--c-gold); }
+  .cs-grid .cs-l { font-size: 1.34rem; transition: color .2s, translate .25s; }
+  .cs-grid .cs-opt:hover .cs-l { translate: 5px 0; color: #fbf3dd; }
+  .cs-grid .cs-opt.on .cs-l { color: var(--c-gold); }
+  .cs-grid .cs-s { font-size: .78rem; }
+  .cs-chips { gap: 8px; }
+  .cs-chips .cs-opt { grid-template-columns: auto; padding: 9px 18px; background: none !important; box-shadow: inset 0 0 0 1px rgba(246, 240, 226, .26); }
+  .cs-chips .cs-opt .cs-mark { display: none; }
+  .cs-chips .cs-opt:hover { box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .8); background: none !important; }
+  .cs-chips .cs-opt.on { background: var(--c-gold) !important; box-shadow: none; }
+  .cs-chips .cs-opt.on .cs-l { color: #120d24; }
+  /* buttons: a gold line and an arrow, filling only when you reach for them */
+  .cs-go, .cs-begin { position: relative; overflow: visible; align-self: flex-start; gap: 14px; min-height: 52px; margin-top: 30px; padding: 0 8px 0 26px; border-radius: 999px; animation: none; background: none !important; color: #f7dc97 !important; box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .85);
+    font-family: var(--c-sans) !important; font-style: normal; font-size: .78rem !important; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; transition: background .3s, color .3s, box-shadow .3s; }
+  .cs-go::after, .cs-begin::after { content: '→'; position: static; inset: auto; translate: none; animation: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--c-gold); color: #120d24; font-size: 1rem; letter-spacing: 0; transition: translate .3s, background .3s; }
+  .cs-begin .cs-arrow { display: none; }
+  .cs-begin .cs-star { animation: none; font-size: .8rem; }
+  .cs-go:hover, .cs-begin:hover { transform: none; filter: none; background: var(--c-gold) !important; color: #120d24 !important; box-shadow: 0 14px 40px -14px rgba(240, 195, 90, .9); }
+  .cs-go:hover::after, .cs-begin:hover::after { background: #120d24; color: var(--c-gold); translate: 3px 0; }
+  .cs-go:disabled { color: var(--c-ink3) !important; box-shadow: inset 0 0 0 1px rgba(246, 240, 226, .18); background: none !important; }
+  .cs-go:disabled::after { background: rgba(246, 240, 226, .14); color: var(--c-ink3); }
+  .cs-begin { min-height: 58px; font-size: .84rem !important; }
+  .cs-add { background: none !important; box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .7); color: #f7dc97 !important; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
+  .cs-add:hover, .cs-add.done { background: var(--c-gold) !important; color: #120d24 !important; }
+  .cs-see { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
+  .cs-pick { border-radius: 12px; background: rgba(255, 255, 255, .035); box-shadow: inset 0 0 0 1px rgba(246, 240, 226, .14); }
+  .cs-for span { color: var(--c-gold2); box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .4); }
+  .cs-step { color: var(--c-gold2); }
+}
