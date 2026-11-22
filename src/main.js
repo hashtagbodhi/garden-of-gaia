@@ -13,13 +13,33 @@ import catalog from './catalog.json';
 import sprites from './sprites.json';
 import cuts from './cuts.json';
 import reviewData from './reviews.json';
-import icPlant from '@phosphor-icons/core/assets/thin/plant-thin.svg?raw';
-import icCup from '@phosphor-icons/core/assets/thin/coffee-thin.svg?raw';
-import icLotus from '@phosphor-icons/core/assets/thin/flower-lotus-thin.svg?raw';
-import icLeaf from '@phosphor-icons/core/assets/thin/leaf-thin.svg?raw';
-import icPackage from '@phosphor-icons/core/assets/thin/package-thin.svg?raw';
-import icFlower from '@phosphor-icons/core/assets/thin/flower-tulip-thin.svg?raw';
-const ICON = { plant: icPlant, cup: icCup, lotus: icLotus, leaf: icLeaf, package: icPackage, flower: icFlower };
+import ti_apple from './icons/apple.svg?raw';
+import ti_bottle from './icons/bottle.svg?raw';
+import ti_bowl from './icons/bowl.svg?raw';
+import ti_candle from './icons/candle.svg?raw';
+import ti_cherry from './icons/cherry.svg?raw';
+import ti_clover from './icons/clover.svg?raw';
+import ti_cup from './icons/cup.svg?raw';
+import ti_droplet from './icons/droplet.svg?raw';
+import ti_flame from './icons/flame.svg?raw';
+import ti_flower from './icons/flower.svg?raw';
+import ti_grain from './icons/grain.svg?raw';
+import ti_leaf from './icons/leaf.svg?raw';
+import ti_leaf_2 from './icons/leaf-2.svg?raw';
+import ti_lemon from './icons/lemon.svg?raw';
+import ti_lemon_2 from './icons/lemon-2.svg?raw';
+import ti_mushroom from './icons/mushroom.svg?raw';
+import ti_nut from './icons/nut.svg?raw';
+import ti_pepper from './icons/pepper.svg?raw';
+import ti_plant_2 from './icons/plant-2.svg?raw';
+import ti_salt from './icons/salt.svg?raw';
+import ti_seedling from './icons/seedling.svg?raw';
+import ti_tree from './icons/tree.svg?raw';
+import ti_trees from './icons/trees.svg?raw';
+import ti_wheat from './icons/wheat.svg?raw';
+import ingredientData from './ingredients.json';
+const TI = { 'apple': ti_apple, 'bottle': ti_bottle, 'bowl': ti_bowl, 'candle': ti_candle, 'cherry': ti_cherry, 'clover': ti_clover, 'cup': ti_cup, 'droplet': ti_droplet, 'flame': ti_flame, 'flower': ti_flower, 'grain': ti_grain, 'leaf': ti_leaf, 'leaf-2': ti_leaf_2, 'lemon': ti_lemon, 'lemon-2': ti_lemon_2, 'mushroom': ti_mushroom, 'nut': ti_nut, 'pepper': ti_pepper, 'plant-2': ti_plant_2, 'salt': ti_salt, 'seedling': ti_seedling, 'tree': ti_tree, 'trees': ti_trees, 'wheat': ti_wheat };
+const ICON = { plant: TI['plant-2'], cup: TI.cup, lotus: TI.flower, leaf: TI.leaf, package: TI.bottle, flower: TI.flower };
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY } from './content.js';
 
 const $ = (s) => document.querySelector(s);
@@ -630,6 +650,21 @@ function extras(p) {
   out.push(faq);
   return out;
 }
+const PLANTS = ingredientData.plants;
+const plantsOf = (p) => (ingredientData.products[p.handle] || []).map((k) => ({ k, ...PLANTS[k] }));
+const plantNames = (p, n = 3) => { const l = plantsOf(p).map((x) => x.n); return l.length ? (l.length > n ? `${l.slice(0, n).join(', ')} & more` : l.join(', ')) : ''; };
+function icon(name) { const i = el('span', { className: 'ti', ariaHidden: 'true' }); i.innerHTML = TI[name] || TI.leaf; return i; }
+function insideBlock(p) {
+  const list = plantsOf(p);
+  if (!list.length) return null;
+  const sec = el('section', { className: 'inside', id: 'detail-inside' },
+    el('p', { className: 'label', textContent: list.length === 1 ? 'The plant' : `${list.length} plants inside` }),
+    el('h3', { className: 'h-serif', textContent: list.length === 1 ? 'What it is' : 'What’s inside' }));
+  const ul = el('ul');
+  for (const x of list) ul.append(el('li', {}, icon(x.ic), el('div', {}, el('p', { className: 'in-n' }, x.n, ...(x.b ? [el('em', { textContent: x.b })] : [])), el('p', { className: 'in-d', textContent: x.note }))));
+  sec.append(ul);
+  return sec;
+}
 function block(b) {
   if (b.k === 'dt') return el('p', { className: 'dt' }, el('b', { textContent: b.term }), el('span', { textContent: b.t }));
   if (b.k === 'note' && b.t.includes('•')) return el('ul', { className: 'tags' }, ...b.t.split('•').map((x) => x.trim()).filter(Boolean).map((x) => el('li', { textContent: x })));
@@ -665,6 +700,10 @@ function select(it, quiet) {
   const vs = $('#detail-variants'); vs.replaceChildren(); vs.hidden = p.variants.length < 2;
   chosen = p.variants.find((v) => v.available) || p.variants[0];
   p.variants.forEach((v) => { const b = el('button', { textContent: v.title || 'One size', disabled: !v.available }); b.setAttribute('role', 'radio'); b.dataset.id = v.id; b.onclick = () => { chosen = v; syncDetail(); }; vs.append(b); });
+  const line = $('#detail-plants'), pl = plantsOf(p); line.replaceChildren(); line.hidden = !pl.length;
+  pl.slice(0, 6).forEach((x) => { const b = el('button', { type: 'button' }, icon(x.ic), x.n); b.onclick = () => $('#detail-inside')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); line.append(b); });
+  if (pl.length > 6) line.append(el('span', { className: 'more', textContent: `+${pl.length - 6} more` }));
+  const ins = insideBlock(p); $('#detail-inside-slot').replaceChildren(...(ins ? [ins] : []));
   $('#detail-desc').replaceChildren(...prose(p));
   $('#detail-extras').replaceChildren(...extras(p));
   const own = reviewsFor(p.handle), rate = $('#detail-rating'); rate.hidden = !own.length;
@@ -706,7 +745,7 @@ function openInfo(i) {
 let indexFilter = 'all';
 const allItems = STATIONS.flatMap((x) => x.items);
 function indexRow(it) {
-  const b = el('button', {}, el('img', { src: thumbUrl(it.p), alt: '', loading: 'lazy' }), el('span', {}, el('span', { className: 'n', textContent: it.p.name }), el('span', { className: 's', textContent: it.p.sub })), el('span', { className: 'p', textContent: priceLabel(it.p) }));
+  const b = el('button', {}, el('img', { src: thumbUrl(it.p), alt: '', loading: 'lazy' }), el('span', {}, el('span', { className: 'n', textContent: it.p.name }), el('span', { className: 's', textContent: plantNames(it.p, 4) || it.p.sub })), el('span', { className: 'p', textContent: priceLabel(it.p) }));
   b.onclick = () => { go(it.station.id); select(it); };
   return b;
 }
@@ -763,11 +802,11 @@ function syncFocus() {
   if (lastFocus && entered) audio.play('flutter', 0.14, 1.3);
   lastFocus = it;
   $('#focus-count').textContent = `${s.label} · ${it.index + 1} of ${s.items.length}`;
-  $('#focus-name').textContent = it.p.name; $('#focus-price').textContent = [priceLabel(it.p), it.p.sub].filter(Boolean).join(' · ');
+  $('#focus-name').textContent = it.p.name; $('#focus-price').textContent = [priceLabel(it.p), plantNames(it.p) || it.p.sub].filter(Boolean).join(' · ');
 }
 function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
-  labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: priceLabel(it.p) })); box.append(d); return { it, el: d }; });
+  labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: [priceLabel(it.p), plantNames(it.p, 2)].filter(Boolean).join(' · ') })); box.append(d); return { it, el: d }; });
 }
 function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
