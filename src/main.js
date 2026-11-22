@@ -480,9 +480,11 @@ const audio = {
       const wake = () => { if (this.ctx.state !== 'running') this.ctx.resume?.(); };
       ['touchend', 'pointerup', 'keydown'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
       document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
-      this.master = this.ctx.createGain(); this.master.gain.value = on ? 1 : 0; this.master.connect(this.ctx.destination);
+      this.level = coarse ? 0.6 : 1;
+      this.master = this.ctx.createGain(); this.master.gain.value = on ? this.level : 0;
+      if (coarse) { const soft = this.ctx.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 5200; soft.Q.value = 0.5; this.master.connect(soft).connect(this.ctx.destination); } else this.master.connect(this.ctx.destination);
       await Promise.all(['score', 'ambience', 'chime', 'whoosh', 'clink', 'flutter'].map(async (n) => { const r = await fetch(A(`assets/audio/${n}.mp3`)); this.buf[n] = await this.ctx.decodeAudioData(await r.arrayBuffer()); }));
-      this.loop('ambience', 0.5); this.loop('ambience', 0.3, 0.84, 4); this.loop('score', 0.34);
+      this.loop('ambience', coarse ? 0.2 : 0.5); this.loop('ambience', coarse ? 0.12 : 0.3, 0.84, 4); this.loop('score', 0.34);
       this.layers(); this.place(current?.id);
     } catch (e) { /* the garden still works in silence */ }
   },
@@ -508,8 +510,8 @@ const audio = {
     every('tea', 5000, 11000, () => sample(L.tea, 'clink', 0.12, 0.8 + Math.random() * 0.4));
     every('roots', 1600, 4800, () => { const f = bells[(Math.random() * bells.length) | 0]; blip(L.roots, f, f * 0.999, 2.6, 0.028); blip(L.roots, f * 2.01, f * 2, 1.4, 0.007); });
   },
-  place(id) { this.cur = id; if (!this.L) return; const t = this.ctx.currentTime; for (const [k, g] of Object.entries(this.L)) { g.gain.cancelScheduledValues(t); g.gain.setTargetAtTime(k === id ? 1 : 0, t, 0.7); } },
-  set(on) { this.on = on; if (this.master) this.master.gain.linearRampToValueAtTime(on ? 1 : 0, this.ctx.currentTime + 0.4); if (this.ctx?.state === 'suspended') this.ctx.resume(); },
+  place(id) { this.cur = id; if (!this.L) return; const t = this.ctx.currentTime; for (const [k, g] of Object.entries(this.L)) { g.gain.cancelScheduledValues(t); g.gain.setTargetAtTime(k === id ? (coarse ? 0.45 : 1) : 0, t, 0.7); } },
+  set(on) { this.on = on; if (this.master) this.master.gain.linearRampToValueAtTime(on ? this.level : 0, this.ctx.currentTime + 0.4); if (this.ctx?.state === 'suspended') this.ctx.resume(); },
 };
 
 /* ---------- basket ---------- */
