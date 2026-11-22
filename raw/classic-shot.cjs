@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const p = await b.newPage({ viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 900 }, deviceScaleFactor: mobile ? 2 : 1 });
   const errs = []; p.on('pageerror', (e) => errs.push(String(e))); p.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
   await p.goto('http://127.0.0.1:' + (process.argv[3] || '4173') + '/classic.html'); await p.waitForFunction('window.__ready', null, { timeout: 30000 }); await p.waitForTimeout(600);
-  const t = mobile ? 'm' : 'd'; const full = async (n) => { await p.waitForTimeout(700); await p.screenshot({ path: `raw/c-${t}-${n}.jpg`, type: 'jpeg', quality: 72, fullPage: true }); };
+  const t = mobile ? 'm' : 'd'; const full = async (n) => { await p.waitForTimeout(300); await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 600) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 140)); } scrollTo(0, 0); }); await p.waitForTimeout(1500); await p.screenshot({ path: `raw/c-${t}-${n}.jpg`, type: 'jpeg', quality: 72, fullPage: true }); };
   await p.screenshot({ path: `raw/c-${t}-age.jpg`, type: 'jpeg', quality: 72 });
   await p.click('#age-yes');
   await full('home');
