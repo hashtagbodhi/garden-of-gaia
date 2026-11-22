@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures</title>
+<meta name="description" content="Small-batch herbal teas, tinctures and ritual tools, hand harvested from regenerative family farms in Sri Lanka. Shop farm-direct.">
+<meta name="theme-color" content="#0d1326">
+</head>
+<body class="classic">
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Age check, shared with the garden -->
+<div id="age" class="age" role="dialog" aria-modal="true" aria-labelledby="age-title" hidden>
+  <div class="age-in">
+    <img src="./assets/img/logo.webp" alt="" class="age-logo">
+    <h2 id="age-title">Welcome to the garden</h2>
+    <p>You must be 21 or older to enter. Please confirm your age.</p>
+    <div class="age-row"><button id="age-yes" class="btn btn-main">I am 21 or older</button><button id="age-no" class="alt-link">I am under 21</button></div>
+    <p id="age-denied" class="age-denied" hidden>Sorry, you must be 21 or older to enter. Please come back when you’re of age.</p>
+  </div>
+</div>
+
+<div class="ticker" aria-label="Current offer"><div class="ticker-track" id="ticker"></div></div>
+
+<header class="head" id="head">
+  <div class="head-in">
+    <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <a class="logo" href="#home" aria-label="The Garden of Gaia Apothecary, home"><img src="./assets/img/logo.webp" alt="Garden of Gaia Apothecary" width="150" height="100"></a>
+    <nav class="nav" id="nav" aria-label="Shop">
+      <a href="#shop">Shop all</a>
+      <a href="#shop-tea">Teas</a>
+      <a href="#shop-potions">Potions</a>
+      <a href="#shop-pond">Pantry</a>
+      <a href="#shop-altar">Ritual</a>
+      <a href="#plants">Plants</a>
+      <a href="#gifts">Gifts</a>
+      <a href="#story">Our story</a>
+    </nav>
+    <div class="head-tools">
+      <a class="view-toggle" id="to-garden" href="./" title="Switch to the interactive 3D garden"><span class="vt-dot" aria-hidden="true"></span><span class="vt-a">Classic</span><span class="vt-b">Enter the garden</span></a>
+      <button class="basket-btn" id="basket-open" aria-haspopup="dialog">Basket <span id="basket-count">0</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1"></main>
+
+<footer class="foot" id="foot"></footer>
+
+<aside id="basket" class="drawer" role="dialog" aria-modal="true" aria-labelledby="basket-title" hidden>
+  <div class="drawer-in">
+    <div class="drawer-head"><h2 id="basket-title">Your basket</h2><button class="x" id="basket-close" aria-label="Close basket">&times;</button></div>
+    <div id="basket-ship" class="ship"></div>
+    <ul id="basket-items" class="lines"></ul>
+    <p id="basket-empty" class="empty">Your basket is empty. Every flower, root and spice here comes straight from family farms in Sri Lanka.</p>
+    <div id="basket-foot" class="drawer-foot">
+      <p class="subtotal"><span>Subtotal</span><strong id="basket-total">$0.00</strong></p>
+      <a id="basket-checkout" class="btn btn-main wide" href="#" target="_blank" rel="noopener">Check out</a>
+      <p class="fine">Checkout opens on our secure Shopify store. Shipping and taxes are calculated there.</p>
+    </div>
+  </div>
+</aside>
+<div id="scrim" class="scrim" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="./src/classic.js"></script>
+</body>
+</html>

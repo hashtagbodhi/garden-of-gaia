@@ -938,9 +938,12 @@ $('#sound-toggle').onclick = (e) => { const on = !audio.on; audio.set(on); e.cur
 $('#info-body').addEventListener('click', (e) => { if (e.target.closest('a[href^="#"]')) closeOverlays(true); });
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+try { localStorage.setItem('gaia-view', '"garden"'); } catch (e) { /* private mode */ }
+document.querySelectorAll('.to-classic, .to-classic-m').forEach((x) => x.addEventListener('click', () => { try { localStorage.setItem('gaia-view', '"classic"'); } catch (e) { /* private mode */ } }));
 $('#enter-no').onclick = () => { $('#entry-ask').hidden = true; $('#entry-denied').hidden = false; };
 $('#enter-yes').onclick = () => {
   const withSound = $('#entry-sound').checked;
+  try { localStorage.setItem('gaia-21', 'true'); } catch (e) { /* private mode */ }
   audio.start(withSound);
   $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle').textContent = withSound ? 'Sound on' : 'Sound off';
   $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 1000);

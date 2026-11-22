@@ -21,7 +21,7 @@ def grade(im):
     out_im[..., :3] = (np.clip(rgb, 0, 1) * 255).astype(np.uint8)
     return out_im
 
-os.makedirs('public/assets/cut', exist_ok=True); os.makedirs('public/assets/thumb', exist_ok=True)
+os.makedirs('public/assets/cut', exist_ok=True); os.makedirs('public/assets/thumb', exist_ok=True); os.makedirs('public/assets/card', exist_ok=True)
 for f in sorted(os.listdir('raw/cut3')):
     h = f[:-4]
     im = np.array(Image.open('raw/cut3/' + f).convert('RGBA'))
@@ -40,11 +40,12 @@ for f in sorted(os.listdir('raw/cut3')):
     plain = Image.fromarray(im[y0:y1 + 1, x0:x1 + 1])          # ungraded, for bright list thumbnails
     th = ImageEnhance.Color(ImageEnhance.Brightness(plain).enhance(1.08)).enhance(1.06); th.thumbnail((240, 240), Image.LANCZOS)
     th.save(f'public/assets/thumb/{h}.webp', quality=88)
+    cd = ImageEnhance.Color(ImageEnhance.Brightness(plain).enhance(1.05)).enhance(1.05); cd.thumbnail((640, 640), Image.LANCZOS); cd.save(f'public/assets/card/{h}.webp', quality=84)   # classic site product cards
     crop = Image.fromarray(grade(im[y0:y1 + 1, x0:x1 + 1]))
     crop.thumbnail((1200, 1200), Image.LANCZOS)
     crop.save(f'public/assets/cut/{h}.webp', quality=88, method=5)
     out[h] = {'w': crop.width, 'h': crop.height}
 for h, src in [('garden-of-gaia-gift-cards', 'raw/obj-card.png'), ('free-guide-creating-your-own-divine-pantry', 'raw/obj-book.png')]:
-    im = Image.open(src).convert('RGBA'); im.thumbnail((900, 900), Image.LANCZOS); im.save(f'public/assets/cut/{h}.webp', quality=90); out[h] = {'w': im.width, 'h': im.height}; t2 = im.copy(); t2.thumbnail((240, 240), Image.LANCZOS); t2.save(f'public/assets/thumb/{h}.webp', quality=90)
+    im = Image.open(src).convert('RGBA'); im.thumbnail((900, 900), Image.LANCZOS); im.save(f'public/assets/cut/{h}.webp', quality=90); out[h] = {'w': im.width, 'h': im.height}; t2 = im.copy(); t2.thumbnail((240, 240), Image.LANCZOS); t2.save(f'public/assets/thumb/{h}.webp', quality=90); t3 = im.copy(); t3.thumbnail((640, 640), Image.LANCZOS); t3.save(f'public/assets/card/{h}.webp', quality=88)
 json.dump(out, open('src/cuts.json', 'w'))
 print(len(out))

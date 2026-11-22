@@ -1,0 +1,15 @@
+const { chromium } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const p = await b.newPage({ viewport: { width: 1440, height: 900 } }); const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
+  const base = 'http://127.0.0.1:4174/';
+  await p.goto(base + 'classic.html'); await p.waitForFunction('window.__ready'); await p.click('#age-yes');
+  await p.evaluate(() => { location.hash = '#p--blue-water-lily-flowers-organic-whole-flower'; }); await p.waitForTimeout(500); await p.click('.pp-row .btn-main');
+  const c1 = await p.textContent('#basket-count');
+  await p.click('#to-garden'); await p.waitForFunction('window.__ready', null, { timeout: 60000 });
+  const u1 = p.url(); await p.click('#enter-yes'); await p.waitForTimeout(1500);
+  const c2 = await p.textContent('#basket-count');
+  await p.click('#to-classic'); await p.waitForFunction('window.__ready', null, { timeout: 30000 }); const u2 = p.url();
+  const ageShown = await p.isVisible('#age');
+  await p.goto(base); await p.waitForTimeout(1500); const u3 = p.url();
+  console.log({ basketInClassic: c1, gardenUrl: u1, basketInGarden: c2, backToClassic: u2, ageAskedAgain: ageShown, rootRemembersClassic: u3, errs });
+  await b.close(); })();

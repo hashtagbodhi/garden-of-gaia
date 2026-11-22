@@ -617,3 +617,6 @@ body.home .places { display: none; }
   .place[data-home] #place-actions .alt-link { display: inline-flex; }
   body.home .place { bottom: calc(var(--pad) + 10px + env(safe-area-inset-bottom, 0px)); }
 }
+
+.to-classic { color: var(--glow); }
+@media (max-width: 820px) { .to-classic { display: none; } }
