@@ -4,7 +4,7 @@ export const EMAIL = 'thegardenofgaiaapothecary@gmail.com';
 export const INSTAGRAM = 'https://instagram.com/thegardenofgaiaapothecary';
 export const FREE_SHIPPING_AT = 65;
 // Current promotion on the live store. Clear both strings when it ends.
-export const SALE = { line: '20% off everything through November 26, applied at checkout. Free U.S. shipping over $65.', note: '20% off is applied at checkout.' };
+export const SALE = { pct: 20, line: '20% off everything through November 26, applied at checkout. Free U.S. shipping over $65.', note: '20% off is applied at checkout.' };
 export const RECIPROCITY = { h: 'Farm direct, rooted in reciprocity', t: 'We source in direct trade with multigenerational regenerative farmers in Sri Lanka, partnering with agricultural projects that restore the earth while we harvest. Our bodies, our farming partners, the plants, the land we harvest from and the planet are all one garden to nourish with respect & reciprocity.' };
 export const FAQ = [
   ['Where do your herbs come from?', 'Our herbs, flowers and spices come directly from regenerative family farms in Sri Lanka that use multigenerational growing practices and Ayurvedic knowledge.'],
@@ -20,27 +20,27 @@ export const STATIONS = [
     cam: [0, 3.8, 47], look: [0, 4.6, 20], witch: [0, 0, 31.2],
   },
   {
-    id: 'tea', label: 'Loose leaf blends', dOff: 3.2, name: 'Tea meadow', icon: 'teatable',
+    id: 'tea', says: 'Steep slow. Stay rooted.', label: 'Loose leaf blends', dOff: 3.2, name: 'Tea meadow', icon: 'teatable',
     pos: [-17, 0, 6], face: [0.45, 0, 0.893], prop: 'teatable', propH: 5.2, beside: true, camH: 3.6, lookH: 3.1, side: -1,
     line: 'Loose leaf blends, mixed by hand in small batches. Steep one or two teaspoons in just-boiled water for five to seven minutes.',
   },
   {
-    id: 'potions', label: 'Potions of Peace', dOff: 4.6, name: 'Potion cart', icon: 'cart',
+    id: 'potions', says: 'Every potion here is made in-house, in small batches.', label: 'Potions of Peace', dOff: 4.6, name: 'Potion cart', icon: 'cart',
     pos: [17, 0, 6], face: [-0.45, 0, 0.893], prop: 'cart', propH: 8.4, camH: 3.8, lookH: 3.5, side: -1,
     line: 'Potions of Peace: tinctures, sprays and whipped tallow that call on Gaia’s medicine, curated in-house over full moon cycles.',
   },
   {
-    id: 'pond', label: 'The Divine Pantry', dOff: 0, name: 'Lotus pond', icon: 'pond',
+    id: 'pond', says: 'These flowers are picked by hand from our family lakes.', label: 'The Divine Pantry', dOff: 0, name: 'Lotus pond', icon: 'pond',
     pos: [-16, 0, -19], face: [0.3, 0, 0.954], prop: 'pond', propH: 19, flat: true, ring: true, camH: 5.2, side: -1,
     line: 'The Divine Pantry: sacred flowers, herbs and leaves, hand harvested from our family lakes and farms in Sri Lanka.',
   },
   {
-    id: 'altar', label: 'Smoke and ritual tools', dOff: 3.2, name: 'Smoke altar', icon: 'altar',
+    id: 'altar', says: 'Light something, slow down, clear the air.', label: 'Smoke and ritual tools', dOff: 3.2, name: 'Smoke altar', icon: 'altar',
     pos: [16, 0, -19], face: [-0.3, 0, 0.954], prop: 'altar', propH: 5.6, beside: true, camH: 3.6, lookH: 3.1, side: -1,
     line: 'Sage, smudges, palo santo, high quality resins and cacao butter candles, for clearing the air and slowing down.',
   },
   {
-    id: 'roots', label: 'Our roots', dOff: 7, minDist: 13, lookY: 4.4, name: 'The roots', icon: 'banyan',
+    id: 'roots', says: 'Earth is always here to nourish you.', label: 'Our roots', dOff: 7, minDist: 13, lookY: 4.4, name: 'The roots', icon: 'banyan',
     pos: [0, 0, -36], face: [0, 0, 1], prop: 'banyan', propH: 24, camH: 4.2, lookH: 4.4, side: -1, ringOut: 9,
     line: 'Sit under the banyan a while. This is where we keep our story, how to brew, wholesale and the Elixir Bar.',
   },

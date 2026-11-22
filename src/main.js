@@ -27,7 +27,8 @@ const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.crea
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
 const money = (n) => (n % 1 ? `$${n.toFixed(2)}` : `$${n}`);
-const priceLabel = (p) => (p.variants[0].price !== p.variants.at(-1).price ? `From ${money(p.variants[0].price)}` : p.variants[0].price === 0 ? 'Free' : money(p.variants[0].price));
+const now = (n) => +(n * (1 - (SALE.pct || 0) / 100)).toFixed(2);   // what the buyer pays today
+const priceLabel = (p) => (p.variants[0].price !== p.variants.at(-1).price ? `From ${money(now(p.variants[0].price))}` : p.variants[0].price === 0 ? 'Free' : money(now(p.variants[0].price)));
 const A = (p) => import.meta.env.BASE_URL + p.replace(/^\//, '');
 const cutUrl = (p) => A(`assets/cut/${p.handle}.webp`);
 const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
@@ -63,8 +64,10 @@ addEventListener('resize', resize);
 /* ---------- loading ---------- */
 const loader = new THREE.TextureLoader();
 const tex = {};
+let loaded = 0; const toLoad = Object.keys(sprites).length + 2;
+const tick = () => { loaded++; const b = $('#enter-yes'); if (b.disabled) b.textContent = `Gathering the garden… ${Math.min(99, Math.round((loaded / toLoad) * 100))}%`; };
 const loadTex = (name, url = A(`assets/img/${name}.webp`)) => new Promise((res) => {
-  loader.load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); tex[name] = t; res(t); }, undefined, () => res(null));
+  loader.load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); tex[name] = t; tick(); res(t); }, undefined, () => { tick(); res(null); });
 });
 
 let seed = 20261122;
@@ -76,7 +79,9 @@ const PED_TOP = [0.45, 1.85, 3.25];   // each row clears the one in front, like 
 for (const s of STATIONS) { s.p = V(s.pos); s.f = V(s.face).normalize(); s.r = new THREE.Vector3(s.f.z, 0, -s.f.x); s.items = []; }
 for (const p of catalog) {
   const c = cuts[p.handle] || { w: 400, h: 400 };
-  const k = Math.min(2.05 / c.w, 2.45 / c.h);
+  const t = `${p.handle} ${p.name}`.toLowerCase();
+  const cls = /tin|resin-incense|frankincense|candle|cacao/.test(t) ? 0.72 : /smudge|palo|tea-bags|gift-card/.test(t) ? 0.8 : /tincture|oil|spray|syrup|elixir/.test(t) && !/bundle/.test(t) ? 0.84 : /balm|sticky-chai/.test(t) && !/bundle|collection/.test(t) ? 0.78 : /bundle|collection|trinity|moringa-moringa/.test(t) ? 1.08 : 1;   // rough real-world size, so a tin is not as tall as a tea bag
+  const k = Math.min(2.05 / c.w, 2.45 / c.h) * cls;
   byId[p.station].items.push({ p, w: c.w * k, h: c.h * k, jx: rr(-0.22, 0.22), jz: rr(-0.25, 0.25), ph: rnd() * 6.28, hover: 0, pos: new THREE.Vector3() });
 }
 for (const s of STATIONS) s.items.forEach((it, i) => { it.station = s; it.index = i; });
@@ -103,7 +108,7 @@ function layout(s) {
   s.camPos = s.D.clone().addScaledVector(s.f, 2.4 + d).setY(s.camH ?? 3.4 + rows * 0.75);
   // keep headroom above Sarah (she stands 5.9 tall) so her face never slides under the header
   s.camLook = s.D.clone().addScaledVector(s.f, 0.4).setY(portrait ? 0.6 + rows * 0.3 : Math.max(s.lookY ?? 0, 2.3 + rows * 0.45));
-  s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 1.9)).addScaledVector(s.f, 0.6);
+  s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 1.3)).addScaledVector(s.f, 0.6);
   if (s.beside) { const w = s.propH * sprites[s.prop].w / sprites[s.prop].h; s.propPos = s.D.clone().addScaledVector(s.r, half + w / 2 + 0.2).addScaledVector(s.f, -0.6); }
   if (built) placeItems(s);
 }
@@ -155,32 +160,34 @@ function closeUp(it) {
 /* ---------- world ---------- */
 const uniforms = { time: { value: 0 }, camRight: { value: new THREE.Vector3(1, 0, 0) }, fogColor: { value: FOG }, fogNear: { value: 26 }, fogFar: { value: 135 } };
 
+const dimAt = (x, z) => { let d = 1e9; for (const s of STATIONS) { const c = s.D || s.p; d = Math.min(d, Math.hypot(x - c.x, z - c.z)); } return THREE.MathUtils.smoothstep(d, 10, 30); };
 function billboardField(map, list) {
   const g = new THREE.InstancedBufferGeometry();
   const base = new THREE.PlaneGeometry(1, 1);
   g.index = base.index; g.attributes.position = base.attributes.position; g.attributes.uv = base.attributes.uv;
-  const iPos = new Float32Array(list.length * 3), iScale = new Float32Array(list.length * 2), iPhase = new Float32Array(list.length);
-  list.forEach((o, i) => { iPos.set([o.x, 0, o.z], i * 3); iScale.set([o.w, o.h], i * 2); iPhase[i] = o.phase; grounded.push({ x: o.x, z: o.z, r: Math.min(o.w, 7) * 0.55, sq: 0.55 }); if (o.glow) pools.push({ x: o.x, z: o.z, r: Math.min(o.w, 6) * 1.25 }); });
+  const iPos = new Float32Array(list.length * 3), iScale = new Float32Array(list.length * 2), iPhase = new Float32Array(list.length), iDim = new Float32Array(list.length);
+  list.forEach((o, i) => { iPos.set([o.x, 0, o.z], i * 3); iScale.set([o.w, o.h], i * 2); iPhase[i] = o.phase; iDim[i] = dimAt(o.x, o.z); grounded.push({ x: o.x, z: o.z, r: Math.min(o.w, 7) * 0.55, sq: 0.55 }); if (o.glow) pools.push({ x: o.x, z: o.z, r: Math.min(o.w, 6) * 1.25 }); });
   g.setAttribute('iPos', new THREE.InstancedBufferAttribute(iPos, 3));
   g.setAttribute('iScale', new THREE.InstancedBufferAttribute(iScale, 2));
   g.setAttribute('iPhase', new THREE.InstancedBufferAttribute(iPhase, 1));
+  g.setAttribute('iDim', new THREE.InstancedBufferAttribute(iDim, 1));
   g.instanceCount = list.length;
   const m = new THREE.ShaderMaterial({
     uniforms: { ...uniforms, map: { value: map } },
     vertexShader: `
-      attribute vec3 iPos; attribute vec2 iScale; attribute float iPhase;
-      uniform vec3 camRight; uniform float time; varying vec2 vUv; varying float vDepth; varying float vPulse;
+      attribute vec3 iPos; attribute vec2 iScale; attribute float iPhase; attribute float iDim;
+      uniform vec3 camRight; uniform float time; varying vec2 vUv; varying float vDepth; varying float vPulse; varying float vDim;
       void main(){
         float y = position.y + 0.5;
         vec3 p = iPos + camRight * (position.x * iScale.x) + vec3(0.,1.,0.) * (y * iScale.y);
         p += camRight * sin(time * 1.1 + iPhase) * 0.05 * iScale.y * y * y;
         vec4 mv = viewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv; vUv = uv; vDepth = -mv.z;
-        vPulse = 0.9 + 0.22 * sin(time * 0.8 + iPhase * 3.0);
+        vPulse = 0.9 + 0.22 * sin(time * 0.8 + iPhase * 3.0); vDim = iDim;
       }`,
     fragmentShader: `
       uniform sampler2D map; uniform vec3 fogColor; uniform float fogNear; uniform float fogFar;
-      varying vec2 vUv; varying float vDepth; varying float vPulse;
+      varying vec2 vUv; varying float vDepth; varying float vPulse; varying float vDim;
       void main(){
         vec4 c = texture2D(map, vUv);
         if (vDepth < 3.4) discard;   // nothing looms blurred against the lens
@@ -188,6 +195,7 @@ function billboardField(map, list) {
         if (edge < 0.02) discard;
         float lum = max(c.r, max(c.g, c.b));
         c.rgb *= mix(1.0, vPulse, smoothstep(0.45, 0.9, lum));
+        c.rgb *= mix(vec3(1.0), vec3(0.4, 0.5, 0.66), vDim * (1.0 - 0.55 * smoothstep(0.6, 0.95, lum)));   // away from the displays the garden goes quiet and blue
         c.rgb = mix(c.rgb, fogColor, smoothstep(fogNear, fogFar, vDepth));
         gl_FragColor = vec4(c.rgb, edge);
         #include <colorspace_fragment>
@@ -217,7 +225,7 @@ function placeItems(s) {
     const type = it.pedType, sp = sprites['ped' + type], ph = it.top * 1.1, pw = Math.min(2.1, ph * sp.w / sp.h);
     it.ped.material.map = tex['ped' + type]; it.ped.scale.set(pw, ph, 1);
     it.ped.position.copy(it.pos).setY(ph / 2 - 0.02).addScaledVector(s.f, -0.06);
-    it.shadow.position.copy(it.pos).setY(0.04); it.shadow.scale.set(3.4, 1, 2.2);
+    it.shadow.position.copy(it.pos).setY(0.04); it.shadow.position.x += 0.5; it.shadow.position.z += 0.3; it.shadow.scale.set(3.4, 1, 2.2);
     it.halo.position.copy(it.pos).addScaledVector(s.f, -0.25); it.halo.scale.set(it.w * 2.1, it.h * 1.7, 1);
   }
   if (s.mesh && !s.flat) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
@@ -270,6 +278,7 @@ function buildWorld() {
       if (!s.items.length) continue;
       if (s.ring && Math.hypot(x - s.p.x, z - s.p.z) < s.propH / 2 + 5) return false;
       const lx = (x - s.D.x) * s.r.x + (z - s.D.z) * s.r.z, lz = (x - s.D.x) * s.f.x + (z - s.D.z) * s.f.z;
+      if (!s.lined && lx < -s.half * 0.15 && lx > -(s.half + 11) && lz > 3.4 && lz < 17) return false;   // calm ground where the title sits
       if (Math.abs(lx - s.mid) < s.half + 2.2 && lz > (s.lined ? -6.5 : -4) && lz < 34) return false;   // nothing grows between the visitor and the display
     }
     for (const [a, b] of corridors) if (segDist(x, z, a, b) < lane) return false;
@@ -308,6 +317,8 @@ function buildWorld() {
   for (const st of STATIONS) if (!st.flat) { const c = st.propPos || st.p; grounded.push({ x: c.x, z: c.z, r: st.propH * 0.5, sq: 0.4 }); }
   groundDiscs(grounded, 0x000308, 0.62, false);
   groundDiscs(pools, 0x58e0c8, 0.2, true);
+  // warm lantern light where the products stand, against the cool moonlit garden
+  groundDiscs(STATIONS.filter((x) => x.items.length).map((x) => { const c = x.D.clone().addScaledVector(x.r, x.mid || 0); return { x: c.x, z: c.z, r: x.half + 3.5, sq: 0.7 }; }), 0xffa24a, 0.22, true);
   atmosphere();
   // lilies and lotus standing in the pond
   const pond = byId.pond, lilies = { 0: [], 4: [], 8: [] };
@@ -359,7 +370,7 @@ function groundDiscs(list, color, opacity, additive) {
   if (!list.length) return;
   const m = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: softPuff(), color, opacity, transparent: true, depthWrite: false, fog: true, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending }), list.length);
   const o = new THREE.Object3D();
-  list.forEach((d, i) => { o.position.set(d.x, additive ? 0.05 : 0.035, d.z); o.scale.set(d.r * 2, 1, d.r * 2 * (d.sq ?? 1)); o.updateMatrix(); m.setMatrixAt(i, o.matrix); });
+  list.forEach((d, i) => { o.position.set(d.x + (additive ? 0 : d.r * 0.32), additive ? 0.05 : 0.035, d.z + (additive ? 0 : d.r * 0.2)); o.scale.set(d.r * 2, 1, d.r * 2 * (d.sq ?? 1)); o.updateMatrix(); m.setMatrixAt(i, o.matrix); });
   m.frustumCulled = false; m.renderOrder = additive ? 2 : 1; scene.add(m); return m;
 }
 const grounded = [], pools = [];
@@ -415,11 +426,26 @@ const mood = { near: 26, far: 135 };
 function setMood(close) {
   gsap.to(mood, { near: close ? 8 : 26, far: close ? 34 : 135, duration: reduce ? 0 : 1.4, ease: 'power2.inOut', onUpdate() { scene.fog.near = uniforms.fogNear.value = mood.near; scene.fog.far = uniforms.fogFar.value = mood.far; } });
 }
+const POSE = { gate: 'witch', tea: 'witch-sip', potions: 'witch-present', pond: 'witch-sip', altar: 'witch-present', roots: 'witch' };
+let witchHidden = false, flash;
+const witchOff = { v: 0 };
+function witchAt(s, out) { return out.copy(s.witchPos).addScaledVector(s.r, witchOff.v); }
+function setPose(s) {
+  const n = tex[POSE[s.id]] ? POSE[s.id] : 'witch', sp = sprites[n], base = sprites.witch;
+  witch.material.map = tex[n];
+  witch.scale.x = (sp.w / sp.h) / (base.w / base.h);
+  witchOff.v = (5.9 * (sp.w / sp.h - base.w / base.h)) / 2;   // keep her body where it was when the arm reaches out
+}
+function puffAt(pos) {
+  if (!flash) { flash = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0xc8f58a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); scene.add(flash); }
+  flash.position.set(pos.x, 3, pos.z); flash.scale.set(2, 4, 1); flash.material.opacity = 0.75;
+  gsap.to(flash.scale, { x: 7, y: 10, duration: 0.8, ease: 'power2.out' }); gsap.to(flash.material, { opacity: 0, duration: 0.8, ease: 'power1.in' });
+}
 function moveWitch(s, instant) {
-  const y = Math.atan2(s.f.x, s.f.z);
-  if (instant || reduce) { witch.position.set(s.witchPos.x, 2.8, s.witchPos.z); witch.rotation.y = y; return; }
-  gsap.to(witch.position, { x: s.witchPos.x, z: s.witchPos.z, duration: 2.6, ease: 'power2.inOut' });
-  gsap.to(witch.rotation, { y, duration: 2.6 });
+  const place = () => { setPose(s); const w = witchAt(s, new THREE.Vector3()); witch.position.set(w.x, 2.8, w.z); witch.rotation.y = Math.atan2(s.f.x, s.f.z); };
+  if (instant || reduce) { place(); return; }
+  puffAt(witch.position); witchHidden = true;
+  gsap.delayedCall(1.15, () => { place(); witchHidden = false; puffAt(witch.position); });
 }
 
 /* ---------- audio ---------- */
@@ -431,11 +457,33 @@ const audio = {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       this.master = this.ctx.createGain(); this.master.gain.value = on ? 1 : 0; this.master.connect(this.ctx.destination);
       await Promise.all(['score', 'ambience', 'chime', 'whoosh', 'clink', 'flutter'].map(async (n) => { const r = await fetch(A(`assets/audio/${n}.mp3`)); this.buf[n] = await this.ctx.decodeAudioData(await r.arrayBuffer()); }));
-      this.loop('ambience', 0.5); this.loop('score', 0.34);
+      this.loop('ambience', 0.5); this.loop('ambience', 0.3, 0.84, 4); this.loop('score', 0.34);
+      this.layers(); this.place(current?.id);
     } catch (e) { /* the garden still works in silence */ }
   },
-  loop(n, vol) { const s = this.ctx.createBufferSource(); s.buffer = this.buf[n]; s.loop = true; const g = this.ctx.createGain(); g.gain.value = 0; g.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 3); s.connect(g).connect(this.master); s.start(); },
+  loop(n, vol, rate = 1, offset = 0) { const s = this.ctx.createBufferSource(); s.buffer = this.buf[n]; s.loop = true; s.playbackRate.value = rate; const g = this.ctx.createGain(); g.gain.value = 0; g.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 3); s.connect(g).connect(this.master); s.start(0, offset); },
   play(n, vol = 0.5, rate = 1) { if (!this.ctx || !this.buf[n]) return; const s = this.ctx.createBufferSource(); s.buffer = this.buf[n]; s.playbackRate.value = rate; const g = this.ctx.createGain(); g.gain.value = vol; s.connect(g).connect(this.master); s.start(); },
+  layers() {
+    const c = this.ctx, mk = () => { const g = c.createGain(); g.gain.value = 0; g.connect(this.master); return g; };
+    const noise = c.createBuffer(1, c.sampleRate * 2, c.sampleRate), d = noise.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const bed = (out, type, f, q, vol) => { const n = c.createBufferSource(), b = c.createBiquadFilter(), g = c.createGain(); n.buffer = noise; n.loop = true; b.type = type; b.frequency.value = f; b.Q.value = q; g.gain.value = vol; n.connect(b).connect(g).connect(out); n.start(); return b; };
+    const L = (this.L = { pond: mk(), altar: mk(), roots: mk(), tea: mk(), potions: mk() });
+    const water = bed(L.pond, 'bandpass', 1100, 0.9, 0.1), lfo = c.createOscillator(), lg = c.createGain();   // moving water
+    lfo.frequency.value = 0.31; lg.gain.value = 520; lfo.connect(lg).connect(water.frequency); lfo.start(); bed(L.pond, 'highpass', 4200, 0.5, 0.011);
+    bed(L.altar, 'lowpass', 320, 0.7, 0.15); bed(L.tea, 'lowpass', 520, 0.6, 0.06);                            // ember bed, kettle simmer
+    const blip = (out, f0, f1, dur, vol) => { const t = c.currentTime, o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g).connect(out); o.start(t); o.stop(t + dur + 0.02); };
+    const crack = (out) => { const t = c.currentTime, n = c.createBufferSource(), b = c.createBiquadFilter(), g = c.createGain(); n.buffer = noise; b.type = 'bandpass'; b.frequency.value = 1800 + Math.random() * 3200; b.Q.value = 2; g.gain.setValueAtTime(0.05 + Math.random() * 0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03 + Math.random() * 0.05); n.connect(b).connect(g).connect(out); n.start(t, Math.random()); n.stop(t + 0.1); };
+    const sample = (out, n, vol, rate) => { const b = c.createBufferSource(), g = c.createGain(); b.buffer = this.buf[n]; b.playbackRate.value = rate; g.gain.value = vol; b.connect(g).connect(out); b.start(); };
+    const bells = [1318.5, 1568, 1760, 1975.5, 2349.3];
+    const every = (key, min, max, fn) => { const run = () => { if (this.on && this.cur === key && document.visibilityState === 'visible') fn(); setTimeout(run, min + Math.random() * (max - min)); }; setTimeout(run, max); };
+    every('altar', 70, 420, () => crack(L.altar));
+    every('potions', 350, 1500, () => blip(L.potions, 380 + Math.random() * 300, 900 + Math.random() * 500, 0.09, 0.035));
+    every('potions', 6000, 13000, () => sample(L.potions, 'clink', 0.1, 1.1 + Math.random() * 0.5));
+    every('tea', 5000, 11000, () => sample(L.tea, 'clink', 0.12, 0.8 + Math.random() * 0.4));
+    every('roots', 1600, 4800, () => { const f = bells[(Math.random() * bells.length) | 0]; blip(L.roots, f, f * 0.999, 2.6, 0.028); blip(L.roots, f * 2.01, f * 2, 1.4, 0.007); });
+  },
+  place(id) { this.cur = id; if (!this.L) return; const t = this.ctx.currentTime; for (const [k, g] of Object.entries(this.L)) { g.gain.cancelScheduledValues(t); g.gain.setTargetAtTime(k === id ? 1 : 0, t, 0.7); } },
   set(on) { this.on = on; if (this.master) this.master.gain.linearRampToValueAtTime(on ? 1 : 0, this.ctx.currentTime + 0.4); if (this.ctx?.state === 'suspended') this.ctx.resume(); },
 };
 
@@ -456,12 +504,12 @@ function renderBasket() {
   const ul = $('#basket-items'); ul.replaceChildren();
   let total = 0, count = 0;
   for (const l of basket) {
-    const { p, v } = variantIndex.get(l.id); total += v.price * l.qty; count += l.qty;
+    const { p, v } = variantIndex.get(l.id); total += now(v.price) * l.qty; count += l.qty;
     const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` });
     minus.onclick = () => { l.qty--; if (l.qty < 1) basket = basket.filter((x) => x !== l); saveBasket(); };
     plus.onclick = () => { l.qty++; saveBasket(); };
     ul.append(el('li', {}, el('img', { src: cutUrl(p), alt: '' }),
-      el('div', {}, el('div', { className: 'n', textContent: p.name }), el('div', { className: 'v', textContent: [v.title, money(v.price)].filter(Boolean).join(' · ') })),
+      el('div', {}, el('div', { className: 'n', textContent: p.name }), el('div', { className: 'v', textContent: [v.title, money(now(v.price))].filter(Boolean).join(' · ') })),
       el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus)));
   }
   $('#basket-count').textContent = count;
@@ -562,10 +610,10 @@ function select(it, quiet) {
 }
 function syncDetail() {
   $('#qty-val').textContent = qty;
-  $('#detail-price').textContent = chosen.price === 0 ? 'Free' : `$${(chosen.price * qty).toFixed(2)}`;
+  $('#detail-price').replaceChildren(chosen.price === 0 ? 'Free' : `$${(now(chosen.price) * qty).toFixed(2)}`, ...(SALE.pct && chosen.price ? [el('s', { textContent: `$${(chosen.price * qty).toFixed(2)}` }), el('em', { textContent: `${SALE.pct}% off` })] : []));
   $('#detail-variants').querySelectorAll('button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.id === String(chosen.id))));
   const add = $('#detail-add'); add.disabled = !chosen.available; add.textContent = chosen.available ? 'Add to basket' : 'Sold out';
-  const total = basket.reduce((a, l) => a + variantIndex.get(l.id).v.price * l.qty, 0), left = FREE_SHIPPING_AT - total - chosen.price * qty;
+  const total = basket.reduce((a, l) => a + now(variantIndex.get(l.id).v.price) * l.qty, 0), left = FREE_SHIPPING_AT - total - now(chosen.price) * qty;
   $('#detail-ship').textContent = [SALE.note, left > 0 ? `Adding this leaves you ${money(+left.toFixed(2))} away from free U.S. shipping.` : 'With this in your basket, U.S. shipping is free.'].filter(Boolean).join(' ');
 }
 function closeOverlays(keep) {
@@ -651,6 +699,8 @@ function go(id, instant) {
   place.toggleAttribute('data-home', home);
   $('#place-label').replaceChildren(...(home ? ['Organic herbal teas,', el('br'), 'tinctures and ritual tools'] : [s.label]));
   $('#place-title').textContent = home ? 'Reconnecting you with your roots' : s.name;
+  $('#place-says').hidden = home || !s.says; $('#place-says-text').textContent = s.says ? `“${s.says}”` : '';
+  audio.place(s.id);
   $('#place-line').textContent = home ? 'Loose leaf, whole flower, farm-direct. Grown slow, harvested by hand, sent straight to your cup.' : s.line;
   const menu = $('#place-menu'); menu.hidden = s.id !== 'roots'; menu.replaceChildren();
   if (s.id === 'roots') [...INFO, WORDS].forEach((i) => { const b = el('button', { textContent: i.title }); b.onclick = () => openInfo(i); menu.append(el('li', {}, b)); });
@@ -754,7 +804,7 @@ $('#index-open').onclick = () => openIndex();
 $('#basket-open').onclick = () => { renderBasket(); $('#basket').hidden = false; $('#basket-close').focus({ preventScroll: true }); };
 $('#qty-minus').onclick = () => { qty = Math.max(1, qty - 1); syncDetail(); };
 $('#qty-plus').onclick = () => { qty++; syncDetail(); };
-$('#detail-add').onclick = () => { addToBasket(chosen.id, qty); $('#detail-added').hidden = false; $('#detail-added-text').textContent = `${qty} × ${selected.p.name} added.`; };
+$('#detail-add').onclick = () => { selected.hop = 1; addToBasket(chosen.id, qty); $('#detail-added').hidden = false; $('#detail-added-text').textContent = `${qty} × ${selected.p.name} added.`; };
 $('#detail-view-basket').onclick = () => $('#basket-open').click();
 $('#detail-rating').onclick = () => $('#detail-reviews')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
 $('#sale-line').textContent = SALE.line; $('#menu-sale').textContent = SALE.line;
@@ -775,15 +825,15 @@ $('#enter-yes').onclick = () => {
 
 /* ---------- frame ---------- */
 const $index = $('#index'), $menu = $('#menu'); let acc = 0, frames = 0;
-const clock = new THREE.Clock(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), white = new THREE.Color(0xdcdcdc), rest = new THREE.Color(0xaab4be), dim = new THREE.Color(0x3c4650), goal = new THREE.Color();
+const clock = new THREE.Clock(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), white = new THREE.Color(0xf2f2f2), rest = new THREE.Color(0xdfe2e4), dim = new THREE.Color(0x3c4650), goal = new THREE.Color();
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime, k = reduce ? 0 : 1;
   uniforms.time.value = t;
   if (current?.lined && current.items.length) {
     const s = current; s.pan += (s.panTarget - s.pan) * Math.min(1, dt * 9); panView(s);
-    if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch) { witch.position.x += (s.witchPos.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (s.witchPos.z - witch.position.z) * Math.min(1, dt * 3.5); } }
+    if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
   }
-  if (witch) witch.visible = !(portrait && selected && !paged);
+  if (witch) witch.visible = !witchHidden && !(portrait && selected && !paged);
   camera.position.copy(camPos); camera.lookAt(camLook);
   const amt = selected ? 0.25 : 1;
   parS.lerp(par, 1 - Math.exp(-dt * 2.6));
@@ -801,12 +851,13 @@ function frame() {
   for (const s of STATIONS) for (const it of s.items) {
     const on = it === hoverItem || it === selected;
     it.hover += ((on ? 1 : 0) - it.hover) * Math.min(1, dt * 9);
-    it.mesh.position.y = it.pos.y + it.hover * 0.14 + Math.sin(t * 1.1 + it.ph) * 0.015 * k;
+    if (it.hop > 0) it.hop = Math.max(0, it.hop - dt * 2.2);
+    it.mesh.position.y = it.pos.y + it.hover * 0.14 + Math.sin(t * 1.1 + it.ph) * 0.015 * k + (it.hop > 0 ? Math.sin((1 - it.hop) * Math.PI) * 0.42 * k : 0);
     const sc = 1 + it.hover * 0.07; it.mesh.scale.set(it.w * sc, it.h * sc, 1);
     goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(white, it.hover);
     it.mesh.material.color.lerp(goal, Math.min(1, dt * 6));
     const show = paged || !(selected && it !== selected && it.station === selected.station); it.mesh.visible = show; it.ped.visible = show;
-    it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.42 : 0.14 + it.hover * 0.3) * (0.85 + 0.15 * Math.sin(t * 1.3 + it.ph));
+    it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.42 + (it.hop || 0) * 0.5 : 0.14 + it.hover * 0.3) * (0.85 + 0.15 * Math.sin(t * 1.3 + it.ph));
   }
   // every product in this clearing carries its name
   const showLabels = entered && !selected && !reading && travel.t >= 0.999;
@@ -818,7 +869,7 @@ function frame() {
   }
 
   for (const m of drift) { const u = m.userData; if (u.shaft) m.material.opacity = u.o * (0.6 + 0.4 * Math.sin(t * 0.25 + u.ph)); else m.position.x = u.x + Math.sin(t * 0.05 * u.v + u.ph) * 6; }
-  if (witchShadow) { witchShadow.position.set(witch.position.x, 0.045, witch.position.z); witchShadow.visible = witch.visible; }
+  if (witchShadow) { witchShadow.position.set(witch.position.x + 0.7, 0.045, witch.position.z + 0.4); witchShadow.visible = witch.visible; }
   if (witch) { witch.position.y = 2.8 + Math.sin(t * 1.1) * 0.05 * k; witch.rotation.z = Math.sin(t * 0.8) * 0.012 * k; }
   for (const g of butterflies) {
     const u = g.userData, tt = t * u.s + u.ph;
