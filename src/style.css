@@ -632,3 +632,23 @@ body.home .places { display: none; }
 
 /* no pinch or double-tap zoom on phones; scrolling still works */
 html, body { touch-action: pan-x pan-y; }
+
+/* the herb grove: a plant's page and the list of every plant */
+.plant-bot { font-style: italic; color: var(--ink-3); margin-top: -6px; }
+.plant-goods { list-style: none; display: grid; gap: 10px; margin: 6px 0 0; padding: 0; }
+.plant-goods li { display: grid; grid-template-columns: 58px 1fr auto; gap: 14px; align-items: center; padding: 10px 12px 10px 8px; border-radius: 16px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px var(--rule); }
+.plant-goods img { width: 58px; height: 66px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .45)); }
+.plant-goods li > div { display: grid; gap: 2px; min-width: 0; }
+.plant-goods strong { font-family: 'Emilys Candy', var(--serif); font-weight: 400; font-size: 1.2rem; line-height: 1.15; }
+.plant-goods span { font-family: var(--sans); font-size: var(--t-small); color: var(--ink-3); }
+.plant-goods .text-link { justify-self: start; font-size: .78rem; color: var(--glow); }
+.pg-add { padding: 8px 14px; border-radius: 999px; background: rgba(185, 246, 85, .14); box-shadow: inset 0 0 0 1px rgba(185, 246, 85, .6); color: var(--glow); font-family: var(--sans); font-size: .78rem; font-weight: 600; white-space: nowrap; }
+.pg-add:hover { background: var(--glow); color: var(--night); }
+.pg-add:disabled { opacity: .5; }
+.plant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pchip { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px; padding: 9px 12px 9px 10px; border-radius: 14px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px var(--rule); text-align: left; font-family: var(--serif); font-size: 1.02rem; color: var(--ink); }
+.pchip .ti { width: 22px; height: 22px; color: var(--glow); }
+.pchip small { font-family: var(--sans); font-size: .72rem; color: var(--glow); }
+.pchip:hover { box-shadow: inset 0 0 0 1px var(--glow); }
+
+.plant-goods li::before, .plant-goods li::after { display: none !important; content: none !important; }

@@ -133,6 +133,41 @@ const STAND = {
   ped0: { surf: 0.2, top: 0.75 }, ped1: { surf: 0.05, top: 0.55 }, ped2: { surf: 0.03, top: 0.5 },
   'stand-mshort': { surf: 0.1, top: 0.9 }, 'stand-mtall': { surf: 0.05, top: 0.95 }, 'stand-mound': { surf: 0.18, top: 0.75 }, 'stand-slice': { surf: 0.15, top: 0.9 },
 };
+/* The herb grove: every plant we work with, as a glowing seed orb on a lit stalk. */
+const GPLANTS = ingredientData.plants, GCOUNT = {};
+for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
+const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
+const GSTEP = 2.3, groveOrbs = [];
+function groveLayout(s) {
+  const n = GKEYS.length; s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait;
+  if (portrait) {
+    // phones: one row to swipe along, like the products
+    GKEYS.forEach((k, i) => { (s.gPos ||= {})[k] = s.D.clone().addScaledVector(s.r, i * GSTEP).setY(2.1 + Math.sin(i * 1.7) * 0.25); });
+    s.gPan = Math.min(s.gPan ?? 0, (n - 1) * GSTEP); s.gTarget = s.gPan ?? 0; groveView(s);
+  } else {
+    const per = 11, rows = Math.ceil(n / per), sp = 2.45;
+    GKEYS.forEach((k, i) => {
+      const row = Math.floor(i / per), m = Math.min(per, n - row * per), j = i % per;
+      const x = (j - (m - 1) / 2) * sp + (row % 2 ? sp * 0.3 : 0), z = -row * 2.4 - x * x * 0.01;
+      (s.gPos ||= {})[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(1.6 + row * 1.32);
+    });
+    const half = ((per - 1) / 2) * sp + 1.4, fit = (half + 2.2) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
+    s.half = half;
+    s.camPos = s.D.clone().addScaledVector(s.f, 2.5 + fit).setY(4.4 + rows * 0.5);
+    s.camLook = s.D.clone().addScaledVector(s.f, -rows * 0.9).setY(2.6 + rows * 0.42);
+    s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 1.4)).addScaledVector(s.f, 1.2);
+    s.propPos = s.D.clone().addScaledVector(s.f, -rows * 2.4 - 3.5);
+  }
+  if (built) placeGrove(s);
+}
+function groveView(s) {
+  const base = s.D.clone().addScaledVector(s.r, s.gPan);
+  s.camPos = base.clone().addScaledVector(s.f, 8.2).setY(3.2);
+  s.camLook = base.clone().setY(2.3);
+  s.witchPos = base.clone().addScaledVector(s.r, 1.9).addScaledVector(s.f, -2.4);
+  s.propPos = s.D.clone().addScaledVector(s.r, ((GKEYS.length - 1) * GSTEP) / 2).addScaledVector(s.f, -6);
+}
+const groveFocus = (s) => GKEYS[THREE.MathUtils.clamp(Math.round(s.gTarget / GSTEP), 0, GKEYS.length - 1)];
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -153,6 +188,7 @@ byId[p.station].items.push({ p, kind, w: c.w * k, h: c.h * k, jx: rr(-0.22, 0.22
 for (const s of STATIONS) s.items.forEach((it, i) => { it.station = s; it.index = i; });
 
 function layout(s) {
+  if (s.id === 'grove') return groveLayout(s);
   const n = s.items.length;
   if (!n) { s.camPos = V(s.cam); s.camLook = V(s.look); s.witchPos = V(s.witch); return; }
   const per = portrait ? Math.min(3, n) : n <= 5 ? n : Math.ceil(n / (n > 10 ? 3 : 2));
@@ -313,6 +349,55 @@ function placeItems(s) {
   if (s.mesh && !s.flat) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
 }
 
+function orbTexture(k) {
+  const pl = GPLANTS[k], c = el('canvas', { width: 256, height: 320 }), x = c.getContext('2d');
+  const draw = (img) => {
+    x.clearRect(0, 0, 256, 320);
+    const g = x.createRadialGradient(128, 120, 10, 128, 120, 120); g.addColorStop(0, 'rgba(185,246,85,.38)'); g.addColorStop(1, 'rgba(185,246,85,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 256, 250);
+    const o = x.createRadialGradient(108, 92, 6, 128, 120, 80); o.addColorStop(0, '#2c5a3c'); o.addColorStop(0.7, '#0c2118'); o.addColorStop(1, '#06120c');
+    x.beginPath(); x.arc(128, 120, 78, 0, Math.PI * 2); x.fillStyle = o; x.fill();
+    x.lineWidth = 3; x.strokeStyle = 'rgba(185,246,85,.85)'; x.shadowColor = '#b9f655'; x.shadowBlur = 18; x.stroke(); x.shadowBlur = 0;
+    x.beginPath(); x.ellipse(100, 82, 26, 12, -0.6, 0, Math.PI * 2); x.fillStyle = 'rgba(255,255,255,.16)'; x.fill();
+    if (img) x.drawImage(img, 128 - 44, 120 - 44, 88, 88);
+    x.textAlign = 'center'; x.fillStyle = '#f4efe3'; x.shadowColor = 'rgba(0,0,0,.9)'; x.shadowBlur = 8;
+    let fs = 34; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > 246 && fs > 18) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
+    x.fillText(pl.n, 128, 248);
+    x.font = '600 19px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
+    x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, 128, 280); x.shadowBlur = 0;
+    t.needsUpdate = true;
+  };
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  draw(null);
+  const svg = (TI[pl.ic] || TI.leaf).replace(/currentColor/g, '#b9f655').replace(/stroke-width="[^"]*"/, 'stroke-width="1.5"');
+  const img = new Image(); img.onload = () => { document.fonts.ready.then(() => draw(img)); }; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  return t;
+}
+function buildGrove(s) {
+  const stalkTex = softTex((x) => { const g = x.createLinearGradient(0, 0, 0, 256); g.addColorStop(0, 'rgba(185,246,85,.9)'); g.addColorStop(1, 'rgba(185,246,85,0)'); x.fillStyle = g; x.fillRect(118, 0, 20, 256); });
+  for (const k of GKEYS) {
+    const size = 1.25 + Math.min(GCOUNT[k], 9) * 0.045;
+    const mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: orbTexture(k), transparent: true, depthWrite: false, fog: true }));
+    mesh.scale.set(size, size * 1.25, 1); mesh.userData.plant = k; mesh.renderOrder = 2;
+    const stalk = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: stalkTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
+    const f = (Math.abs(k.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % 16) | 0, sp = sprites['flower' + f];
+    const bloom = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex['flower' + f], alphaTest: 0.5, fog: true, color: 0xc8d0d8 }));
+    bloom.scale.set(0.9 * sp.w / sp.h, 0.9, 1);
+    scene.add(stalk, bloom, mesh); upright.push(mesh, stalk, bloom);
+    groveOrbs.push({ k, mesh, stalk, bloom, size, ph: (f + 1) * 0.7, hover: 0 });
+  }
+  placeGrove(s);
+}
+function placeGrove(s) {
+  for (const o of groveOrbs) {
+    const p = s.gPos[o.k]; if (!p) continue; o.k2 = portrait ? 1 : 1.45;
+    o.base = p; o.mesh.position.copy(p);
+    const top = p.y - o.size * (o.k2 || 1) * 0.55; o.stalk.scale.set(0.5, top, 1); o.stalk.position.copy(p).setY(top / 2);
+    o.bloom.position.copy(p).setY(0.42).addScaledVector(s.f, 0.05);
+  }
+  if (s.mesh) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
+}
+
 function buildWorld() {
   const SR = 190, H = Math.PI * SR * (tex.sky.image.height / tex.sky.image.width);
   tex.sky.wrapS = THREE.RepeatWrapping; tex.sky.generateMipmaps = false; tex.sky.minFilter = THREE.LinearFilter;
@@ -341,6 +426,7 @@ function buildWorld() {
       scene.add(it.ped, it.mesh, it.halo, it.shadow, it.contact); goods.push(it.mesh); upright.push(it.ped, it.mesh, it.contact);
     }
     if (s.items.length) placeItems(s);
+    if (s.id === 'grove') buildGrove(s);
   }
   witch = flat('witch', 5.9, byId.gate.witchPos, byId.gate.f);
   witch.userData.witch = true; props.push(witch);
@@ -510,7 +596,7 @@ const mood = { near: 26, far: 135 };
 function setMood(close) {
   gsap.to(mood, { near: close ? 8 : 26, far: close ? 34 : 135, duration: reduce ? 0 : 1.4, ease: 'power2.inOut', onUpdate() { scene.fog.near = uniforms.fogNear.value = mood.near; scene.fog.far = uniforms.fogFar.value = mood.far; } });
 }
-const POSE = { gate: 'witch', tea: 'witch-sip', potions: 'witch-present', pond: 'witch-sip', altar: 'witch-present', roots: 'witch' };
+const POSE = { gate: 'witch', tea: 'witch-sip', potions: 'witch-present', pond: 'witch-sip', altar: 'witch-present', grove: 'witch-present', roots: 'witch' };
 let witchHidden = false, flash;
 const witchOff = { v: 0 };
 function witchAt(s, out) { return out.copy(s.witchPos).addScaledVector(s.r, witchOff.v); }
@@ -788,6 +874,7 @@ function syncDetail() {
 }
 function closeOverlays(keep) {
   ['#detail', '#info', '#basket', '#index', '#menu', '#lightbox'].forEach((s) => { $(s).hidden = true; });
+  if (!keep && location.hash.startsWith('#grove--')) history.replaceState(null, '', '#grove');
   document.body.classList.remove('reading'); restShift();
   const wasPaged = paged; paged = false; document.body.classList.remove('paged');
   if (selected && current?.lined) hoverItem = focusOf(current);
@@ -797,8 +884,38 @@ const WORDS = { id: 'words', title: 'Kind words', build: () => [el('p', { classN
 function openInfo(i) {
   closeOverlays(true); $('#info').hidden = false; document.body.classList.add('reading');
   paged = narrow.matches; document.body.classList.toggle('paged', paged);   // phones: a full page, like a product
+  $('#info-close').textContent = i.back || 'Back to the roots';
   if (i.build) $('#info-body').replaceChildren(...i.build()); else $('#info-body').innerHTML = i.html; $('#info .column-in').scrollTop = 0; audio.play('flutter', 0.4);
   $('#info-close').focus({ preventScroll: true });
+}
+function plantProducts(k) { return allItems.filter((it) => (ingredientData.products[it.p.handle] || []).includes(k)); }
+function openPlant(k) {
+  const pl = GPLANTS[k]; if (!pl) return;
+  const list = plantProducts(k);
+  openInfo({ id: 'plant', back: 'Back to the grove', build: () => [
+    el('p', { className: 'label', textContent: 'Shop by plant' }),
+    el('h2', { id: 'info-title', textContent: pl.n }),
+    ...(pl.b ? [el('p', { className: 'plant-bot', textContent: pl.b })] : []),
+    el('p', { className: 'lede', textContent: pl.note || '' }),
+    el('p', { className: 'label', textContent: `${list.length} ${list.length === 1 ? 'product' : 'products'} made with ${pl.n.toLowerCase()}` }),
+    el('ul', { className: 'plant-goods' }, ...list.map((it) => {
+      const p = it.p, v = p.variants.find((x) => x.available) || p.variants[0];
+      const see = el('button', { className: 'text-link', textContent: `See it at the ${it.station.name.replace(/^The /, '').toLowerCase()}` });
+      see.onclick = () => { closeOverlays(true); go(it.station.id); select(it); };
+      const add = el('button', { className: 'pg-add', textContent: v.available ? '+ Add' : 'Sold out', disabled: !v.available });
+      add.onclick = () => { addToBasket(v.id, 1); add.textContent = 'Added ✓'; setTimeout(() => { add.textContent = '+ Add'; }, 1600); };
+      return el('li', {}, el('img', { src: thumbUrl(p), alt: '' }), el('div', {}, el('strong', { textContent: p.name }), el('span', { textContent: [priceLabel(p), p.sub].filter(Boolean).join(' · ') }), see), add);
+    })),
+  ] });
+  if (location.hash !== `#grove--${k}`) history.replaceState(null, '', `#grove--${k}`);
+}
+function openPlantList() {
+  openInfo({ id: 'plants', back: 'Back to the grove', build: () => [
+    el('p', { className: 'label', textContent: 'Shop by plant' }),
+    el('h2', { id: 'info-title', textContent: 'Every plant in the grove' }),
+    el('p', { className: 'lede', textContent: `${GKEYS.length} flowers, leaves, roots, spices and resins. Pick one to see everything we make with it.` }),
+    el('div', { className: 'plant-grid' }, ...GKEYS.map((k) => { const b = el('button', { className: 'pchip' }, icon(GPLANTS[k].ic), el('span', { textContent: GPLANTS[k].n }), el('small', { textContent: String(GCOUNT[k]) })); b.onclick = () => openPlant(k); return b; })),
+  ] });
 }
 let indexFilter = 'all';
 const allItems = STATIONS.flatMap((x) => x.items);
@@ -852,6 +969,17 @@ let entered = false;
 let labels = [], lastFocus = null, reading = false;
 new MutationObserver(() => { reading = document.body.classList.contains('reading'); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 function syncFocus() {
+  if (current?.gLined) {
+    $('#focus').hidden = false; document.body.classList.add('lined');
+    const k = groveFocus(current), pl = GPLANTS[k];
+    if (k !== lastFocus && lastFocus && entered) audio.play('flutter', 0.14, 1.3);
+    lastFocus = k;
+    $('#focus-count').textContent = `Shop by plant · ${GKEYS.indexOf(k) + 1} of ${GKEYS.length}`;
+    $('#focus-name').textContent = pl.n; $('#focus-price').textContent = [pl.b, `${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`].filter(Boolean).join(' · ');
+    $('#focus-open').textContent = 'Meet the plant'; $('#focus-list').textContent = 'See all plants as a list';
+    return;
+  }
+  $('#focus-open').textContent = 'View product'; $('#focus-list').textContent = 'See them all as a list';
   const s = current, on = !!(s && s.lined && s.items.length);
   $('#focus').hidden = !on; document.body.classList.toggle('lined', on);
   if (!on) { lastFocus = null; return; }
@@ -866,7 +994,7 @@ function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
   labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: [priceLabel(it.p), plantNames(it.p, 2)].filter(Boolean).join(' · ') })); box.append(d); return { it, el: d }; });
 }
-function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
+function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
@@ -882,6 +1010,7 @@ function go(id, instant) {
   if (s.id === 'roots') [...INFO, WORDS].forEach((i) => { const b = el('button', { textContent: i.title }); b.onclick = () => openInfo(i); menu.append(el('li', {}, b)); });
   const acts = $('#place-actions'); acts.replaceChildren();
   if (home) { acts.append(el('a', { className: 'btn', href: '#tea', textContent: 'Walk into the garden' })); const b = el('a', { className: 'apo-link', href: './classic.html' }, el('span', { className: 'apo-ic', textContent: '✿' }), el('span', { textContent: 'Visit the apothecary' })); b.onclick = () => { try { localStorage.setItem('gaia-view', '"classic"'); } catch (e) { /* private mode */ } }; acts.append(b); }
+  else if (s.id === 'grove') { const b = el('button', { className: 'text-link', textContent: `See all ${GKEYS.length} plants as a list` }); b.onclick = () => openPlantList(); acts.append(b); }
   else if (s.id !== 'roots') { const b = el('button', { className: 'text-link', textContent: `Read all ${s.items.length} as a list` }); b.onclick = () => openIndex(s.id); acts.append(b); }
   document.querySelectorAll('#places-list a').forEach((a) => (a.dataset.id === s.id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
   document.querySelector('#places-list a[aria-current]')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
@@ -895,6 +1024,7 @@ function go(id, instant) {
 function route(instant) {
   const [id, handle] = location.hash.slice(1).split('--');
   closeOverlays(true); go(id || 'gate', instant);
+  if (id === 'grove' && handle && GPLANTS[handle]) { openPlant(handle); return; }
   const it = handle && current.items.find((x) => x.p.handle === handle);
   if (it) select(it, true); else if (!instant) flyTo(current);
 }
@@ -912,8 +1042,9 @@ function opaqueAt(mesh, uv) {
 function pick(e) {
   pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   ray.setFromCamera(pointer, camera);
-  for (const h of ray.intersectObjects([...goods, ...props], false)) {
+  for (const h of ray.intersectObjects([...goods, ...groveOrbs.map((o) => o.mesh), ...props], false)) {
     const u = h.object.userData;
+    if (u.plant) return { plant: u.plant };
     if (!opaqueAt(h.object, h.uv)) continue;
     if (u.item) return { item: u.item };
     if (u.witch) return { witch: true };
@@ -923,6 +1054,11 @@ function pick(e) {
 }
 canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, last: e.clientX }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } });
 canvas.addEventListener('pointermove', (e) => {
+  if (down && entered && current?.gLined && $('#info').hidden) {
+    const perPx = (2 * 8.2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth;
+    current.gTarget = THREE.MathUtils.clamp(current.gTarget - (e.clientX - down.last) * perPx * 1.15, -0.6, (GKEYS.length - 1) * GSTEP + 0.6);
+    down.last = e.clientX; syncFocus(); return;
+  }
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
     const perPx = (2 * 9.4 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth;
@@ -933,22 +1069,25 @@ canvas.addEventListener('pointermove', (e) => {
   if (coarse || !entered) return;
   hoverEvt = { clientX: e.clientX, clientY: e.clientY };   // resolved in the frame loop
 });
-let hoverEvt = null, lastHover = 0;
+let hoverEvt = null, lastHover = 0, hoverPlant = null;
 function resolveHover(now) {
   if (!hoverEvt || now - lastHover < 70 || travel.t < 0.999) return;
   lastHover = now; const hit = pick(hoverEvt); hoverEvt = null; kb = -1;
   if (!current?.lined) hoverItem = hit?.item && hit.item !== selected ? hit.item : null;
+  hoverPlant = hit?.plant || null;
   const cur = hit ? 'pointer' : ''; if (canvas.style.cursor !== cur) canvas.style.cursor = cur;
 }
 canvas.addEventListener('pointerup', (e) => {
   if (!down || !entered) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null;
   if (current?.lined && current.items.length && !selected) { current.panTarget = focusOf(current).index * STEP; syncFocus(); }
+  if (current?.gLined) { current.gTarget = GKEYS.indexOf(groveFocus(current)) * GSTEP; syncFocus(); }
   if (moved > 8) return;
   const hit = pick(e);
   if (!hit) { if (selected) closeOverlays(); return; }
   if (hit.station) { closeOverlays(true); go(hit.station); }
   else if (hit.witch) { closeOverlays(true); go(current.id === 'gate' ? 'tea' : 'potions'); }
   else if (hit.item) { if (hit.item.station !== current) go(hit.item.station.id); select(hit.item); }
+  else if (hit.plant) { if (current.id !== 'grove') go('grove'); openPlant(hit.plant); }
 });
 addEventListener('keydown', (e) => {
   if (!entered) return;
@@ -974,10 +1113,11 @@ $('#lightbox-prev').onclick = () => { lb.i--; showPhoto(); }; $('#lightbox-next'
 $('#detail-close').onclick = () => closeOverlays();
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
 $('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
-$('#focus-open').onclick = () => select(focusOf(current));
-$('#focus-prev').onclick = () => { current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
-$('#focus-next').onclick = () => { current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
-$('#focus-list').onclick = () => openIndex(current.id);
+$('#focus-open').onclick = () => (current.gLined ? openPlant(groveFocus(current)) : select(focusOf(current)));
+const groveStep = (d) => { current.gTarget = THREE.MathUtils.clamp(GKEYS.indexOf(groveFocus(current)) + d, 0, GKEYS.length - 1) * GSTEP; syncFocus(); };
+$('#focus-prev').onclick = () => { if (current.gLined) return groveStep(-1); current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
+$('#focus-next').onclick = () => { if (current.gLined) return groveStep(1); current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
+$('#focus-list').onclick = () => (current.gLined ? openPlantList() : openIndex(current.id));
 $('#info-close').onclick = () => closeOverlays();
 $('#basket-close').onclick = $('#basket-tab').onclick = $('#basket-scrim').onclick = () => { $('#basket').hidden = true; };
 $('#index-close').onclick = () => closeOverlays();
@@ -1019,6 +1159,20 @@ function frame() {
   if (current?.lined && current.items.length) {
     const s = current; s.pan += (s.panTarget - s.pan) * Math.min(1, dt * 9); panView(s);
     if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
+  }
+  if (current?.gLined) {
+    const s = current; s.gPan += (s.gTarget - s.gPan) * Math.min(1, dt * 9); groveView(s);
+    if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
+  }
+  if (groveOrbs.length) {
+    const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null;
+    for (const o of groveOrbs) {
+      if (!o.base) continue;
+      const want = o.k === hoverPlant || o.k === fk ? 1 : 0; o.hover += (want - o.hover) * Math.min(1, dt * 8);
+      const sc = (o.k2 || 1) * (1 + o.hover * 0.16); o.mesh.scale.set(o.size * sc, o.size * 1.25 * sc, 1);
+      o.mesh.position.y = o.base.y + Math.sin(t * 0.9 + o.ph) * 0.09 * k + o.hover * 0.12;
+      o.stalk.material.opacity = 0.35 + o.hover * 0.5 + Math.sin(t * 1.4 + o.ph) * 0.08;
+    }
   }
   if (witch) witch.visible = !witchHidden && !(portrait && selected && !paged);
   camera.position.copy(camPos); camera.lookAt(camLook);
