@@ -62,12 +62,16 @@ function resize() {
 addEventListener('resize', resize);
 
 /* ---------- loading ---------- */
-const loader = new THREE.TextureLoader();
+const small = coarse || Math.min(innerWidth, innerHeight) < 700;   // phones get half-size artwork
+const IMG = small ? 'assets/img-s' : 'assets/img';
+const bitmaps = typeof createImageBitmap === 'function';
+const loader = bitmaps ? new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none' }) : new THREE.TextureLoader();
+const asTex = (img) => { const t = bitmaps ? new THREE.Texture(img) : img; if (bitmaps) { t.flipY = false; t.needsUpdate = true; } t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
 const tex = {};
 let loaded = 0; const toLoad = Object.keys(sprites).length + 2;
 const tick = () => { loaded++; const b = $('#enter-yes'); if (b.disabled) b.textContent = `Gathering the garden… ${Math.min(99, Math.round((loaded / toLoad) * 100))}%`; };
-const loadTex = (name, url = A(`assets/img/${name}.webp`)) => new Promise((res) => {
-  loader.load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); tex[name] = t; tick(); res(t); }, undefined, () => { tick(); res(null); });
+const loadTex = (name, url = A(`${IMG}/${name}.webp`)) => new Promise((res) => {
+  loader.load(url, (img) => { const t = asTex(img); tex[name] = t; tick(); res(t); }, undefined, () => { tick(); res(null); });
 });
 
 let seed = 20261122;
@@ -219,6 +223,18 @@ function flat(name, h, pos, face, opts = {}) {
   else { mesh.position.copy(pos).setY(h / 2 - 0.15); mesh.rotation.y = Math.atan2(face.x, face.z); }
   scene.add(mesh); return mesh;
 }
+const cutQueue = []; let cutBusy = 0;
+function wantCuts(items, front) {
+  for (const it of items) if (!it.loaded && !it.queued) { it.queued = true; front ? cutQueue.unshift(it) : cutQueue.push(it); }
+  pumpCuts();
+}
+function pumpCuts() {
+  while (cutBusy < 4 && cutQueue.length) {
+    const it = cutQueue.shift(); cutBusy++;
+    const done = () => { cutBusy--; pumpCuts(); };
+    loader.load(cutUrl(it.p), (img) => { it.mesh.material.map = asTex(img); it.mesh.material.needsUpdate = true; it.loaded = true; done(); }, undefined, done);
+  }
+}
 function placeItems(s) {
   for (const it of s.items) {
     it.mesh.position.copy(it.pos);
@@ -251,7 +267,7 @@ function buildWorld() {
       it.ped = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex.ped0, alphaTest: 0.5, alphaToCoverage: true, fog: true, color: 0xd0d8e0 }));
       it.mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ alphaTest: 0.4, alphaToCoverage: true, fog: true, color: 0xaab4be }));
       it.mesh.scale.set(it.w, it.h, 1); it.mesh.userData.item = it;
-      loader.load(cutUrl(it.p), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; it.mesh.material.map = t; it.mesh.material.needsUpdate = true; });
+      it.mesh.visible = false; it.loaded = false;
       it.halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0x9fe86a, opacity: 0.2, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
       it.shadow = new THREE.Mesh(shadowGeo, shadowMat); it.shadow.renderOrder = 1;
       scene.add(it.ped, it.mesh, it.halo, it.shadow); goods.push(it.mesh); upright.push(it.ped, it.mesh);
@@ -711,7 +727,7 @@ function go(id, instant) {
   $('#places-count').textContent = `${STATIONS.indexOf(s) + 1} / ${STATIONS.length}`;
   document.title = home ? 'The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures' : `${s.name} | The Garden of Gaia Apothecary`;
   if (!selected) restShift();
-  if (changed) buildLabels(s);
+  if (changed) { buildLabels(s); wantCuts(s.items, true); }
   lastFocus = null; syncFocus();
   if (changed) { travel.t = instant ? 1 : 0; flyTo(s, instant); moveWitch(s, instant); if (entered && !instant) audio.play('whoosh', 0.4); }
 }
@@ -730,7 +746,7 @@ const alphaCache = new Map();
 function opaqueAt(mesh, uv) {
   const img = mesh.material.map?.image; if (!img) return true; let d = alphaCache.get(img);
   if (!d) { const c = el('canvas', { width: 128, height: 128 }), x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, 128, 128); d = x.getImageData(0, 0, 128, 128).data; alphaCache.set(img, d); }
-  return d[(((1 - uv.y) * 127) | 0) * 512 + ((uv.x * 127) | 0) * 4 + 3] > 60;
+  return d[(((bitmaps ? uv.y : 1 - uv.y) * 127) | 0) * 512 + ((uv.x * 127) | 0) * 4 + 3] > 60;
 }
 function pick(e) {
   pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
@@ -825,9 +841,10 @@ $('#enter-yes').onclick = () => {
 
 /* ---------- frame ---------- */
 const $index = $('#index'), $menu = $('#menu'); let acc = 0, frames = 0;
-const clock = new THREE.Clock(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), white = new THREE.Color(0xf2f2f2), rest = new THREE.Color(0xdfe2e4), dim = new THREE.Color(0x3c4650), goal = new THREE.Color();
+const clock = new THREE.Timer(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), white = new THREE.Color(0xf2f2f2), rest = new THREE.Color(0xdfe2e4), dim = new THREE.Color(0x3c4650), goal = new THREE.Color();
 function frame() {
-  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime, k = reduce ? 0 : 1;
+  clock.update();
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.getElapsed(), k = reduce ? 0 : 1;
   uniforms.time.value = t;
   if (current?.lined && current.items.length) {
     const s = current; s.pan += (s.panTarget - s.pan) * Math.min(1, dt * 9); panView(s);
@@ -856,7 +873,7 @@ function frame() {
     const sc = 1 + it.hover * 0.07; it.mesh.scale.set(it.w * sc, it.h * sc, 1);
     goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(white, it.hover);
     it.mesh.material.color.lerp(goal, Math.min(1, dt * 6));
-    const show = paged || !(selected && it !== selected && it.station === selected.station); it.mesh.visible = show; it.ped.visible = show;
+    const show = it.loaded && (paged || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show;
     it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.42 + (it.hop || 0) * 0.5 : 0.14 + it.hover * 0.3) * (0.85 + 0.15 * Math.sin(t * 1.3 + it.ph));
   }
   // every product in this clearing carries its name
@@ -910,5 +927,6 @@ Promise.all(Object.keys(sprites).concat(['sky', 'ground']).map((n) => loadTex(n)
   gsap.to(camPos, { z: 58, duration: 6, ease: 'sine.out' });
   const b = $('#enter-yes'); b.disabled = false; b.textContent = 'I am 21 or older, open the gate';
   requestAnimationFrame(frame);
+  wantCuts(STATIONS.flatMap((x) => x.items), false);   // the rest trickle in behind the garden, four at a time
   window.__ready = true; window.__dbg = { STATIONS, camPos, camLook, get selected() { return selected; } };
 });
