@@ -1174,3 +1174,6 @@ body.nav-open .mb-ic i:nth-child(1) { transform: translateY(5.5px) rotate(45deg)
 }
 .collage { touch-action: pan-y; }
 @media (max-width: 760px) { .ticker { font-size: .66rem; letter-spacing: .01em; } .ticker span { gap: 14px; padding: 6px 0 6px 14px; } }
+
+/* no pinch or double-tap zoom on phones; scrolling still works */
+html, body { touch-action: pan-x pan-y; }

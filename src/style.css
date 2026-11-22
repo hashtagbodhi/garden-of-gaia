@@ -629,3 +629,6 @@ body.home .places { display: none; }
 .apo-link:hover { background: var(--glow); color: var(--night); }
 .apo-ic { font-style: normal; }
 @media (max-width: 820px) { .place[data-home] #place-actions .apo-link { display: inline-flex; } }
+
+/* no pinch or double-tap zoom on phones; scrolling still works */
+html, body { touch-action: pan-x pan-y; }

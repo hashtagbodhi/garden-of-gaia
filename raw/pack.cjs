@@ -16,7 +16,7 @@ for (const f of fs.readdirSync('dist/assets')) {
 const g = fs.readFileSync('dist/index.html', 'utf8');
 const head = g.split('<head>')[1].split('</head>')[0];
 const tags = (head.match(/<(script|link)[^>]*(src|href)="\.\/assets\/[^"]+"[^>]*>(<\/script>)?/g) || []).join('\n');
-const inline = (head.match(/<script>[\s\S]*?<\/script>/) || [''])[0];
+const inline = (head.match(/<script>[\s\S]*?<\/script>/g) || []).join('\n');
 const body = g.split(/<body[^>]*>/)[1].split('</body>')[0];
 fs.writeFileSync(`${out}/index.html`, `<title>Garden of Gaia Apothecary</title>\n${inline}\n${FONTS}\n${tags}\n${body}`);
 // the classic site: a second, complete page

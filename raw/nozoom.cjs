@@ -1,0 +1,17 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch(); const ctx = await b.newContext({ ...devices['iPhone 13'] }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-basket', '[]'); });
+  await p.goto('http://127.0.0.1:4175/classic.html'); await p.waitForFunction('window.__ready'); await p.waitForTimeout(600);
+  const cdp = await ctx.newCDPSession(p);
+  const pinch = async () => { await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 180, y: 400, id: 1 }, { x: 210, y: 400, id: 2 }] });
+    for (let i = 1; i <= 8; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 180 - i * 15, y: 400, id: 1 }, { x: 210 + i * 15, y: 400, id: 2 }] });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await p.waitForTimeout(500); };
+  await pinch(); console.log('scale after pinch:', await p.evaluate(() => visualViewport.scale));
+  await p.evaluate(() => scrollTo(0, 0)); await cdp.send('Input.synthesizeScrollGesture', { x: 200, y: 600, yDistance: -500, speed: 1200 }); await p.waitForTimeout(400);
+  console.log('scrolled to:', await p.evaluate(() => Math.round(scrollY)));
+  await p.evaluate(() => { location.hash = '#p--butterfly-chai-organic-whole-spice-blend-ceylon-black-tea'; }); await p.waitForTimeout(500);
+  await p.tap('.pp-row .btn-main'); await p.tap('#basket-open'); await p.waitForTimeout(800);
+  await p.tap('.tc .q button[aria-label^="One more"]'); await p.waitForTimeout(80); await p.tap('.tc .q button[aria-label^="One more"]'); await p.waitForTimeout(400);
+  console.log('qty after two quick taps:', await p.textContent('.tc .q span'));
+  await p.goto('http://127.0.0.1:4175/#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); await pinch(); console.log('garden scale after pinch:', await p.evaluate(() => visualViewport.scale));
+  console.log('errors', errs); await b.close(); })();
