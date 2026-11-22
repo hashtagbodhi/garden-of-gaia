@@ -32,6 +32,7 @@ const cardRange = (p) => { const v = p.variants.map((x) => parseFloat(x.title.re
 const priceLabel = (p) => (p.handle === CARD ? cardRange(p) : p.variants[0].price !== p.variants.at(-1).price ? `From ${money(now(p.variants[0].price, p))}` : p.variants[0].price === 0 ? 'Free' : money(now(p.variants[0].price, p)));
 const A = (p) => import.meta.env.BASE_URL + p.replace(/^\//, '');
 const cutUrl = (p) => A(`assets/cut/${p.handle}.webp`);
+const thumbUrl = (p) => A(`assets/thumb/${p.handle}.webp`);   // bright, ungraded, for lists
 const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
 const byId = Object.fromEntries(STATIONS.map((s) => [s.id, s]));
 
@@ -535,7 +536,7 @@ function renderBasket() {
     const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` });
     minus.onclick = () => { l.qty--; if (l.qty < 1) basket = basket.filter((x) => x !== l); saveBasket(); };
     plus.onclick = () => { l.qty++; saveBasket(); };
-    ul.append(el('li', {}, el('img', { src: cutUrl(p), alt: '' }),
+    ul.append(el('li', {}, el('img', { src: thumbUrl(p), alt: '' }),
       el('div', {}, el('div', { className: 'n', textContent: p.name }), el('div', { className: 'v', textContent: [v.title, money(now(v.price, p))].filter(Boolean).join(' · ') })),
       el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus)));
   }
@@ -659,7 +660,7 @@ function openInfo(i) {
 let indexFilter = 'all';
 const allItems = STATIONS.flatMap((x) => x.items);
 function indexRow(it) {
-  const b = el('button', {}, el('img', { src: cutUrl(it.p), alt: '', loading: 'lazy' }), el('span', {}, el('span', { className: 'n', textContent: it.p.name }), el('span', { className: 's', textContent: it.p.sub })), el('span', { className: 'p', textContent: priceLabel(it.p) }));
+  const b = el('button', {}, el('img', { src: thumbUrl(it.p), alt: '', loading: 'lazy' }), el('span', {}, el('span', { className: 'n', textContent: it.p.name }), el('span', { className: 's', textContent: it.p.sub })), el('span', { className: 'p', textContent: priceLabel(it.p) }));
   b.onclick = () => { go(it.station.id); select(it); };
   return b;
 }
