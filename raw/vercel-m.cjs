@@ -1,0 +1,14 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await b.newContext({ ...devices['iPhone 13'] }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
+  const base = 'https://garden-of-gaia.vercel.app/';
+  await p.goto(base + 'classic.html'); await p.waitForFunction('window.__ready', null, { timeout: 60000 });
+  if (await p.isVisible('#age-yes')) await p.click('#age-yes');
+  await p.waitForTimeout(1500); await p.screenshot({ path: 'raw/_v1.jpg', type: 'jpeg', quality: 75 });
+  await p.evaluate(() => { location.hash = '#p--golden-sticky-chai-haldi-doodh-paste-golden-milk'; }); await p.waitForTimeout(1200); await p.click('.pp-row .btn-main');
+  await p.click('#basket-open'); await p.waitForTimeout(1500); await p.screenshot({ path: 'raw/_v2.jpg', type: 'jpeg', quality: 75 });
+  await p.click('#basket-tab'); await p.evaluate(() => localStorage.setItem('gaia-view', JSON.stringify('garden')));
+  await p.goto(base + '#potions'); await p.waitForFunction('window.__ready', null, { timeout: 90000 });
+  if (await p.isVisible('#enter-yes')) await p.click('#enter-yes');
+  await p.waitForTimeout(9000); await p.screenshot({ path: 'raw/_v3.jpg', type: 'jpeg', quality: 75 });
+  console.log('errors', errs); await b.close(); })();
