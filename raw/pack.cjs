@@ -10,7 +10,7 @@ const copy = (rel) => { fs.mkdirSync(require('path').dirname(`${out}/${rel}`), {
 for (const f of fs.readdirSync('dist/assets')) {
   const rel = `assets/${f}`;
   if (f.endsWith('.js')) copy(rel);
-  else if (f.endsWith('.css')) { fs.mkdirSync(`${out}/assets`, { recursive: true }); fs.writeFileSync(`${out}/${rel}`, fs.readFileSync(`dist/${rel}`, 'utf8').replace(/@font-face\{[^}]*\}/g, '')); files.push(rel); }
+  else if (f.endsWith('.css')) { fs.mkdirSync(`${out}/assets`, { recursive: true }); fs.writeFileSync(`${out}/${rel}`, '@charset "UTF-8";\n' + fs.readFileSync(`dist/${rel}`, 'utf8').replace(/@charset "UTF-8";/, '').replace(/@font-face\{[^}]*\}/g, '')); files.push(rel); }
 }
 // the garden: the artifact page itself, so only its content
 const g = fs.readFileSync('dist/index.html', 'utf8');

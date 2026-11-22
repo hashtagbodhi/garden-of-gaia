@@ -507,7 +507,8 @@ h1 em { font-family: var(--serif); }
 
 /* ---- entry: the logo itself ---- */
 .entry-logo { margin: 0; line-height: 0; }
-.entry-logo img { display: block; width: min(440px, 74vw); height: auto; filter: drop-shadow(0 2px 24px rgba(5, 12, 21, .8)); }
+.entry-logo img { display: block; width: min(330px, 62vw); height: auto; filter: drop-shadow(0 0 18px rgba(185, 246, 85, .45)) drop-shadow(0 0 42px rgba(185, 246, 85, .25)) drop-shadow(0 2px 24px rgba(5, 12, 21, .8)); animation: logo-glow 5s ease-in-out infinite; }
+@keyframes logo-glow { 50% { filter: drop-shadow(0 0 26px rgba(185, 246, 85, .6)) drop-shadow(0 0 60px rgba(185, 246, 85, .32)) drop-shadow(0 2px 24px rgba(5, 12, 21, .8)); } }
 
 /* ---- phones: story pages are full pages too, and the way back never scrolls away ---- */
 .reviews li::before { display: none !important; }
