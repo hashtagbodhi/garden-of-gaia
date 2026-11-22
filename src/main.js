@@ -55,6 +55,7 @@ composer.addPass(bloomPass);
 composer.addPass(new OutputPass());
 
 let portrait = false, built = false;
+function applyQuality() { renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight, false); composer.setSize(innerWidth, innerHeight); }
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); renderer.setSize(w, h, false); composer.setSize(w, h);
@@ -140,7 +141,8 @@ function cabinetLayout(s) {
     it.pos.copy(s.D).addScaledVector(s.r, x).addScaledVector(s.f, 0.4).setY(it.top - 0.09 + it.h / 2);
   });
   s.half = W / 2;
-  s.witchPos = s.D.clone().addScaledVector(s.r, W / 2 + 1.1).addScaledVector(s.f, 1.6);   // beside the cabinet, clear of the title
+  s.witchPos = s.D.clone().addScaledVector(s.r, -(W / 2 - 0.4)).addScaledVector(s.f, 1.9);   // at the near end of the cabinet, where the first product is
+  s.arrive = { camPos: s.witchPos.clone().addScaledVector(s.r, 1.5).addScaledVector(s.f, 9.2).setY(4.1), camLook: s.witchPos.clone().addScaledVector(s.r, 1.5).setY(3.9) };
   if (s.beside) { const w = s.propH * sprites[s.prop].w / sprites[s.prop].h; s.propPos = s.D.clone().addScaledVector(s.r, W / 2 + w / 2 + 2.6).addScaledVector(s.f, -1.2); }
   else s.propPos = null;
   // the whole cabinet, standing in the garden
@@ -779,13 +781,13 @@ function go(id, instant) {
   if (!selected) restShift();
   if (changed) { buildLabels(s); wantCuts(s.items, true); }
   lastFocus = null; syncFocus();
-  if (changed) { travel.t = instant ? 1 : 0; flyTo(s, instant); moveWitch(s, instant); if (entered && !instant) audio.play('whoosh', 0.4); }
+  if (changed) { travel.t = instant ? 1 : 0; const greet = s.lined && s.arrive && !instant && !reduce; flyTo(greet ? s.arrive : s, instant); s.hold = greet ? performance.now() + 4300 : 0; s.push = greet; moveWitch(s, instant); if (entered && !instant) audio.play('whoosh', 0.4); }
 }
 function route(instant) {
   const [id, handle] = location.hash.slice(1).split('--');
   closeOverlays(true); go(id || 'gate', instant);
   const it = handle && current.items.find((x) => x.p.handle === handle);
-  if (it) select(it, true); else if (!instant) flyTo(current);
+  if (it) select(it, true); else if (!instant && !current.hold) flyTo(current);
 }
 addEventListener('hashchange', () => route(false));
 
@@ -810,7 +812,7 @@ function pick(e) {
   }
   return null;
 }
-canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, last: e.clientX }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } });
+canvas.addEventListener('pointerdown', (e) => { if (current?.hold) { current.hold = 0; } down = { x: e.clientX, y: e.clientY, last: e.clientX }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } });
 canvas.addEventListener('pointermove', (e) => {
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
@@ -864,8 +866,8 @@ $('#detail-close').onclick = () => closeOverlays();
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
 $('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
 $('#focus-open').onclick = () => select(focusOf(current));
-$('#focus-prev').onclick = () => { current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
-$('#focus-next').onclick = () => { current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
+$('#focus-prev').onclick = () => { current.hold = 0; current.push = false; current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
+$('#focus-next').onclick = () => { current.hold = 0; current.push = false; current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
 $('#focus-list').onclick = () => openIndex(current.id);
 $('#info-close').onclick = () => closeOverlays();
 $('#basket-close').onclick = () => { $('#basket').hidden = true; };
@@ -904,7 +906,7 @@ function frame() {
   uniforms.time.value = t;
   if (current?.lined && current.items.length) {
     const s = current; s.pan += (s.panTarget - s.pan) * Math.min(1, dt * 9); panView(s);
-    if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
+    if (!selected && travel.t >= 0.999 && performance.now() > (s.hold || 0)) { const rate = s.push ? 1.9 : 10; camPos.lerp(s.camPos, Math.min(1, dt * rate)); camLook.lerp(s.camLook, Math.min(1, dt * rate)); if (s.push && camPos.distanceToSquared(s.camPos) < 0.01) s.push = false;  }
   }
   if (witch) witch.visible = !witchHidden && !(portrait && selected && !paged);
   camera.position.copy(camPos); camera.lookAt(camLook);
@@ -967,7 +969,7 @@ function frame() {
     const fps = frames / acc; acc = 0; frames = 0;
     if (!covered && document.visibilityState === 'visible') {
       if (fps < 42 && bloomPass.enabled) bloomPass.enabled = false;
-      else if (fps < 36 && dpr > dprFloor) { dpr = Math.max(dprFloor, dpr - 0.25); resize(); }
+      else if (fps < 36 && dpr > dprFloor) { dpr = Math.max(dprFloor, dpr - 0.25); applyQuality(); }
     }
   }
   requestAnimationFrame(frame);
