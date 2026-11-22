@@ -164,7 +164,7 @@ function groveView(s) {
   const base = s.D.clone().addScaledVector(s.r, s.gPan);
   s.camPos = base.clone().addScaledVector(s.f, 8.2).setY(3.2);
   s.camLook = base.clone().setY(2.3);
-  s.witchPos = base.clone().addScaledVector(s.r, 1.9).addScaledVector(s.f, -2.4);
+  s.witchPos = s.D.clone().addScaledVector(s.r, -2.1).addScaledVector(s.f, -1.2);
   s.propPos = s.D.clone().addScaledVector(s.r, ((GKEYS.length - 1) * GSTEP) / 2).addScaledVector(s.f, -6);
 }
 const groveFocus = (s) => GKEYS[THREE.MathUtils.clamp(Math.round(s.gTarget / GSTEP), 0, GKEYS.length - 1)];
@@ -233,7 +233,7 @@ function panView(s) {
   const base = s.D.clone().addScaledVector(s.r, s.pan);
   s.camPos = base.clone().addScaledVector(s.f, 9.4).setY(3.3);
   s.camLook = base.clone().setY(2.75);
-  s.witchPos = base.clone().addScaledVector(s.r, 1.75).addScaledVector(s.f, -2.3);
+  s.witchPos = s.D.clone().addScaledVector(s.r, -2.0).addScaledVector(s.f, -1.1);
 }
 const focusOf = (s) => s.items[THREE.MathUtils.clamp(Math.round(s.panTarget / STEP), 0, s.items.length - 1)];
 function ringLayout(s) {
