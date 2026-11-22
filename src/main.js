@@ -1,6 +1,7 @@
 import '@fontsource-variable/eb-garamond';
 import '@fontsource-variable/eb-garamond/wght-italic.css';
 import '@fontsource-variable/instrument-sans';
+import '@fontsource/henny-penny/latin-400.css';
 import './style.css';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';

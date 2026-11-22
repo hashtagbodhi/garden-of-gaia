@@ -6,7 +6,7 @@ const js = html.match(/src="\.\/(assets\/index-[^"]+\.js)"/)[1], cssf = html.mat
 let css = fs.readFileSync('dist/' + cssf, 'utf8').replace(/@font-face\{[^}]*\}/g, '');
 let body = html.split(/<body[^>]*>/)[1].split('</body>')[0].replace(/<script[^>]*src="\.\/assets\/index-[^"]*"[^>]*><\/script>/, '');
 const page = `<title>Garden of Gaia Apothecary</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Instrument+Sans:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Henny+Penny&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Instrument+Sans:wght@400..700&display=swap">
 <style>${css}</style>
 ${body}
 <script type="module" src="./app.js"></script>
