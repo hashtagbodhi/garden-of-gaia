@@ -655,6 +655,7 @@ function closeOverlays(keep) {
 const WORDS = { id: 'words', title: 'Kind words', build: () => [el('p', { className: 'lede', textContent: 'In their words' }), el('h2', { id: 'info-title', textContent: 'Kind words' }), el('p', { className: 'note', textContent: `★★★★★ ${(reviews.reduce((a, r) => a + r.score, 0) / reviews.length).toFixed(1)} out of 5 · ${reviews.length} reviews` }), el('section', { className: 'reviews' }, el('ul', {}, ...reviews.map((r) => reviewEl(r, true))))] };
 function openInfo(i) {
   closeOverlays(true); $('#info').hidden = false; document.body.classList.add('reading');
+  paged = narrow.matches; document.body.classList.toggle('paged', paged);   // phones: a full page, like a product
   if (i.build) $('#info-body').replaceChildren(...i.build()); else $('#info-body').innerHTML = i.html; $('#info .column-in').scrollTop = 0; audio.play('flutter', 0.4);
   $('#info-close').focus({ preventScroll: true });
 }
