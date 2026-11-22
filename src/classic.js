@@ -9,6 +9,7 @@ import catalog from './catalog.json';
 import reviewData from './reviews.json';
 import ingredientData from './ingredients.json';
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY, EMAIL, INSTAGRAM } from './content.js';
+import { openConsult } from './consult.js';
 
 const ICONS = import.meta.glob('./icons/*.svg', { query: '?raw', import: 'default', eager: true });
 const TI = Object.fromEntries(Object.entries(ICONS).map(([k, v]) => [k.replace('./icons/', '').replace('.svg', ''), v]));
@@ -275,7 +276,7 @@ function giftList(k) {
 function faqBlock() {
   return el('section', { className: 'sec faq tone-cream scal' }, el('div', { className: 'faq-grid' },
     el('div', {}, sectionHead('Good to know', 'Questions, answered', null, null, false, 'Ask'), el('div', { className: 'faq-list' }, FAQ.map(([q, a]) => el('details', {}, el('summary', { textContent: q }), el('p', { textContent: a }))))),
-    el('aside', { className: 'faq-art' }, el('img', { className: 'fa-table', src: A('assets/img/teatable.webp'), alt: '', loading: 'lazy' }), el('div', { className: 'fa-card tone-moss' }, el('img', { className: 'fa-face', src: A('assets/img/witch-face.webp'), alt: '' }), el('h3', { textContent: 'Still wondering?' }), el('p', { textContent: 'Write to us and we’ll help you find the right blend.' }), el('p', { className: 'sel', textContent: EMAIL }), el('a', { className: 'btn', href: '#hello', textContent: 'Say hello' })), stamp('ASK THE APOTHECARY ✦ ', 'leaf', 'fa-stamp'))));
+    el('aside', { className: 'faq-art' }, el('img', { className: 'fa-table', src: A('assets/img/teatable.webp'), alt: '', loading: 'lazy' }), el('div', { className: 'fa-card tone-moss' }, el('img', { className: 'fa-face', src: A('assets/img/witch-face.webp'), alt: '' }), el('h3', { textContent: 'Still wondering?' }), el('p', { textContent: 'Answer five questions and Sarah will choose a ritual for you, or write to us.' }), el('button', { className: 'btn', type: 'button', textContent: 'Ask Sarah ✦', onclick: () => askSarah() }), el('p', { className: 'sel', textContent: EMAIL })), stamp('ASK THE APOTHECARY ✦ ', 'leaf', 'fa-stamp'))));
 }
 function shop(id, q = '') {
   const c = COL[id];
@@ -418,6 +419,7 @@ function route() {
   window.scrollTo({ top: 0, behavior: 'auto' });
   if (location.hash && location.hash !== '#home') $('#main').focus({ preventScroll: true });
 }
+function askSarah() { openConsult({ catalog, now, face: A('assets/img/witch-face.webp'), img: (p) => photo(p, 0), add: (p, v) => addToBasket(v.id, 1, p.name), open: (p) => { location.hash = `#p--${p.handle}`; } }); }
 const closeMenu = () => { document.body.classList.remove('nav-open'); $('#menu-btn').setAttribute('aria-expanded', 'false'); };
 
 /* ---------- boot ---------- */
@@ -425,6 +427,7 @@ $('#ticker').append(...Array.from({ length: 2 }, () => el('div', { className: 't
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); };
 $('#to-garden').onclick = () => store.set('gaia-view', 'garden');
+$('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
 addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeBasket(); closeMenu(); } });
 addEventListener('hashchange', route);
 addEventListener('scroll', () => $('#head').classList.toggle('scrolled', scrollY > 30), { passive: true });

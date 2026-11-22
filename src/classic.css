@@ -1178,3 +1178,8 @@ body.nav-open .mb-ic i:nth-child(1) { transform: translateY(5.5px) rotate(45deg)
 /* no pinch or double-tap zoom on phones; scrolling still works */
 html, body { touch-action: pan-x pan-y; }
 @media (max-width: 760px) { .pp-stamp { display: none !important; } }
+
+/* Ask Sarah in the nav */
+.nav .nav-ask { font: inherit; color: #f6d98a; background: none; border: 0; cursor: pointer; padding: inherit; text-shadow: 0 0 14px rgba(246, 196, 69, .55); }
+.nav .nav-ask span { color: #b9f655; }
+.nav .nav-ask:hover { color: #fff3c9; }

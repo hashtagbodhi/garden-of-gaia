@@ -42,6 +42,7 @@ import ingredientData from './ingredients.json';
 const TI = { 'apple': ti_apple, 'bottle': ti_bottle, 'bowl': ti_bowl, 'candle': ti_candle, 'cherry': ti_cherry, 'clover': ti_clover, 'cup': ti_cup, 'droplet': ti_droplet, 'flame': ti_flame, 'flower': ti_flower, 'grain': ti_grain, 'leaf': ti_leaf, 'leaf-2': ti_leaf_2, 'lemon': ti_lemon, 'lemon-2': ti_lemon_2, 'mushroom': ti_mushroom, 'nut': ti_nut, 'pepper': ti_pepper, 'plant-2': ti_plant_2, 'salt': ti_salt, 'seedling': ti_seedling, 'tree': ti_tree, 'trees': ti_trees, 'wheat': ti_wheat };
 const ICON = { plant: TI['plant-2'], cup: TI.cup, lotus: TI.flower, leaf: TI.leaf, package: TI.bottle, flower: TI.flower };
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY } from './content.js';
+import { openConsult } from './consult.js';
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
@@ -1102,12 +1103,13 @@ addEventListener('keydown', (e) => {
 
 /* ---------- DOM wiring ---------- */
 for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.id === 'gate' ? 'witch-face' : s.icon}.webp`)})`; if (s.id === 'gate') i.style.backgroundSize = 'cover'; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
+const askSarah = () => openConsult({ catalog, now, face: A('assets/img/witch-face.webp'), img: (p) => A(p.img), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
 $('#gifts-top').onclick = () => openIndex('gift25');
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };
 $('#places-prev').onclick = () => step(-1); $('#places-next').onclick = () => step(1);
 $('#gifts-open').onclick = () => openIndex('gift25');
 $('#menu-open').onclick = openMenu; $('#menu-close').onclick = () => closeOverlays();
-$('#menu').addEventListener('click', (e) => { const t = e.target.closest('[data-act], a[href^="#"]'); if (!t) return; if (t.dataset.act === 'index') openIndex(); else if (t.dataset.act?.startsWith('gift')) openIndex(t.dataset.act); else if (t.dataset.act === 'sound') $('#sound-toggle').click(); else closeOverlays(true); });
+$('#menu').addEventListener('click', (e) => { const t = e.target.closest('[data-act], a[href^="#"]'); if (!t) return; if (t.dataset.act === 'ask') { closeOverlays(true); askSarah(); } else if (t.dataset.act === 'index') openIndex(); else if (t.dataset.act?.startsWith('gift')) openIndex(t.dataset.act); else if (t.dataset.act === 'sound') $('#sound-toggle').click(); else closeOverlays(true); });
 $('#lightbox-close').onclick = () => { $('#lightbox').hidden = true; };
 $('#lightbox-prev').onclick = () => { lb.i--; showPhoto(); }; $('#lightbox-next').onclick = () => { lb.i++; showPhoto(); };
 $('#detail-close').onclick = () => closeOverlays();
