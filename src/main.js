@@ -46,7 +46,7 @@ scene.fog = new THREE.Fog(FOG, 26, 135);
 const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.3, 0.45, 0.86);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.2, 0.4, 0.88);
 composer.addPass(bloomPass);
 composer.addPass(new OutputPass());
 
@@ -268,7 +268,7 @@ function buildWorld() {
       it.mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ alphaTest: 0.4, alphaToCoverage: true, fog: true, color: 0xaab4be }));
       it.mesh.scale.set(it.w, it.h, 1); it.mesh.userData.item = it;
       it.mesh.visible = false; it.loaded = false;
-      it.halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0x9fe86a, opacity: 0.2, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
+      it.halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0xcfe6b0, opacity: 0.06, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
       it.shadow = new THREE.Mesh(shadowGeo, shadowMat); it.shadow.renderOrder = 1;
       scene.add(it.ped, it.mesh, it.halo, it.shadow); goods.push(it.mesh); upright.push(it.ped, it.mesh);
     }
@@ -332,9 +332,9 @@ function buildWorld() {
   }
   for (const st of STATIONS) if (!st.flat) { const c = st.propPos || st.p; grounded.push({ x: c.x, z: c.z, r: st.propH * 0.5, sq: 0.4 }); }
   groundDiscs(grounded, 0x000308, 0.62, false);
-  groundDiscs(pools, 0x58e0c8, 0.2, true);
+  groundDiscs(pools, 0x58e0c8, 0.11, true);
   // warm lantern light where the products stand, against the cool moonlit garden
-  groundDiscs(STATIONS.filter((x) => x.items.length).map((x) => { const c = x.D.clone().addScaledVector(x.r, x.mid || 0); return { x: c.x, z: c.z, r: x.half + 3.5, sq: 0.7 }; }), 0xffa24a, 0.22, true);
+  groundDiscs(STATIONS.filter((x) => x.items.length).map((x) => { const c = x.D.clone().addScaledVector(x.r, x.mid || 0); return { x: c.x, z: c.z, r: x.half + 3.5, sq: 0.7 }; }), 0xffa24a, 0.13, true);
   atmosphere();
   // lilies and lotus standing in the pond
   const pond = byId.pond, lilies = { 0: [], 4: [], 8: [] };
@@ -453,9 +453,11 @@ function setPose(s) {
   witchOff.v = (5.9 * (sp.w / sp.h - base.w / base.h)) / 2;   // keep her body where it was when the arm reaches out
 }
 function puffAt(pos) {
-  if (!flash) { flash = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0xc8f58a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); scene.add(flash); }
-  flash.position.set(pos.x, 3, pos.z); flash.scale.set(2, 4, 1); flash.material.opacity = 0.75;
-  gsap.to(flash.scale, { x: 7, y: 10, duration: 0.8, ease: 'power2.out' }); gsap.to(flash.material, { opacity: 0, duration: 0.8, ease: 'power1.in' });
+  if (!flash) { flash = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0xdfeecb, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); scene.add(flash); }
+  gsap.killTweensOf(flash.scale); gsap.killTweensOf(flash.material);
+  flash.position.set(pos.x, 3, pos.z); flash.scale.set(3, 5.5, 1); flash.material.opacity = 0;
+  gsap.to(flash.scale, { x: 5.5, y: 8.5, duration: 1.6, ease: 'sine.out' });
+  gsap.timeline().to(flash.material, { opacity: 0.2, duration: 0.45, ease: 'sine.out' }).to(flash.material, { opacity: 0, duration: 1.15, ease: 'sine.inOut' });
 }
 function moveWitch(s, instant) {
   const place = () => { setPose(s); const w = witchAt(s, new THREE.Vector3()); witch.position.set(w.x, 2.8, w.z); witch.rotation.y = Math.atan2(s.f.x, s.f.z); };
@@ -874,7 +876,7 @@ function frame() {
     goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(white, it.hover);
     it.mesh.material.color.lerp(goal, Math.min(1, dt * 6));
     const show = it.loaded && (paged || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show;
-    it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.42 + (it.hop || 0) * 0.5 : 0.14 + it.hover * 0.3) * (0.85 + 0.15 * Math.sin(t * 1.3 + it.ph));
+    it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.16 + (it.hop || 0) * 0.14 : 0.06 + it.hover * 0.12) * (0.9 + 0.1 * Math.sin(t * 1.3 + it.ph));
   }
   // every product in this clearing carries its name
   const showLabels = entered && !selected && !reading && travel.t >= 0.999;
