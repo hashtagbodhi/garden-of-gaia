@@ -114,3 +114,4 @@
   .sheet-body { gap: 14px; }
   .more-c:nth-child(n+3) { display: none; }
 }
+.sheet:not([hidden]) ~ .toast { opacity: 0 !important; visibility: hidden !important; }
