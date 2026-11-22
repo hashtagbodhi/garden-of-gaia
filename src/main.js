@@ -142,22 +142,22 @@ const GPLANTS = ingredientData.plants, GCOUNT = {};
 for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
 const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
 const GBED = GKEYS.filter((k) => plantPhotos[k] || plantModels[k]);
-const groveOrbs = [];
+const groveOrbs = [], GDIST = 9.4;
 const s0 = (o, g) => tmp.copy(o.base).setY(0.06).addScaledVector(g.r, 0.62).addScaledVector(g.f, 0.5);   // a scanned plant sits on the soil beside its stake
 const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
 function groveLayout(s) {
   const n = GBED.length; s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait; s.gFree = portrait; s.gPos = {}; s.gXZ = {};
   if (portrait) {
-    // phones: round photographs hanging in the night air, three rows to slide along
-    const cols = 15, rows = Math.ceil(n / cols), sx = 2.25, sy = 2.05, half = ((cols - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = 3;
+    // phones: round photographs hanging in the night air; swipe in any direction to move among them
+    const cols = 9, rows = Math.ceil(n / cols), sx = 2.3, sy = 2.25, half = ((cols - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = 3;
     GBED.forEach((k, i) => {
       const row = Math.floor(i / cols), m = Math.min(cols, n - row * cols), col = i % cols, h = khash(k);
-      const x = (col - (m - 1) / 2) * sx + (row % 2 ? sx * 0.28 : -sx * 0.14) + ((h % 7) - 3) * 0.07;
-      const y = 1.75 + (rows - 1 - row) * sy + (((h >> 3) % 7) - 3) * 0.09, z = -(((h >> 6) % 9) / 8) * 2.4 - (rows - 1 - row) * 0.35;
-      s.gXZ[k] = [x, Math.abs(row - 1), 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(y);
+      const x = (col - (m - 1) / 2) * sx + (row % 2 ? sx * 0.3 : -sx * 0.15) + ((h % 7) - 3) * 0.07;
+      const y = 1.9 + (rows - 1 - row) * sy + (((h >> 3) % 7) - 3) * 0.09, z = -(((h >> 6) % 9) / 8) * 2.2;
+      s.gXZ[k] = [x, y, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(y);
     });
-    s.gMid = 1.75 + ((rows - 1) * sy) / 2;
-    if (s.gx == null || Math.abs(s.gx) > half) s.gx = s.gtx = -half + 2.3;
+    s.gY0 = 1.9; s.gY1 = 1.9 + (rows - 1) * sy;
+    if (s.gx == null || Math.abs(s.gx) > half) { s.gx = s.gtx = -half + 2.3; s.gy = s.gty = s.gY1 - sy * 0.6; }
     groveView(s);
   } else {
     // wide screens: a planted bed seen whole. Each plant is a photograph on a stake in the soil, the rows rising towards the back
@@ -177,12 +177,12 @@ function groveLayout(s) {
 }
 function groveView(s) {
   const base = s.D.clone().addScaledVector(s.r, s.gx);
-  s.camPos = base.clone().addScaledVector(s.f, 10.6).setY(s.gMid + 0.5);
-  s.camLook = base.clone().setY(s.gMid + 0.25);
+  s.camPos = base.clone().addScaledVector(s.f, GDIST).setY(s.gy + 0.35);
+  s.camLook = base.clone().setY(s.gy + 0.15);
   s.witchPos = s.D.clone().addScaledVector(s.r, -(s.gHalf + 1.2)).addScaledVector(s.f, 1.2);
 }
-const groveFocus = (s) => { if (s.gSel && Math.abs(s.gXZ[s.gSel][0] - s.gtx) < 1.2) return s.gSel; let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, row] = s.gXZ[k], d = (x - s.gtx) ** 2 + (row * 1.6) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
-const groveClamp = (s) => { s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + 1, s.gHalf - 1); };
+const groveFocus = (s) => { if (s.gSel) return s.gSel; let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, y] = s.gXZ[k], d = (x - s.gtx) ** 2 + (y - s.gty) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
+const groveClamp = (s) => { s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + 1.2, s.gHalf - 1.2); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0 - 0.4, s.gY1 + 0.4); };
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -690,7 +690,7 @@ function moveWitch(s, instant) {
 }
 
 /* ---------- audio ---------- */
-// Sound, kept minimal: one very soft held tone that breathes slowly, a rare quiet bell, and a small
+// Sound, kept minimal: no background tone or music. A rare quiet bell, small signs of life, and a small
 // chime when something goes in the basket. No music track, no nature recordings.
 const audio = {
   ctx: null, master: null, on: true, level: coarse ? 0.5 : 0.7,
@@ -709,13 +709,6 @@ const audio = {
       this.master2 = c.createGain(); this.master2.gain.value = 0; this.master2.connect(c.destination);
       this.master2.gain.linearRampToValueAtTime(on ? this.level : 0, c.currentTime + 4);
       this.master.gain.linearRampToValueAtTime(on ? this.level : 0, c.currentTime + 4);
-      // the held tone: a low D with its fifth and octave, each drifting in and out on its own slow breath
-      [[146.83, 0.05, 0.05], [220, 0.028, 0.037], [293.66, 0.02, 0.061], [440, 0.006, 0.043]].forEach(([f, vol, rate], i) => {
-        const o = c.createOscillator(), g = c.createGain(), l = c.createOscillator(), lg = c.createGain();
-        o.type = 'sine'; o.frequency.value = f; o.detune.value = i * 3 - 4; g.gain.value = vol * 0.6;
-        l.frequency.value = rate; lg.gain.value = vol * 0.4; l.connect(lg).connect(g.gain);
-        o.connect(g).connect(this.master); o.start(); l.start();
-      });
       // a bell now and then, never on a beat
       const notes = [587.33, 659.25, 739.99, 880, 987.77];
       const ring = () => { if (this.on && document.visibilityState === 'visible') this.bell(notes[(Math.random() * notes.length) | 0], 0.022, 4.5); setTimeout(ring, 9000 + Math.random() * 14000); };
@@ -1063,7 +1056,7 @@ function syncFocus() {
     const k = groveFocus(current), pl = GPLANTS[k];
     if (k !== lastFocus && lastFocus && entered) audio.play('flutter', 0.14, 1.3);
     lastFocus = k;
-    $('#focus-count').textContent = 'Shop by plant · slide to drift along';
+    $('#focus-count').textContent = 'Shop by plant · swipe any way to explore';
     $('#focus-name').textContent = pl.n; $('#focus-price').textContent = [pl.b, `${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`].filter(Boolean).join(' · ');
     $('#focus-open').textContent = 'Meet the plant'; $('#focus-list').textContent = 'See all plants as a list';
     return;
@@ -1144,8 +1137,10 @@ function pick(e) {
 canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, last: e.clientX }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } });
 canvas.addEventListener('pointermove', (e) => {
   if (down && entered && current?.gFree && $('#info').hidden && travel.t >= 0.999) {
-    const perPx = (2 * 10.6 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth, s = current, dx = e.clientX - down.last;
-    s.gtx -= dx * perPx * 1.15; s.gSel = null; groveClamp(s); down.vx = dx; down.last = e.clientX; syncFocus(); return;
+    // a finger among the circles: the cloud follows it, any way you move
+    const perPx = (2 * GDIST * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight, s = current, dx = e.clientX - down.last, dy = e.clientY - (down.lastY ?? down.y);
+    s.gtx -= dx * perPx * 1.1; s.gty += dy * perPx * 1.1; s.gSel = null; groveClamp(s);
+    down.vx = dx; down.vy = dy; down.last = e.clientX; down.lastY = e.clientY; syncFocus(); return;
   }
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
@@ -1168,7 +1163,7 @@ function resolveHover(now) {
 canvas.addEventListener('pointerup', (e) => {
   if (!down || !entered) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), downWas = down; down = null;
   if (current?.lined && current.items.length && !selected) { current.panTarget = focusOf(current).index * STEP; syncFocus(); }
-  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * 10.6 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth; current.gtx -= (downWas.vx || 0) * perPx * 6; groveClamp(current); syncFocus(); }
+  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * GDIST * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight; current.gtx -= (downWas.vx || 0) * perPx * 7; current.gty += (downWas.vy || 0) * perPx * 7; groveClamp(current); syncFocus(); }
   if (moved > 8) return;
   const hit = pick(e);
   if (!hit) { if (selected) closeOverlays(); return; }
@@ -1205,7 +1200,7 @@ $('#detail-close').onclick = () => closeOverlays();
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
 $('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
 $('#focus-open').onclick = () => (current.gLined ? openPlant(groveFocus(current)) : select(focusOf(current)));
-const groveStep = (d) => { const order = [...GBED].sort((a, b) => current.gXZ[a][0] - current.gXZ[b][0]), k = order[THREE.MathUtils.clamp(order.indexOf(groveFocus(current)) + d, 0, order.length - 1)]; current.gSel = k; current.gtx = current.gXZ[k][0]; groveClamp(current); syncFocus(); };
+const groveStep = (d) => { const s = current, k = GBED[THREE.MathUtils.clamp(GBED.indexOf(groveFocus(s)) + d, 0, GBED.length - 1)]; s.gSel = k; [s.gtx, s.gty] = s.gXZ[k]; groveClamp(s); syncFocus(); };
 $('#focus-prev').onclick = () => { if (current.gLined) return groveStep(-1); current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
 $('#focus-next').onclick = () => { if (current.gLined) return groveStep(1); current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
 $('#focus-list').onclick = () => (current.gLined ? openPlantList() : openIndex(current.id));
@@ -1252,7 +1247,7 @@ function frame() {
     if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
   }
   if (current?.gFree) {
-    const s = current; s.gx += (s.gtx - s.gx) * Math.min(1, dt * 7); groveView(s);
+    const s = current, e = Math.min(1, dt * 7); s.gx += (s.gtx - s.gx) * e; s.gy += (s.gty - s.gy) * e; groveView(s);
     if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); }
   }
   if (groveOrbs.length) {
@@ -1358,3 +1353,5 @@ Promise.all(Object.keys(sprites).concat(['sky', 'ground']).map((n) => loadTex(n)
 
 // a wheel turned anywhere scrolls whatever is open to read
 addEventListener('wheel', (e) => { const box = ['#info .column-in', '#detail .panel-in'].map((q) => document.querySelector(q)).find((n) => n && !n.closest('[hidden]')); if (box && !box.contains(e.target) && !e.target.closest('.consult, .sheet, #menu, #index')) box.scrollTop += e.deltaY; }, { passive: true });
+
+new ResizeObserver(() => document.documentElement.style.setProperty('--bar-h', `${$('#places').offsetHeight}px`)).observe($('#places'));

@@ -1,0 +1,18 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const ctx = await b.newContext({ ...devices['iPhone 13'], viewport: { width: 390, height: 640 } }); const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-view', JSON.stringify('garden')); });
+  await p.goto('http://127.0.0.1:4175/#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 });
+  if (await p.isVisible('#enter-yes')) await p.click('#enter-yes'); await p.waitForTimeout(3000);
+  await p.evaluate(() => { location.hash = '#grove'; }); await p.waitForTimeout(15000);
+  await p.screenshot({ path: 'raw/_m5-0.jpg', type: 'jpeg', quality: 80 });
+  const gap = await p.evaluate(() => { const a = document.querySelector('#focus .focus-row').getBoundingClientRect(), n = document.querySelector('#places').getBoundingClientRect(); return { rowBottom: Math.round(a.bottom), barTop: Math.round(n.top), barH: getComputedStyle(document.documentElement).getPropertyValue('--bar-h') }; });
+  console.log('card vs bar', JSON.stringify(gap), gap.rowBottom <= gap.barTop ? 'CLEAR' : 'OVERLAP');
+  const name0 = await p.textContent('#focus-name');
+  const cdp = await ctx.newCDPSession(p);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 250, y: 150 }] }); for (let i = 1; i <= 12; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 250 - i * 9, y: 150 + i * 12 }] }); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await p.waitForTimeout(2200); await p.screenshot({ path: 'raw/_m5-1.jpg', type: 'jpeg', quality: 80 });
+  console.log('focus', name0, '->', await p.textContent('#focus-name'));
+  await p.evaluate(() => localStorage.setItem('gaia-view', JSON.stringify('classic'))); await p.goto('http://127.0.0.1:4175/classic.html'); await p.waitForTimeout(2500);
+  await p.screenshot({ path: 'raw/_m5-2.jpg', type: 'jpeg', quality: 80, clip: { x: 0, y: 0, width: 390, height: 200 } });
+  console.log('errors', errs); await b.close(); })();
