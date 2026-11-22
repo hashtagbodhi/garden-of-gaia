@@ -8,6 +8,7 @@ const { chromium } = require('playwright');
   await p.waitForFunction('window.__ready', null, { timeout: 90000 });
   const tag = mobile ? 'm_' : '', shot = (n) => p.screenshot({ path: `raw/s_${tag}${n}.jpg`, quality: 78, type: 'jpeg' });
   const hash = async (h, ms = 4500) => { await p.evaluate((x) => { location.hash = x; }, h); await p.waitForTimeout(ms); };
+  await p.waitForTimeout(800); await shot('entry');
   await p.click('#enter-yes'); await p.waitForTimeout(4500); await shot('gate');
   for (const id of ['tea', 'potions', 'pond', 'altar', 'roots']) { await hash('#' + id); await shot(id); }
   await hash('#potions--hathors-ease-blue-lotus-magnesium-whipped-tallow-balm'); await shot('product');
