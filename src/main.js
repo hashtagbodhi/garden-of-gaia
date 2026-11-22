@@ -472,7 +472,13 @@ const audio = {
   async start(on) {
     this.on = on;
     try {
+      // iPhones mute this kind of audio when the ring switch is on silent unless the page says it is playing media
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* older browsers */ }
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.ctx.resume?.();   // still inside the tap, so the browser allows it
+      const wake = () => { if (this.ctx.state !== 'running') this.ctx.resume?.(); };
+      ['touchend', 'pointerup', 'keydown'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
       this.master = this.ctx.createGain(); this.master.gain.value = on ? 1 : 0; this.master.connect(this.ctx.destination);
       await Promise.all(['score', 'ambience', 'chime', 'whoosh', 'clink', 'flutter'].map(async (n) => { const r = await fetch(A(`assets/audio/${n}.mp3`)); this.buf[n] = await this.ctx.decodeAudioData(await r.arrayBuffer()); }));
       this.loop('ambience', 0.5); this.loop('ambience', 0.3, 0.84, 4); this.loop('score', 0.34);
