@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures</title>
+<meta name="description" content="Small-batch herbal teas, tinctures and ritual tools, hand harvested from regenerative family farms in Sri Lanka. Walk the garden and shop farm-direct.">
+<meta name="theme-color" content="#050c15">
+</head>
+<body>
+<canvas id="world" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+
+<!-- Entry: age check + sound unlock, set straight on the scene -->
+<section id="entry" class="entry" aria-labelledby="entry-title">
+  <div class="entry-in">
+    <p class="label">Welcome to the garden</p>
+    <h1 id="entry-title">The Garden of Gaia <em>Apothecary</em></h1>
+    <p class="lede">Small-batch herbal teas, potions and ritual tools, hand harvested from regenerative family farms in Sri Lanka.</p>
+    <div id="entry-ask">
+      <p class="note">You must be 21 or older to enter. Please confirm your age.</p>
+      <div class="row">
+        <button id="enter-yes" class="btn" disabled>Gathering the garden…</button>
+        <button id="enter-no" class="text-link">I am under 21</button>
+      </div>
+      <label class="check"><input type="checkbox" id="entry-sound" checked> Enter with sound</label>
+    </div>
+    <p id="entry-denied" class="note" hidden>Sorry, you must be 21 or older to enter. Please come back when you’re of age.</p>
+  </div>
+</section>
+
+<header class="top" id="topbar" hidden>
+  <a class="mark" href="#gate" aria-label="The Garden of Gaia Apothecary, back to the gate">
+    <span>The Garden of Gaia</span><small>Apothecary</small>
+  </a>
+  <p id="sale-line" class="sale-line"></p>
+  <div class="top-links">
+    <button id="menu-open" class="text-link">Menu</button>
+    <button id="index-open" class="text-link">Shop index</button>
+    <button id="sound-toggle" class="text-link" aria-pressed="true">Sound on</button>
+    <button id="basket-open" class="text-link" aria-haspopup="dialog">Basket <span id="basket-count" class="count">0</span></button>
+  </div>
+</header>
+
+<main id="hud" hidden>
+  <!-- One block of type per place -->
+  <section id="place" class="place">
+    <p id="place-label" class="label"></p>
+    <h2 id="place-title"></h2>
+    <p id="place-line" class="lede"></p>
+    <ul id="place-menu" class="place-menu" hidden></ul>
+    <div class="row" id="place-actions"></div>
+    <!-- Phones: the product in front of you -->
+    <div id="focus" class="focus" hidden>
+      <p id="focus-count" class="label"></p>
+      <p id="focus-name" class="focus-name"></p>
+      <p id="focus-price" class="note"></p>
+      <div class="focus-row">
+        <button id="focus-prev" class="arrow" aria-label="Previous product">&larr;</button>
+        <button id="focus-open" class="btn">View product</button>
+        <button id="focus-next" class="arrow" aria-label="Next product">&rarr;</button>
+      </div>
+      <button id="focus-list" class="text-link">See them all as a list</button>
+    </div>
+  </section>
+
+  <nav class="places" id="places" aria-label="Places in the garden">
+    <button id="places-prev" class="arrow" aria-label="Previous place">&larr;</button>
+    <div id="places-list" class="places-list"></div>
+    <span id="places-count" class="places-count"></span>
+    <button id="places-next" class="arrow" aria-label="Next place">&rarr;</button>
+    <button id="gifts-open" class="gifts">Gifts</button>
+  </nav>
+
+  <!-- Name tag that follows the product under the pointer -->
+  <div id="labels" class="labels" aria-hidden="true"></div>
+</main>
+
+<!-- Product: type laid on the scene beside the object itself -->
+<aside id="detail" class="column" role="dialog" aria-labelledby="detail-name" hidden>
+  <div class="column-in">
+    <button class="text-link back" id="detail-close"></button>
+    <p id="detail-kind" class="label"></p>
+    <h2 id="detail-name"></h2>
+    <button id="detail-rating" class="rating" hidden></button>
+    <p id="detail-sub" class="sub"></p>
+    <div id="detail-gallery" class="gallery" aria-label="Product photos"></div>
+    <div class="price-row">
+      <p id="detail-price" class="price"></p>
+      <div id="detail-variants" class="variants" role="radiogroup" aria-label="Size"></div>
+    </div>
+    <div class="buy">
+      <div class="qty">
+        <button id="qty-minus" aria-label="One fewer">&minus;</button>
+        <output id="qty-val" aria-live="polite">1</output>
+        <button id="qty-plus" aria-label="One more">+</button>
+      </div>
+      <button id="detail-add" class="btn">Add to basket</button>
+    </div>
+    <p id="detail-ship" class="note"></p>
+    <p id="detail-added" class="added" role="status" hidden><span id="detail-added-text"></span> <button id="detail-view-basket" class="text-link">View basket</button></p>
+    <div id="detail-desc" class="prose"></div>
+    <ul class="promises">
+      <li>Sourced direct from farmers in Sri Lanka</li>
+      <li>Regenerative agriculture partners</li>
+      <li>Organic loose leaf herbs</li>
+    </ul>
+    <div id="detail-extras" class="extras"></div>
+    <p class="fine">These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease. Consult a healthcare professional before use if pregnant, nursing, or on medication.</p>
+  </div>
+</aside>
+
+<!-- Story, brewing, wholesale… -->
+<aside id="info" class="column" role="dialog" aria-labelledby="info-title" hidden>
+  <div class="column-in">
+    <button class="text-link back" id="info-close">Back to the roots</button>
+    <div id="info-body" class="prose"></div>
+  </div>
+</aside>
+
+<!-- Basket: the one real panel -->
+<aside id="basket" class="panel" role="dialog" aria-labelledby="basket-title" hidden>
+  <div class="panel-in">
+    <button class="text-link back" id="basket-close">Keep wandering</button>
+    <h2 id="basket-title">Your basket</h2>
+    <div id="basket-ship" class="ship"></div>
+    <ul id="basket-items" class="lines"></ul>
+    <p id="basket-empty" class="lede">Nothing here yet. Pick something up in the garden and it will wait for you here.</p>
+    <div id="basket-foot" class="foot">
+      <p class="subtotal"><span class="label">Subtotal</span><strong id="basket-total">$0.00</strong></p>
+      <a id="basket-checkout" class="btn" href="#" target="_blank" rel="noopener">Check out</a>
+      <p class="fine">Checkout opens on our secure Shopify store. Shipping and taxes are calculated there.</p>
+    </div>
+  </div>
+</aside>
+
+<!-- Index: the whole shop as a typographic list -->
+<section id="index" class="index" role="dialog" aria-labelledby="index-title" hidden>
+  <div class="index-in">
+    <div class="index-head">
+      <button class="text-link back" id="index-close">Back to the garden</button>
+      <h2 id="index-title">Shop index</h2>
+      <p class="lede" id="index-lede"></p>
+      <label class="search"><span class="label">Search</span><input id="index-search" type="search" placeholder="Blue lotus, chai, sage…" autocomplete="off"></label>
+      <div id="index-filter" class="index-filter" role="tablist" aria-label="Filter by place"></div>
+      <div id="index-gifts" class="index-filter" role="tablist" aria-label="Gifts by budget"></div>
+    </div>
+    <div id="index-list" class="index-list"></div>
+  </div>
+</section>
+
+<!-- Menu: every way around, plus the small print -->
+<section id="menu" class="index menu" role="dialog" aria-label="Menu" hidden>
+  <div class="menu-in">
+    <button class="text-link back" id="menu-close">Back to the garden</button>
+    <div class="menu-cols">
+      <div><p class="label">Wander</p><ul id="menu-places" class="menu-big"></ul></div>
+      <div><p class="label">Shop</p><ul class="menu-mid">
+        <li><button data-act="index">Shop index</button></li>
+        <li><button data-act="gift25">Gifts under $25</button></li>
+        <li><button data-act="gift40">Gifts under $40</button></li>
+        <li><button data-act="gift75">Gifts under $75</button></li>
+        <li><a href="#roots--garden-of-gaia-gift-cards">Gift cards</a></li>
+      </ul>
+      <p class="label">About</p><ul id="menu-about" class="menu-mid"></ul></div>
+      <div><p class="label">Help and policies</p><ul class="menu-small">
+        <li><a href="https://gardenofgaiaapothecary.com/policies/refund-policy" target="_blank" rel="noopener">Refund policy</a></li>
+        <li><a href="https://gardenofgaiaapothecary.com/policies/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
+        <li><a href="https://gardenofgaiaapothecary.com/policies/terms-of-service" target="_blank" rel="noopener">Terms of service</a></li>
+        <li><a href="https://gardenofgaiaapothecary.com/policies/contact-information" target="_blank" rel="noopener">Contact information</a></li>
+        <li><a href="https://gardenofgaiaapothecary.com/pages/wholesale-blue-water-lily" target="_blank" rel="noopener">Wholesale application</a></li>
+        <li><a href="https://instagram.com/thegardenofgaiaapothecary" target="_blank" rel="noopener">Instagram</a></li>
+        <li><button data-act="sound" id="menu-sound">Turn sound off</button></li>
+      </ul>
+      <p class="fine" id="menu-sale"></p>
+      <p class="fine"><a href="https://gardenofgaiaapothecary.com" target="_blank" rel="noopener">Join our newsletter</a> for herbal rituals, new blends and 10% off your first order.</p>
+      <p class="fine">Write to us at <span class="sel">thegardenofgaiaapothecary@gmail.com</span></p>
+      <p class="fine">&copy; 2026 The Garden of Gaia Apothecary</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Product photos, full size -->
+<div id="lightbox" class="lightbox" role="dialog" aria-label="Product photos" hidden>
+  <button class="text-link back" id="lightbox-close">Back to the product</button>
+  <button id="lightbox-prev" class="arrow" aria-label="Previous photo">&larr;</button>
+  <img id="lightbox-img" alt="">
+  <button id="lightbox-next" class="arrow" aria-label="Next photo">&rarr;</button>
+  <span id="lightbox-count" class="label"></span>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

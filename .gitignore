@@ -1,0 +1,13 @@
+node_modules/
+dist/
+artifact/
+# working files: source renders, downloads and screenshots (masters live in Higgsfield)
+raw/*.png
+raw/*.jpg
+raw/*.log
+raw/*.json
+raw/gal/
+raw/cut/
+raw/cut2/
+raw/prod/
+raw/v1/
