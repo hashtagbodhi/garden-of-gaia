@@ -435,3 +435,8 @@ body.lined .place-menu button:hover { padding-left: 0; }
   .places-list a, .places-list a[aria-current="page"] { flex: 1 1 0; width: auto; min-width: 0; font-size: .58rem; letter-spacing: .03em; }
   .places-list a i { width: 44px; height: 44px; opacity: .88; }
 }
+
+/* list thumbnails: plain cut-outs, no tile behind them */
+.index-list img, .lines img { padding: 0; border-radius: 0; background: none; box-shadow: none; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .45)); }
+/* phones: the home screen has one action only */
+@media (max-width: 820px) { .place[data-home] #place-actions .text-link { display: none; } }
