@@ -881,7 +881,7 @@ function go(id, instant) {
   const menu = $('#place-menu'); menu.hidden = s.id !== 'roots'; menu.replaceChildren();
   if (s.id === 'roots') [...INFO, WORDS].forEach((i) => { const b = el('button', { textContent: i.title }); b.onclick = () => openInfo(i); menu.append(el('li', {}, b)); });
   const acts = $('#place-actions'); acts.replaceChildren();
-  if (home) { acts.append(el('a', { className: 'btn', href: '#tea', textContent: 'Walk into the garden' })); const b = el('button', { className: 'alt-link', textContent: 'Shop the catalog' }); b.onclick = () => openIndex(); acts.append(b); }
+  if (home) { acts.append(el('a', { className: 'btn', href: '#tea', textContent: 'Walk into the garden' })); const b = el('a', { className: 'apo-link', href: './classic.html' }, el('span', { className: 'apo-ic', textContent: '✿' }), el('span', { textContent: 'Visit the apothecary' })); b.onclick = () => { try { localStorage.setItem('gaia-view', '"classic"'); } catch (e) { /* private mode */ } }; acts.append(b); }
   else if (s.id !== 'roots') { const b = el('button', { className: 'text-link', textContent: `Read all ${s.items.length} as a list` }); b.onclick = () => openIndex(s.id); acts.append(b); }
   document.querySelectorAll('#places-list a').forEach((a) => (a.dataset.id === s.id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
   document.querySelector('#places-list a[aria-current]')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });

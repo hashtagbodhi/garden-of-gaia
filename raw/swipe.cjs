@@ -1,0 +1,18 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch();
+  const ctx = await b.newContext({ ...devices['iPhone 13'] }); const p = await ctx.newPage();
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); });
+  await p.goto('http://127.0.0.1:4174/classic.html'); await p.waitForFunction('window.__ready');
+  await p.evaluate(() => document.querySelector('.cols-sec .collage').scrollIntoView({ block: 'center' })); await p.waitForTimeout(600);
+  await p.evaluate(() => { window._ev = []; const w = document.querySelector('.cols-sec .collage'); ['pointerdown', 'pointerup', 'pointercancel', 'touchstart', 'touchend'].forEach((t) => w.addEventListener(t, (e) => window._ev.push(t + ':' + Math.round(e.clientX ?? e.changedTouches?.[0]?.clientX)))); });
+  const front = () => p.evaluate(() => document.querySelector('.cols-sec .tarot.front').dataset.name);
+  console.log('front', await front());
+  const bb = await (await p.$('.cols-sec .collage')).boundingBox(); const y = bb.y + bb.height * 0.55;
+  const cdp = await ctx.newCDPSession(p);
+  const pt = (x) => [{ x, y }];
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt(bb.x + bb.width * 0.75) });
+  for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: pt(bb.x + bb.width * (0.75 - i * 0.08)) });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await p.waitForTimeout(700);
+  console.log('events', await p.evaluate(() => window._ev)); console.log('front after real touch swipe', await front());
+  await b.close(); })();

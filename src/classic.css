@@ -1142,3 +1142,34 @@ body.nav-open .mb-ic i:nth-child(1) { transform: translateY(5.5px) rotate(45deg)
 @media (max-width: 760px) { .col-photo { margin: 8px; border-radius: 16px; } .cols .col.split.no-photo .col-text { grid-template-columns: 1fr; grid-template-areas: 'ic' 'h' 'p' 'n' 'go'; } }
 @media (max-width: 760px) { .cols { grid-template-columns: minmax(0, 1fr) !important; } .cols .col.split { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); min-height: 230px; } }
 @media (max-width: 760px) { .cols .col.split:nth-child(5) { grid-column: 1 / -1 !important; } }
+
+/* ---- shuffling the hand of cards ---- */
+.tarot { transition: transform .55s cubic-bezier(.2, .9, .25, 1.1), box-shadow .3s, filter .3s; cursor: pointer; }
+.tarot:not(.front) { filter: brightness(.72) saturate(.85); }
+.tarot.front { transform: rotate(var(--a)) translateY(-18px) scale(1.12); box-shadow: inset 0 0 0 1px #f6c445, inset 0 0 0 5px #0d1428, inset 0 0 0 6px rgba(246, 196, 69, .55), 0 30px 50px -16px #000, 0 0 46px rgba(246, 196, 69, .5); }
+.fan:hover .tarot { transform: rotate(calc(var(--a) * 1.35)); }
+.fan:hover .tarot.front { transform: rotate(0deg) translateY(-24px) scale(1.14); }
+.fan .tarot:hover { transform: rotate(calc(var(--a) * 1.35)) translateY(-12px); }
+.fan .tarot.front:hover { transform: rotate(0deg) translateY(-28px) scale(1.16); }
+.fan.shuffling .tarot { animation: riffle .5s cubic-bezier(.3, .8, .3, 1); }
+.fan.shuffling .tarot:nth-child(odd) { animation-direction: reverse; }
+@keyframes riffle { 40% { translate: 0 -26px; rotate: 8deg; } }
+.fan-ctl { position: absolute; z-index: 8; left: 0; right: 0; bottom: -46px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.fan-shuffle, .fan-arrow { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 14px; border-radius: 999px; background: rgba(7, 11, 22, .72); box-shadow: inset 0 0 0 1px rgba(246, 196, 69, .55); color: #f6d98a; font-family: var(--sans); font-size: .82rem; font-weight: 500; backdrop-filter: blur(6px); }
+.fan-arrow { width: 36px; padding: 0; justify-content: center; }
+.fan-shuffle:hover, .fan-arrow:hover { background: rgba(246, 196, 69, .18); }
+.fan-shuffle span { font-size: 1rem; }
+.fan-now { position: absolute; z-index: 8; left: 0; right: 0; bottom: -78px; display: flex; justify-content: center; gap: 10px; font-family: var(--display); font-size: 1.1rem; color: var(--ink); }
+.fan-now a { font-family: var(--serif); font-style: italic; font-size: 1rem; color: #f6d98a; text-decoration: none; }
+.fan-now a:hover { text-decoration: underline; }
+.collage { margin-bottom: 84px; }
+.collage .cg-moon { display: none; }
+@media (max-width: 760px) {
+  .collage { height: 300px; margin-bottom: 92px; }
+  .tarot { --w: 112px; }
+  .tarot.front { transform: rotate(0deg) translateY(-14px) scale(1.18); }
+  .collage.big .tarot { --w: 116px; }
+  .fan { bottom: 4%; }
+  .t-name { font-size: .5rem; }
+}
+.collage { touch-action: pan-y; }

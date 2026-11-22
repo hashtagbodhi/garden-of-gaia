@@ -129,19 +129,45 @@ const STICKERS = ['Small batch', 'Hand harvested', 'Farm direct', 'Made by hand'
 const photoPool = () => catalog.filter((p) => p.handle !== CARD && p.gallery.length);
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 const STOCK_NAMES = { 'tea-jars': 'Steep slow', 'blue-lilies': 'Blue lotus', 'blue-lotus-night': 'Night bloom', 'rope-incense': 'Sacred smoke', 'altar-crystals': 'The altar', 'green-valley': 'The hills' };
-// a hand of tarot cards, fanned from one pivot; each card opens its product
+// a hand of tarot cards, fanned from one pivot. Tap or swipe to shuffle a card to the front; tap the front card to open it.
 function collage(list, big = false) {
   const n = collageN++, pool = photoPool();
   const pick = (list && list.length ? list : [0, 1, 2, 3, 4].map((i) => pool[(n * 7 + i * 11) % pool.length])).filter((p, i, a) => p && a.indexOf(p) === i).slice(0, big ? 7 : 5);
-  const N = pick.length, spread = N > 5 ? 10 : 12;
-  const fan = el('div', { className: 'fan' }, pick.map((p, i) => {
+  const N = pick.length, spread = N > 5 ? 10 : 12, mid = Math.floor(N / 2);
+  const cards = pick.map((p, i) => {
     const stock = typeof p === 'string', name = stock ? STOCK_NAMES[p] || '' : p.name;
-    const c = el(stock ? 'div' : 'a', stock ? { className: 'tarot', ariaHidden: 'true' } : { className: 'tarot', href: `#p--${p.handle}`, ariaLabel: p.name },
+    const c = el(stock ? 'div' : 'a', stock ? { className: 'tarot' } : { className: 'tarot', href: `#p--${p.handle}` },
       el('span', { className: 't-num', textContent: ROMAN[i] }), el('img', { src: photo(p, !stock && (n + i) % 2 && p.gallery[1] ? 1 : 0), alt: '', decoding: 'async' }), el('span', { className: 't-name', textContent: name }));
-    c.style.setProperty('--a', `${(i - (N - 1) / 2) * spread}deg`); c.style.setProperty('--i', i);
-    return c;
-  }));
-  return el('div', { className: `collage${big ? ' big' : ''}` }, el('img', { className: 'cg-art', src: A(`assets/img/${ARTS[(n * 3) % ARTS.length]}.webp`), alt: '', loading: 'lazy', decoding: 'async' }), fan, moons('cg-moon'));
+    c.dataset.name = name; return c;
+  });
+  let order = cards.map((_, i) => i);   // order[slot] = card; the middle slot is the front of the hand
+  const fan = el('div', { className: 'fan' }, cards);
+  const cap = el('p', { className: 'fan-now', ariaLive: 'polite' });
+  const arrange = () => {
+    order.forEach((ci, slot) => {
+      const c = cards[ci], front = slot === mid;
+      c.style.setProperty('--a', `${(slot - mid) * spread}deg`); c.style.zIndex = String(N - Math.abs(slot - mid) * 2 + (front ? 10 : 0));
+      c.classList.toggle('front', front); c.setAttribute('aria-hidden', front ? 'false' : 'true'); c.tabIndex = front ? 0 : -1;
+      if (front) cap.replaceChildren(el('span', { textContent: c.dataset.name }), c.tagName === 'A' ? el('a', { href: c.getAttribute('href'), textContent: 'Open ✦' }) : '');
+    });
+  };
+  const turn = (d) => { order = d > 0 ? [...order.slice(1), order[0]] : [order[order.length - 1], ...order.slice(0, -1)]; arrange(); };
+  const bringFront = (ci) => { let guard = N; while (order[mid] !== ci && guard--) turn(order.indexOf(ci) > mid ? 1 : -1); };
+  cards.forEach((c, ci) => c.addEventListener('click', (e) => { if (!c.classList.contains('front')) { e.preventDefault(); bringFront(ci); } }));
+  // swipe across the hand to shuffle
+  let sx = null;
+  const wrap = el('div', { className: `collage${big ? ' big' : ''}` });
+  wrap.addEventListener('pointerdown', (e) => { sx = e.clientX; }, { passive: true });
+  wrap.addEventListener('pointerup', (e) => { if (sx != null && Math.abs(e.clientX - sx) > 28) { turn(e.clientX < sx ? 1 : -1); fan.dataset.swiped = '1'; setTimeout(() => { delete fan.dataset.swiped; }, 0); } sx = null; });
+  wrap.addEventListener('click', (e) => { if (fan.dataset.swiped) { e.preventDefault(); e.stopPropagation(); } }, true);
+  const shuffle = el('button', { className: 'fan-shuffle', type: 'button' }, el('span', { textContent: '⟲' }), 'Shuffle');
+  shuffle.onclick = () => { fan.classList.remove('shuffling'); void fan.offsetWidth; fan.classList.add('shuffling'); setTimeout(() => turn(1), 180); };
+  const prev = el('button', { className: 'fan-arrow', type: 'button', ariaLabel: 'Previous card', textContent: '←' }), next = el('button', { className: 'fan-arrow', type: 'button', ariaLabel: 'Next card', textContent: '→' });
+  prev.onclick = () => turn(-1); next.onclick = () => turn(1);
+  arrange();
+  wrap.append(el('img', { className: 'cg-art', src: A(`assets/img/${ARTS[(n * 3) % ARTS.length]}.webp`), alt: '', loading: 'lazy', decoding: 'async' }), fan, moons('cg-moon'),
+    el('div', { className: 'fan-ctl' }, prev, shuffle, next), cap);
+  return wrap;
 }
 // fill a page banner: products of that page in a fanned collage, a giant outlined word and the garden along its hem
 function dress(head, list, word) {
