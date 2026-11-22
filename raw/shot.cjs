@@ -19,6 +19,8 @@ const { chromium } = require('playwright');
   await p.click('#menu-open'); await p.waitForTimeout(600); await shot('menu');
   await p.click('#menu [data-act="gift25"]'); await p.waitForTimeout(600); await shot('gifts');
   await p.click('#index-close'); await hash('#roots', 3500); await p.click('#place-menu button'); await p.waitForTimeout(700); await shot('story');
+  await p.evaluate(() => document.querySelector('#info-close').click()); await hash('#roots--garden-of-gaia-gift-cards', 3500); await shot('card');
+  await p.evaluate(() => document.querySelector('#detail-close').click()); await p.click('#index-open', { force: true }).catch(() => p.evaluate(() => document.querySelector('#index-open').click())); await p.waitForTimeout(700); await shot('index');
   console.log('errors:', errs.slice(0, 8));
   await b.close();
 })();

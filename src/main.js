@@ -11,7 +11,6 @@ import gsap from 'gsap';
 import catalog from './catalog.json';
 import sprites from './sprites.json';
 import cuts from './cuts.json';
-import gifts from './gifts.json';
 import reviewData from './reviews.json';
 import icPlant from '@phosphor-icons/core/assets/thin/plant-thin.svg?raw';
 import icCup from '@phosphor-icons/core/assets/thin/coffee-thin.svg?raw';
@@ -27,8 +26,10 @@ const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.crea
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
 const money = (n) => (n % 1 ? `$${n.toFixed(2)}` : `$${n}`);
-const now = (n) => +(n * (1 - (SALE.pct || 0) / 100)).toFixed(2);   // what the buyer pays today
-const priceLabel = (p) => (p.variants[0].price !== p.variants.at(-1).price ? `From ${money(now(p.variants[0].price))}` : p.variants[0].price === 0 ? 'Free' : money(now(p.variants[0].price)));
+const now = (n, p) => (p?.sale ? +(n * (1 - (SALE.pct || 0) / 100)).toFixed(2) : n);   // what the buyer pays today
+const CARD = 'garden-of-gaia-gift-cards';
+const cardRange = (p) => { const v = p.variants.map((x) => parseFloat(x.title.replace(/[^0-9.]/g, ''))).filter(Boolean); return `${money(Math.min(...v))} to ${money(Math.max(...v))}`; };
+const priceLabel = (p) => (p.handle === CARD ? cardRange(p) : p.variants[0].price !== p.variants.at(-1).price ? `From ${money(now(p.variants[0].price, p))}` : p.variants[0].price === 0 ? 'Free' : money(now(p.variants[0].price, p)));
 const A = (p) => import.meta.env.BASE_URL + p.replace(/^\//, '');
 const cutUrl = (p) => A(`assets/cut/${p.handle}.webp`);
 const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
@@ -528,12 +529,12 @@ function renderBasket() {
   const ul = $('#basket-items'); ul.replaceChildren();
   let total = 0, count = 0;
   for (const l of basket) {
-    const { p, v } = variantIndex.get(l.id); total += now(v.price) * l.qty; count += l.qty;
+    const { p, v } = variantIndex.get(l.id); total += now(v.price, p) * l.qty; count += l.qty;
     const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` });
     minus.onclick = () => { l.qty--; if (l.qty < 1) basket = basket.filter((x) => x !== l); saveBasket(); };
     plus.onclick = () => { l.qty++; saveBasket(); };
     ul.append(el('li', {}, el('img', { src: cutUrl(p), alt: '' }),
-      el('div', {}, el('div', { className: 'n', textContent: p.name }), el('div', { className: 'v', textContent: [v.title, money(now(v.price))].filter(Boolean).join(' · ') })),
+      el('div', {}, el('div', { className: 'n', textContent: p.name }), el('div', { className: 'v', textContent: [v.title, money(now(v.price, p))].filter(Boolean).join(' · ') })),
       el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus)));
   }
   $('#basket-count').textContent = count;
@@ -634,11 +635,11 @@ function select(it, quiet) {
 }
 function syncDetail() {
   $('#qty-val').textContent = qty;
-  $('#detail-price').replaceChildren(chosen.price === 0 ? 'Free' : `$${(now(chosen.price) * qty).toFixed(2)}`, ...(SALE.pct && chosen.price ? [el('s', { textContent: `$${(chosen.price * qty).toFixed(2)}` }), el('em', { textContent: `${SALE.pct}% off` })] : []));
+  $('#detail-price').replaceChildren(chosen.price === 0 ? 'Free' : `$${(now(chosen.price, selected.p) * qty).toFixed(2)}`, ...(SALE.pct && selected.p.sale && chosen.price ? [el('s', { textContent: `$${(chosen.price * qty).toFixed(2)}` }), el('em', { textContent: `${SALE.pct}% off` })] : []));
   $('#detail-variants').querySelectorAll('button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.id === String(chosen.id))));
   const add = $('#detail-add'); add.disabled = !chosen.available; add.textContent = chosen.available ? 'Add to basket' : 'Sold out';
-  const total = basket.reduce((a, l) => a + now(variantIndex.get(l.id).v.price) * l.qty, 0), left = FREE_SHIPPING_AT - total - now(chosen.price) * qty;
-  $('#detail-ship').textContent = [SALE.note, left > 0 ? `Adding this leaves you ${money(+left.toFixed(2))} away from free U.S. shipping.` : 'With this in your basket, U.S. shipping is free.'].filter(Boolean).join(' ');
+  const total = basket.reduce((a, l) => a + now(variantIndex.get(l.id).v.price, variantIndex.get(l.id).p) * l.qty, 0), left = FREE_SHIPPING_AT - total - now(chosen.price, selected.p) * qty;
+  $('#detail-ship').textContent = selected.p.handle === CARD ? 'Sent by email. Gift cards are not part of the sale.' : [selected.p.sale ? SALE.note : '', left > 0 ? `Adding this leaves you ${money(+left.toFixed(2))} away from free U.S. shipping.` : 'With this in your basket, U.S. shipping is free.'].filter(Boolean).join(' ');
 }
 function closeOverlays(keep) {
   ['#detail', '#info', '#basket', '#index', '#menu', '#lightbox'].forEach((s) => { $(s).hidden = true; });
@@ -662,17 +663,20 @@ function indexRow(it) {
 }
 function openIndex(filter = 'all') {
   closeOverlays(false); indexFilter = filter; $('#index').hidden = false; $('#index').scrollTop = 0; document.body.classList.add('reading');
-  const gift = filter.startsWith('gift');
+  const gift = filter.startsWith('gift'), G = { gift25: [0, 25, 'Under $25'], gift40: [25, 40, '$25 to $40'], gift75: [40, 75, '$40 to $75'] };
   $('#index-title').textContent = gift ? 'Gifts' : 'Shop index';
   $('#index-lede').textContent = gift ? 'Give a gift that keeps on giving. Pick a budget and we will show what fits.' : 'Everything growing in the garden, in one list.';
   const tab = (id, name) => { const b = el('button', { textContent: name }); b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(id === indexFilter)); b.onclick = () => openIndex(id); return b; };
   $('#index-filter').replaceChildren(tab('all', 'Everything'), ...STATIONS.filter((x) => x.items.length).map((x) => tab(x.id, x.name)));
-  $('#index-gifts').replaceChildren(el('span', { className: 'label', textContent: 'Gifts' }), tab('gift25', 'Under $25'), tab('gift40', 'Under $40'), tab('gift75', 'Under $75'));
+  $('#index-gifts').replaceChildren(el('span', { className: 'label', textContent: 'Gifts' }), tab('gift25', 'Under $25'), tab('gift40', '$25 to $40'), tab('gift75', '$40 to $75'));
   const list = $('#index-list'); list.replaceChildren();
   if (gift) {
-    const handles = gifts[filter.slice(4)] || [];
-    list.append(el('h3', { textContent: `Gifts under $${filter.slice(4)}` }));
-    allItems.filter((it) => handles.includes(it.p.handle) || it.p.handle === 'garden-of-gaia-gift-cards').sort((a, b) => a.p.variants[0].price - b.p.variants[0].price).forEach((it) => list.append(indexRow(it)));
+    const [lo, hi, title] = G[filter] || G.gift25;
+    const cost = (it) => { const v = it.p.variants.find((x) => x.available) || it.p.variants[0]; return now(v.price, it.p); };
+    const card = allItems.find((it) => it.p.handle === CARD);
+    list.append(el('h3', { textContent: 'Let them choose' })); if (card) list.append(indexRow(card));
+    list.append(el('h3', { textContent: `Gifts ${title.toLowerCase()}` }));
+    allItems.filter((it) => it.p.handle !== CARD && cost(it) > lo && cost(it) <= hi).sort((a, b) => cost(a) - cost(b)).forEach((it) => list.append(indexRow(it)));
   } else for (const st of STATIONS.filter((x) => x.items.length && (indexFilter === 'all' || x.id === indexFilter))) {
     list.append(el('h3', { textContent: `${st.name} · ${st.label}` }));
     [...st.items].sort((a, b) => a.p.name.localeCompare(b.p.name)).forEach((it) => list.append(indexRow(it)));
@@ -691,7 +695,8 @@ function showPhoto() {
 /* ---------- menu ---------- */
 function openMenu() {
   closeOverlays(false); $('#menu').hidden = false; document.body.classList.add('reading');
-  const places = $('#menu-places'); places.replaceChildren(...STATIONS.map((x) => el('li', {}, el('a', { href: `#${x.id}`, textContent: x.name }))));
+  const places = $('#menu-places'); places.replaceChildren(...STATIONS.map((x) => el('li', {}, el('a', { href: `#${x.id}` }, el('img', { src: A(`assets/img-s/${x.icon}.webp`), alt: '', loading: 'lazy' }), el('span', { textContent: x.name })))));
+  $('#menu-search').value = '';
   const about = $('#menu-about'); about.replaceChildren(...[...INFO, WORDS].map((i) => { const b = el('button', { textContent: i.title }); b.onclick = () => { go('roots'); openInfo(i); }; return el('li', {}, b); }));
   $('#menu-close').focus({ preventScroll: true });
 }
@@ -832,7 +837,9 @@ $('#detail-add').onclick = () => { selected.hop = 1; addToBasket(chosen.id, qty)
 $('#detail-view-basket').onclick = () => $('#basket-open').click();
 $('#detail-rating').onclick = () => $('#detail-reviews')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
 $('#sale-line').textContent = SALE.line; $('#menu-sale').textContent = SALE.line;
-$('#index-search').oninput = (e) => { const q = e.target.value.trim().toLowerCase(); $('#index-list').querySelectorAll('button').forEach((b) => { b.hidden = q && !b.textContent.toLowerCase().includes(q); }); };
+const searchIndex = (v) => { const q = v.trim().toLowerCase(); $('#index-list').querySelectorAll('button').forEach((b) => { b.hidden = !!q && !b.textContent.toLowerCase().includes(q); }); $('#index-list').querySelectorAll('h3').forEach((h) => { let n = h.nextElementSibling, any = false; while (n && n.tagName !== 'H3') { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; }); };
+$('#index-search').oninput = (e) => searchIndex(e.target.value);
+$('#menu-search-form').onsubmit = (e) => { e.preventDefault(); const q = $('#menu-search').value; openIndex('all'); $('#index-search').value = q; searchIndex(q); };
 $('#sound-toggle').onclick = (e) => { const on = !audio.on; audio.set(on); e.currentTarget.setAttribute('aria-pressed', String(on)); e.currentTarget.textContent = on ? 'Sound on' : 'Sound off'; $('#menu-sound').textContent = on ? 'Turn sound off' : 'Turn sound on'; };
 $('#info-body').addEventListener('click', (e) => { if (e.target.closest('a[href^="#"]')) closeOverlays(true); });
 let toastT;

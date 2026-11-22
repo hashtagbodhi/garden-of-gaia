@@ -142,9 +142,11 @@
       <button class="text-link back" id="index-close">Back to the garden</button>
       <h2 id="index-title">Shop index</h2>
       <p class="lede" id="index-lede"></p>
+      <div class="index-tools">
       <label class="search"><span class="label">Search</span><input id="index-search" type="search" placeholder="Blue lotus, chai, sage…" autocomplete="off"></label>
       <div id="index-filter" class="index-filter" role="tablist" aria-label="Filter by place"></div>
       <div id="index-gifts" class="index-filter" role="tablist" aria-label="Gifts by budget"></div>
+      </div>
     </div>
     <div id="index-list" class="index-list"></div>
   </div>
@@ -154,13 +156,14 @@
 <section id="menu" class="index menu" role="dialog" aria-label="Menu" hidden>
   <div class="menu-in">
     <button class="text-link back" id="menu-close">Back to the garden</button>
+    <form id="menu-search-form" class="search menu-search" role="search"><label class="label" for="menu-search">Search the shop</label><input id="menu-search" type="search" placeholder="Blue lotus, chai, sage…" autocomplete="off" enterkeyhint="search"></form>
     <div class="menu-cols">
       <div><p class="label">Wander</p><ul id="menu-places" class="menu-big"></ul></div>
       <div><p class="label">Shop</p><ul class="menu-mid">
         <li><button data-act="index">Shop index</button></li>
         <li><button data-act="gift25">Gifts under $25</button></li>
-        <li><button data-act="gift40">Gifts under $40</button></li>
-        <li><button data-act="gift75">Gifts under $75</button></li>
+        <li><button data-act="gift40">Gifts $25 to $40</button></li>
+        <li><button data-act="gift75">Gifts $40 to $75</button></li>
         <li><a href="#roots--garden-of-gaia-gift-cards">Gift cards</a></li>
       </ul>
       <p class="label">About</p><ul id="menu-about" class="menu-mid"></ul></div>
