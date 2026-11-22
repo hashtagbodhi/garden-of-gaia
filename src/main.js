@@ -104,14 +104,50 @@ const rnd = () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul
 const rr = (a, b) => a + rnd() * (b - a);
 
 /* ---------- places and where things stand ---------- */
-const PED_TOP = [0.45, 1.85, 3.25];   // each row clears the one in front, like a small amphitheatre
+const PED_TOP = [0.45, 1.85, 3.25];
+/* Real-world heights, so a 4oz jar is smaller than a tea pouch, and the kind of stand each product rests on. */
+function sizeOf(h) {
+  if (/anointing-oil/.test(h)) return ['bottle', 1.35];
+  if (/potions-of-peace-bundle/.test(h)) return ['bottle', 1.5];
+  if (/tincture/.test(h) && !/bundle|trinity/.test(h)) return ['bottle', 1.5];
+  if (/hair-oil/.test(h)) return ['bottle', 1.45];
+  if (/spray/.test(h)) return ['bottle', 1.7];
+  if (/syrup/.test(h)) return ['bottle', 1.9];
+  if (/ritual-collection|tallow-balm-bundle/.test(h)) return ['jar', 1.3];
+  if (/tallow|sticky-chai/.test(h)) return ['jar', 1.3];
+  if (/gift-card/.test(h)) return ['jar', 1.25];
+  if (/candle/.test(h)) return ['ritual', 1.05];
+  if (/resin-incense|frankincense/.test(h)) return ['ritual', 0.85];
+  if (/burner/.test(h)) return ['ritual', 1.6];
+  if (/smudge/.test(h)) return ['ritual', 1.3];
+  if (/palo-santo/.test(h)) return ['ritual', 1.5];
+  if (/cacao-bribri/.test(h)) return ['ritual', 1.15];
+  if (/free-guide/.test(h)) return ['pouch', 2.0];
+  if (/tea-bags/.test(h)) return ['pouch', 2.0];
+  if (/butterfly-chai/.test(h)) return ['pouch', 2.45];
+  return ['pouch', 2.25];
+}
+// surf: where the resting surface sits, as a share of the stand's height from its top; top: usable width of that surface
+const STAND = {
+  ped0: { surf: 0.2, top: 0.75 }, ped1: { surf: 0.05, top: 0.55 }, ped2: { surf: 0.03, top: 0.5 },
+  'stand-mshort': { surf: 0.1, top: 0.9 }, 'stand-mtall': { surf: 0.05, top: 0.95 }, 'stand-mound': { surf: 0.18, top: 0.75 }, 'stand-slice': { surf: 0.15, top: 0.9 },
+};
+function standFor(kind, top) {
+  const low = top < 1.0, mid = top < 2.4;
+  if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
+  if (kind === 'pouch') return low ? 'stand-mound' : mid ? 'ped1' : 'ped2';
+  if (kind === 'ritual') return low ? 'stand-slice' : mid ? 'ped1' : 'ped2';
+  return low ? 'ped0' : mid ? 'ped1' : 'ped2';
+}   // each row clears the one in front, like a small amphitheatre
 for (const s of STATIONS) { s.p = V(s.pos); s.f = V(s.face).normalize(); s.r = new THREE.Vector3(s.f.z, 0, -s.f.x); s.items = []; }
 for (const p of catalog) {
   const c = cuts[p.handle] || { w: 400, h: 400 };
   const t = `${p.handle} ${p.name}`.toLowerCase();
-  const cls = /priesthood-anointing/.test(t) ? 0.5 : /tin|resin-incense|frankincense|candle|cacao/.test(t) ? 0.72 : /smudge|palo|tea-bags|gift-card/.test(t) ? 0.8 : /tincture|oil|spray|syrup|elixir/.test(t) && !/bundle/.test(t) ? 0.84 : /balm|sticky-chai/.test(t) && !/bundle|collection/.test(t) ? 0.78 : /bundle|collection|trinity|moringa-moringa/.test(t) ? 1.08 : 1;   // rough real-world size, so a tin is not as tall as a tea bag
-  const k = Math.min(2.05 / c.w, 2.45 / c.h) * cls;
-  byId[p.station].items.push({ p, w: c.w * k, h: c.h * k, jx: rr(-0.22, 0.22), jz: rr(-0.25, 0.25), ph: rnd() * 6.28, hover: 0, pos: new THREE.Vector3() });
+  const [kind, realH] = sizeOf(p.handle);
+  let h = realH, w = h * (c.w / c.h);
+  if (w > 2.7) { w = 2.7; h = w * (c.h / c.w); }
+  const k = h / c.h;
+byId[p.station].items.push({ p, kind, w: c.w * k, h: c.h * k, jx: rr(-0.22, 0.22), jz: rr(-0.25, 0.25), ph: rnd() * 6.28, hover: 0, pos: new THREE.Vector3() });
 }
 for (const s of STATIONS) s.items.forEach((it, i) => { it.station = s; it.index = i; });
 
@@ -128,7 +164,7 @@ function layout(s) {
     const k = Math.floor(i / per), m = Math.min(per, n - k * per), j = i % per;
     const x = (j - (m - 1) / 2) * 2.9 + (k % 2 ? 0.6 : 0) + it.jx, z = 2.4 - k * 2.1 - x * x * 0.025 + it.jz;
     it.row = k; it.pedType = Math.min(k, 2); it.top = PED_TOP[Math.min(k, 2)] + Math.max(0, k - 2) * 0.95;
-    it.pos.copy(s.D).addScaledVector(s.r, x).addScaledVector(s.f, z).setY(it.top + it.h / 2 - 0.05);
+    it.pos.copy(s.D).addScaledVector(s.r, x).addScaledVector(s.f, z).setY(it.top + it.h / 2 - 0.07);
   });
   const half = ((per - 1) / 2) * 2.9 + 1.6;
   s.half = half;
@@ -239,7 +275,7 @@ let witch, familiar;
 const butterflies = [];
 const unit = new THREE.PlaneGeometry(1, 1);
 const shadowGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
-let shadowMat, witchShadow;
+let shadowMat, contactMat, witchShadow;
 
 function flat(name, h, pos, face, opts = {}) {
   const sp = sprites[name], w = h * (sp.w / sp.h);
@@ -263,9 +299,13 @@ function pumpCuts() {
 function placeItems(s) {
   for (const it of s.items) {
     it.mesh.position.copy(it.pos);
-    const type = it.pedType, sp = sprites['ped' + type], ph = it.top * 1.1, pw = Math.min(2.1, ph * sp.w / sp.h);
-    it.ped.material.map = tex['ped' + type]; it.ped.scale.set(pw, ph, 1);
+    // the stand fits the product: its surface meets the product's base, and it is a little wider than the product
+    const name = standFor(it.kind, it.top), st = STAND[name], sp = sprites[name], ph = it.top / (1 - st.surf), w0 = ph * sp.w / sp.h;
+    const want = (it.w * (s.lined ? it.k || 1 : 1) * 1.18) / st.top, pw = THREE.MathUtils.clamp(want, w0 * 0.72, w0 * 1.3);
+    it.ped.material.map = tex[name]; it.ped.material.needsUpdate = true; it.ped.scale.set(pw, ph, 1);
     it.ped.position.copy(it.pos).setY(ph / 2 - 0.02).addScaledVector(s.f, -0.06);
+    // a soft contact shadow where the product rests
+    it.contact.position.copy(it.pos).setY(it.top + 0.02).addScaledVector(s.f, -0.03); it.contact.scale.set(it.w * (s.lined ? it.k || 1 : 1) * 1.15, 0.34, 1);
     it.shadow.position.copy(it.pos).setY(0.04); it.shadow.position.x += 0.5; it.shadow.position.z += 0.3; it.shadow.scale.set(3.4, 1, 2.2);
     it.halo.position.copy(it.pos).addScaledVector(s.f, -0.25); it.halo.scale.set(it.w * 2.1, it.h * 1.7, 1);
   }
@@ -285,6 +325,7 @@ function buildWorld() {
   ground.rotation.x = -Math.PI / 2; scene.add(ground);
 
   shadowMat = new THREE.MeshBasicMaterial({ map: softPuff(), color: 0x000308, opacity: 0.7, transparent: true, depthWrite: false, fog: true });
+  contactMat = new THREE.MeshBasicMaterial({ map: softPuff(), color: 0x000000, opacity: 0.6, transparent: true, depthWrite: false, fog: true });
   for (const s of STATIONS) {
     s.mesh = flat(s.prop, s.propH, s.propPos || s.p, s.f, { flat: s.flat });
     s.mesh.userData.station = s.id; props.push(s.mesh);
@@ -295,7 +336,8 @@ function buildWorld() {
       it.mesh.visible = false; it.loaded = false;
       it.halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0xcfe6b0, opacity: 0.06, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
       it.shadow = new THREE.Mesh(shadowGeo, shadowMat); it.shadow.renderOrder = 1;
-      scene.add(it.ped, it.mesh, it.halo, it.shadow); goods.push(it.mesh); upright.push(it.ped, it.mesh);
+      it.contact = new THREE.Mesh(unit, contactMat);
+      scene.add(it.ped, it.mesh, it.halo, it.shadow, it.contact); goods.push(it.mesh); upright.push(it.ped, it.mesh, it.contact);
     }
     if (s.items.length) placeItems(s);
   }
@@ -985,7 +1027,7 @@ function frame() {
     const sc = (1 + it.hover * 0.07) * (it.station.lined ? it.k || 1 : 1); it.mesh.scale.set(it.w * sc, it.h * sc, 1);
     goal.copy(selected && it !== selected && it.station === current ? dim : rest).lerp(bright, it.hover);
     it.mesh.material.color.lerp(goal, Math.min(1, dt * 6));
-    const show = it.loaded && (paged || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show;
+    const show = it.loaded && (paged || !(selected && it !== selected && it.station === selected.station)); it.mesh.visible = show; it.ped.visible = show; it.contact.visible = show;
     it.shadow.visible = show; it.halo.visible = show; it.halo.material.opacity = (it === selected ? 0.16 + (it.hop || 0) * 0.14 : 0.06 + it.hover * 0.12) * (0.9 + 0.1 * Math.sin(t * 1.3 + it.ph));
   }
   // every product in this clearing carries its name
