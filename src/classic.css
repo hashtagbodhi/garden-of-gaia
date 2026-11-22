@@ -1215,3 +1215,6 @@ body.nav-open .ask-sarah, .sheet:not([hidden]) ~ .ask-sarah { display: none; }
   .menu-btn { width: 40px; min-height: 40px; height: 40px; }
   .menu-btn .mb-ic i { width: 17px !important; }
 }
+
+/* fix: on short phones the open menu scrolls instead of running off the bottom of the screen */
+@media (max-width: 760px) { .nav { max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } }
