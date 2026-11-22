@@ -740,6 +740,7 @@ function go(id, instant) {
   if (home) { acts.append(el('a', { className: 'btn', href: '#tea', textContent: 'Walk into the garden' })); const b = el('button', { className: 'text-link', textContent: 'Open the shop index' }); b.onclick = () => openIndex(); acts.append(b); }
   else if (s.id !== 'roots') { const b = el('button', { className: 'text-link', textContent: `Read all ${s.items.length} as a list` }); b.onclick = () => openIndex(s.id); acts.append(b); }
   document.querySelectorAll('#places-list a').forEach((a) => (a.dataset.id === s.id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+  document.querySelector('#places-list a[aria-current]')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   $('#places-count').textContent = `${STATIONS.indexOf(s) + 1} / ${STATIONS.length}`;
   document.title = home ? 'The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures' : `${s.name} | The Garden of Gaia Apothecary`;
   if (!selected) restShift();
@@ -816,7 +817,8 @@ addEventListener('keydown', (e) => {
 });
 
 /* ---------- DOM wiring ---------- */
-for (const s of STATIONS) { const a = el('a', { href: `#${s.id}`, textContent: s.name }); a.dataset.id = s.id; $('#places-list').append(a); }
+for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.icon}.webp`)})`; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
+$('#gifts-top').onclick = () => openIndex('gift25');
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };
 $('#places-prev').onclick = () => step(-1); $('#places-next').onclick = () => step(1);
 $('#gifts-open').onclick = () => openIndex('gift25');
