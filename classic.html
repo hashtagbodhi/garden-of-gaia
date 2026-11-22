@@ -53,20 +53,28 @@
 
 <footer class="foot" id="foot"></footer>
 
-<aside id="basket" class="drawer" role="dialog" aria-modal="true" aria-labelledby="basket-title" hidden>
-  <div class="drawer-in">
-    <div class="drawer-head"><h2 id="basket-title">Your basket</h2><button class="x" id="basket-close" aria-label="Close basket">&times;</button></div>
-    <div id="basket-ship" class="ship"></div>
-    <ul id="basket-items" class="lines"></ul>
-    <p id="basket-empty" class="empty">Your basket is empty. Every flower, root and spice here comes straight from family farms in Sri Lanka.</p>
-    <div id="basket-foot" class="drawer-foot">
-      <p class="subtotal"><span>Subtotal</span><strong id="basket-total">$0.00</strong></p>
-      <a id="basket-checkout" class="btn btn-main wide" href="#" target="_blank" rel="noopener">Check out</a>
-      <p class="fine">Checkout opens on our secure Shopify store. Shipping and taxes are calculated there.</p>
+<aside id="basket" class="sheet" role="dialog" aria-modal="true" aria-labelledby="basket-title" hidden>
+  <div class="sheet-in">
+    <header class="sheet-head">
+      <h2 id="basket-title">Your basket <span id="basket-n" class="sheet-n"></span></h2>
+      <div id="basket-ship" class="vine"></div>
+      <button class="sheet-x" id="basket-close">Keep shopping <span aria-hidden="true">&uarr;</span></button>
+    </header>
+    <div class="sheet-body">
+      <ul id="basket-items" class="tray"></ul>
+      <div id="basket-empty" class="sheet-empty"><p class="lede">Your basket is empty.</p><p>Every flower, root and spice here comes straight from family farms in Sri Lanka.</p><a class="btn btn-main" href="#shop" id="basket-shop">Shop the apothecary</a></div>
+      <div id="basket-foot" class="sheet-sum">
+        <p class="subtotal"><span>Subtotal</span><strong id="basket-total">$0.00</strong></p>
+        <p id="basket-note" class="sum-note"></p>
+        <a id="basket-checkout" class="btn btn-main" href="#" target="_blank" rel="noopener">Check out</a>
+        <p class="fine">Checkout opens on our secure Shopify store. Shipping and taxes are calculated there.</p>
+      </div>
     </div>
+    <div id="basket-more" class="sheet-more"></div>
   </div>
+  <button class="sheet-tab" id="basket-tab" aria-label="Close basket"><i></i></button>
 </aside>
-<div id="scrim" class="scrim" hidden></div>
+<div id="scrim" class="sheet-scrim"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script type="module" src="./src/classic.js"></script>
 </body>

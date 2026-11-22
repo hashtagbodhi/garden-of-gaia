@@ -3,6 +3,7 @@ import '@fontsource-variable/eb-garamond/wght-italic.css';
 import '@fontsource-variable/instrument-sans';
 import '@fontsource/emilys-candy/latin-400.css';
 import './style.css';
+import './sheet.css';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -638,22 +639,37 @@ function nameBtn(p) {
 function renderBasket() {
   const ul = $('#basket-items'); ul.replaceChildren();
   let total = 0, count = 0;
-  for (const l of basket) {
-    const { p, v } = variantIndex.get(l.id); total += now(v.price, p) * l.qty; count += l.qty;
-    const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` });
+  basket.forEach((l, i) => {
+    const { p, v } = variantIndex.get(l.id); const each = now(v.price, p); total += each * l.qty; count += l.qty;
+    const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` }), drop = el('button', { className: 'tc-drop', textContent: 'Remove', ariaLabel: `Remove ${p.name}` });
     minus.onclick = () => { l.qty--; if (l.qty < 1) basket = basket.filter((x) => x !== l); saveBasket(); };
     plus.onclick = () => { l.qty++; saveBasket(); };
-    ul.append(el('li', {}, el('img', { src: thumbUrl(p), alt: '' }),
-      el('div', {}, nameBtn(p), el('div', { className: 'v', textContent: [p.sub, v.title && p.handle !== CARD ? v.title : ''].filter(Boolean).join(' · ') }), ...(about(p) ? [el('div', { className: 'd', textContent: about(p) })] : []), el('div', { className: 'pr', textContent: `${money(+(now(v.price, p) * l.qty).toFixed(2))}${l.qty > 1 ? ` · ${money(now(v.price, p))} each` : ''}` })),
-      el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus)));
-  }
+    drop.onclick = () => { basket = basket.filter((x) => x !== l); saveBasket(); };
+    const li = el('li', { className: 'tc' }, el('div', { className: 'tc-art' }, el('img', { src: thumbUrl(p), alt: '' })),
+      el('div', { className: 'tc-info' }, nameBtn(p), el('div', { className: 'v', textContent: [p.sub, v.title && p.handle !== CARD ? v.title : ''].filter(Boolean).join(' · ') }),
+        el('div', { className: 'tc-row' }, el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus), el('div', { className: 'pr', textContent: money(+(each * l.qty).toFixed(2)) })), drop));
+    li.style.setProperty('--i', i); ul.append(li);
+  });
   $('#basket-count').textContent = count;
+  $('#basket-n').textContent = count ? `· ${count} ${count === 1 ? 'item' : 'items'}` : '';
   $('#basket-total').textContent = `$${total.toFixed(2)}`;
+  $('#basket-note').textContent = basket.some((l) => variantIndex.get(l.id).p.sale) && SALE.pct ? `Prices include ${SALE.pct}% off, applied at checkout.` : '';
   $('#basket-empty').hidden = basket.length > 0; $('#basket-foot').hidden = basket.length === 0;
-  const left = FREE_SHIPPING_AT - total, ship = $('#basket-ship');
-  ship.hidden = basket.length === 0;
-  ship.replaceChildren(el('span', { textContent: left > 0 ? `${money(+left.toFixed(2))} away from free U.S. shipping` : 'You have free U.S. shipping' }), el('div', { className: 'ship-bar' }, el('i', { style: `width:${Math.min(100, (total / FREE_SHIPPING_AT) * 100)}%` })));
+  // the free-shipping vine grows toward a flower as the basket fills
+  const left = FREE_SHIPPING_AT - total, pct = Math.min(100, (total / FREE_SHIPPING_AT) * 100), ship = $('#basket-ship');
+  ship.replaceChildren(el('span', { className: 'vine-t', textContent: !basket.length ? `Free U.S. shipping over ${money(FREE_SHIPPING_AT)}` : left > 0 ? `${money(+left.toFixed(2))} away from free U.S. shipping` : 'Free U.S. shipping is yours' }),
+    el('div', { className: `vine-bar${left <= 0 ? ' done' : ''}` }, el('i', { style: `width:${pct}%` }), el('b', { className: 'vine-bud', style: `left:${pct}%` }), el('em', { className: 'vine-flower', textContent: '✿' })));
   $('#basket-checkout').href = `${STORE}/cart/${basket.map((l) => `${l.id}:${l.qty}`).join(',')}`;
+  // a few things that would carry the basket to free shipping
+  const inB = new Set(basket.map((l) => variantIndex.get(l.id).p)), price = (p) => now((p.variants.find((x) => x.available) || p.variants[0]).price, p);
+  const pool = catalog.filter((p) => !inB.has(p) && p.handle !== CARD && price(p) > 0 && p.variants.some((x) => x.available));
+  const picks = (left > 0 && basket.length ? pool.filter((p) => price(p) >= left).sort((x, y) => price(x) - price(y)) : pool.filter((p) => p.sale)).slice(0, 4);
+  const more = $('#basket-more'); more.replaceChildren();
+  if (picks.length) more.append(el('p', { className: 'label', textContent: left > 0 && basket.length ? 'Any of these brings free shipping' : 'Loved in the garden' }), el('div', { className: 'more-row' }, ...picks.map((p) => {
+    const add = el('button', { className: 'more-add', textContent: '+ Add', ariaLabel: `Add ${p.name} to basket` });
+    add.onclick = () => addToBasket((p.variants.find((x) => x.available) || p.variants[0]).id, 1);
+    return el('div', { className: 'more-c' }, el('img', { src: thumbUrl(p), alt: '' }), el('div', {}, nameBtn(p), el('span', { className: 'pr', textContent: money(price(p)) })), add);
+  })));
 }
 
 /* ---------- reading a product ---------- */
@@ -963,7 +979,7 @@ $('#focus-prev').onclick = () => { current.panTarget = Math.max(0, focusOf(curre
 $('#focus-next').onclick = () => { current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
 $('#focus-list').onclick = () => openIndex(current.id);
 $('#info-close').onclick = () => closeOverlays();
-$('#basket-close').onclick = () => { $('#basket').hidden = true; };
+$('#basket-close').onclick = $('#basket-tab').onclick = $('#basket-scrim').onclick = () => { $('#basket').hidden = true; };
 $('#index-close').onclick = () => closeOverlays();
 $('#index-open').onclick = () => openIndex();
 $('#basket-open').onclick = () => { renderBasket(); $('#basket').hidden = false; $('#basket-close').focus({ preventScroll: true }); };

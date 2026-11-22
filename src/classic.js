@@ -4,6 +4,7 @@ import '@fontsource-variable/eb-garamond/wght-italic.css';
 import '@fontsource-variable/instrument-sans';
 import '@fontsource/emilys-candy/latin-400.css';
 import './classic.css';
+import './sheet.css';
 import catalog from './catalog.json';
 import reviewData from './reviews.json';
 import ingredientData from './ingredients.json';
@@ -62,23 +63,39 @@ function addToBasket(id, qty, name) {
 function renderBasket() {
   const ul = $('#basket-items'); ul.replaceChildren();
   let count = 0;
-  for (const l of basket) {
-    const { p, v } = variantIndex.get(l.id); count += l.qty;
-    const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` });
+  basket.forEach((l, i) => {
+    const { p, v } = variantIndex.get(l.id); const each = now(v.price, p); count += l.qty;
+    const minus = el('button', { textContent: '−', ariaLabel: `One fewer ${p.name}` }), plus = el('button', { textContent: '+', ariaLabel: `One more ${p.name}` }), drop = el('button', { className: 'tc-drop', textContent: 'Remove', ariaLabel: `Remove ${p.name}` });
     minus.onclick = () => { l.qty--; if (l.qty < 1) basket = basket.filter((x) => x !== l); saveBasket(); };
     plus.onclick = () => { l.qty++; saveBasket(); };
+    drop.onclick = () => { basket = basket.filter((x) => x !== l); saveBasket(); };
     const name = el('a', { className: 'n', href: `#p--${p.handle}`, textContent: p.name }); name.onclick = closeBasket;
-    ul.append(el('li', {}, el('img', { src: A(`assets/thumb/${p.handle}.webp`), alt: '' }),
-      el('div', {}, name, el('p', { className: 'v', textContent: [p.sub, p.handle !== CARD && v.title].filter(Boolean).join(' · ') }), el('p', { className: 'pr', textContent: money(+(now(v.price, p) * l.qty).toFixed(2)) })),
-      el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus)));
-  }
+    const li = el('li', { className: 'tc' }, el('div', { className: 'tc-art' }, el('img', { src: A(`assets/thumb/${p.handle}.webp`), alt: '' })),
+      el('div', { className: 'tc-info' }, name, el('div', { className: 'v', textContent: [p.sub, p.handle !== CARD && v.title].filter(Boolean).join(' · ') }),
+        el('div', { className: 'tc-row' }, el('div', { className: 'q' }, minus, el('span', { textContent: l.qty }), plus), el('div', { className: 'pr', textContent: money(+(each * l.qty).toFixed(2)) })), drop));
+    li.style.setProperty('--i', i); ul.append(li);
+  });
   $('#basket-count').textContent = count;
-  const t = total(), left = FREE_SHIPPING_AT - t;
+  $('#basket-n').textContent = count ? `· ${count} ${count === 1 ? 'item' : 'items'}` : '';
+  const t = total(), left = FREE_SHIPPING_AT - t, pct = Math.min(100, (t / FREE_SHIPPING_AT) * 100);
   $('#basket-total').textContent = `$${t.toFixed(2)}`;
+  $('#basket-note').textContent = basket.some((l) => variantIndex.get(l.id).p.sale) && SALE.pct ? `Prices include ${SALE.pct}% off, applied at checkout.` : '';
   $('#basket-empty').hidden = basket.length > 0; $('#basket-foot').hidden = !basket.length;
-  const ship = $('#basket-ship'); ship.hidden = !basket.length;
-  ship.replaceChildren(el('p', { textContent: left > 0 ? `${money(+left.toFixed(2))} away from free U.S. shipping` : 'You have free U.S. shipping' }), el('div', { className: 'bar' }, el('i', { style: `width:${Math.min(100, (t / FREE_SHIPPING_AT) * 100)}%` })));
+  // the free-shipping vine grows toward a flower as the basket fills
+  $('#basket-ship').replaceChildren(el('span', { className: 'vine-t', textContent: !basket.length ? `Free U.S. shipping over ${money(FREE_SHIPPING_AT)}` : left > 0 ? `${money(+left.toFixed(2))} away from free U.S. shipping` : 'Free U.S. shipping is yours' }),
+    el('div', { className: `vine-bar${left <= 0 ? ' done' : ''}` }, el('i', { style: `width:${pct}%` }), el('b', { className: 'vine-bud', style: `left:${pct}%` }), el('em', { className: 'vine-flower', textContent: '✿' })));
   $('#basket-checkout').href = `${STORE}/cart/${basket.map((l) => `${l.id}:${l.qty}`).join(',')}`;
+  // a few things that would carry the basket to free shipping
+  const inB = new Set(basket.map((l) => variantIndex.get(l.id).p)), price = (p) => now((p.variants.find((x) => x.available) || p.variants[0]).price, p);
+  const pool = catalog.filter((p) => !inB.has(p) && p.handle !== CARD && price(p) > 0 && p.variants.some((x) => x.available));
+  const picks = (left > 0 && basket.length ? pool.filter((p) => price(p) >= left).sort((x, y) => price(x) - price(y)) : best.filter((p) => !inB.has(p))).slice(0, 4);
+  const more = $('#basket-more'); more.replaceChildren();
+  if (picks.length) more.append(el('p', { className: 'label', textContent: left > 0 && basket.length ? 'Any of these brings free shipping' : 'Most loved' }), el('div', { className: 'more-row' }, ...picks.map((p) => {
+    const add = el('button', { className: 'more-add', textContent: '+ Add', ariaLabel: `Add ${p.name} to basket` });
+    add.onclick = () => addToBasket((p.variants.find((x) => x.available) || p.variants[0]).id, 1, p.name);
+    const n = el('a', { className: 'n', href: `#p--${p.handle}`, textContent: p.name }); n.onclick = closeBasket;
+    return el('div', { className: 'more-c' }, el('img', { src: A(`assets/thumb/${p.handle}.webp`), alt: '' }), el('div', {}, n, el('span', { className: 'pr', textContent: money(price(p)) })), add);
+  })));
 }
 function openBasket() { renderBasket(); $('#basket').hidden = false; $('#scrim').hidden = false; document.body.classList.add('locked'); $('#basket-close').focus(); }
 function closeBasket() { $('#basket').hidden = true; $('#scrim').hidden = true; document.body.classList.remove('locked'); }
@@ -379,7 +396,7 @@ const closeMenu = () => { document.body.classList.remove('nav-open'); $('#menu-b
 
 /* ---------- boot ---------- */
 $('#ticker').append(...Array.from({ length: 2 }, () => el('div', { className: 'ticker-set' }, [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean).map((t) => el('span', {}, t, el('i', { textContent: '✦' }))))));
-$('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket;
+$('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); };
 $('#to-garden').onclick = () => store.set('gaia-view', 'garden');
 addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeBasket(); closeMenu(); } });

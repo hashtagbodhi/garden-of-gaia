@@ -125,21 +125,29 @@
   </div>
 </aside>
 
-<!-- Basket: the one real panel -->
-<aside id="basket" class="panel" role="dialog" aria-labelledby="basket-title" hidden>
-  <div class="panel-in">
-    <button class="text-link back" id="basket-close">Keep wandering</button>
-    <h2 id="basket-title">Your basket</h2>
-    <div id="basket-ship" class="ship"></div>
-    <ul id="basket-items" class="lines"></ul>
-    <p id="basket-empty" class="lede">Nothing here yet. Pick something up in the garden and it will wait for you here.</p>
-    <div id="basket-foot" class="foot">
-      <p class="subtotal"><span class="label">Subtotal</span><strong id="basket-total">$0.00</strong></p>
-      <a id="basket-checkout" class="btn" href="#" target="_blank" rel="noopener">Check out</a>
-      <p class="fine">Checkout opens on our secure Shopify store. Shipping and taxes are calculated there.</p>
+<!-- Basket: drops down from the top like a curtain of leaves -->
+<aside id="basket" class="sheet" role="dialog" aria-modal="true" aria-labelledby="basket-title" hidden>
+  <div class="sheet-in">
+    <header class="sheet-head">
+      <h2 id="basket-title">Your basket <span id="basket-n" class="sheet-n"></span></h2>
+      <div id="basket-ship" class="vine"></div>
+      <button class="sheet-x" id="basket-close">Keep wandering <span aria-hidden="true">&uarr;</span></button>
+    </header>
+    <div class="sheet-body">
+      <ul id="basket-items" class="tray"></ul>
+      <div id="basket-empty" class="sheet-empty"><p class="lede">Nothing here yet.</p><p>Pick something up in the garden and it will wait for you here.</p></div>
+      <div id="basket-foot" class="sheet-sum">
+        <p class="subtotal"><span class="label">Subtotal</span><strong id="basket-total">$0.00</strong></p>
+        <p id="basket-note" class="sum-note"></p>
+        <a id="basket-checkout" class="btn" href="#" target="_blank" rel="noopener">Check out</a>
+        <p class="fine">Checkout opens on our secure Shopify store. Shipping and taxes are calculated there.</p>
+      </div>
     </div>
+    <div id="basket-more" class="sheet-more"></div>
   </div>
+  <button class="sheet-tab" id="basket-tab" aria-label="Close basket"><i></i></button>
 </aside>
+<div id="basket-scrim" class="sheet-scrim"></div>
 
 <!-- Index: the whole shop as a typographic list -->
 <section id="index" class="index" role="dialog" aria-labelledby="index-title" hidden>
