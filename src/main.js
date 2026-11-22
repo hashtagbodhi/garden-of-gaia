@@ -136,8 +136,8 @@ function lineLayout(s) {
 }
 function panView(s) {
   const base = s.D.clone().addScaledVector(s.r, s.pan);
-  s.camPos = base.clone().addScaledVector(s.f, 7.6).setY(3.2);
-  s.camLook = base.clone().setY(2.7);
+  s.camPos = base.clone().addScaledVector(s.f, 9.4).setY(3.3);
+  s.camLook = base.clone().setY(2.75);
   s.witchPos = base.clone().addScaledVector(s.r, 1.25).addScaledVector(s.f, -2.3);
 }
 const focusOf = (s) => s.items[THREE.MathUtils.clamp(Math.round(s.panTarget / STEP), 0, s.items.length - 1)];
@@ -724,7 +724,7 @@ function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
   labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: priceLabel(it.p) })); box.append(d); return { it, el: d }; });
 }
-function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.105 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
+function restShift() { shift.ty = portrait ? innerHeight * (current?.items.length ? 0.15 : 0.17) : 0; shift.tx = current?.items.length && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
@@ -782,7 +782,7 @@ canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clie
 canvas.addEventListener('pointermove', (e) => {
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
-    const perPx = (2 * 7.6 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth;
+    const perPx = (2 * 9.4 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth;
     current.panTarget = THREE.MathUtils.clamp(current.panTarget - (e.clientX - down.last) * perPx * 1.15, -0.6, (current.items.length - 1) * STEP + 0.6);
     down.last = e.clientX; syncFocus(); return;
   }
@@ -818,7 +818,7 @@ addEventListener('keydown', (e) => {
 });
 
 /* ---------- DOM wiring ---------- */
-for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.icon}.webp`)})`; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
+for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.id === 'gate' ? 'witch-face' : s.icon}.webp`)})`; if (s.id === 'gate') i.style.backgroundSize = 'cover'; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
 $('#gifts-top').onclick = () => openIndex('gift25');
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };
 $('#places-prev').onclick = () => step(-1); $('#places-next').onclick = () => step(1);
