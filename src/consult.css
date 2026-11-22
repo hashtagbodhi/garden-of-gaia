@@ -161,3 +161,42 @@ html.consult-on .ask-sarah { display: none; }
 }
 @media (max-width: 860px) { .cs-close { position: absolute; top: 16px; right: 16px; } .cs-card > .cs-close-m { display: block; } }
 @media (prefers-reduced-motion: reduce) { .cs-body, .cs-pick, .cs-say p, .ask-sarah, .ask-sarah .as-face::after { animation: none; } .consult, .cs-card { transition: none; } }
+
+/* ===== second pass: room around the pop-out, no empty space inside, a way out you cannot miss ===== */
+.cs-card, .consult.wide .cs-card { height: auto; max-height: 100%; }
+.cs-card { min-height: min(560px, 100%); }
+.cs-body { justify-content: flex-start; padding-top: 10px; }
+.cs-q { font-family: var(--c-hand); font-weight: 400; letter-spacing: 0; line-height: 1.14; font-size: clamp(1.7rem, 2.9vw, 2.4rem); color: #fbf3dd; }
+.cs-close { width: auto; height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px 0 16px; border-radius: 999px; font-size: .82rem; font-weight: 500; letter-spacing: .04em; color: var(--c-ink) !important; background: rgba(8, 10, 26, .85) !important; box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .6); }
+.cs-close b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--c-gold); color: #0b1020; font-size: .78rem; font-weight: 600; }
+.cs-close:hover { background: rgba(240, 195, 90, .2) !important; }
+/* the first button is an invitation, not a form control */
+.cs-begin { position: relative; overflow: hidden; gap: 14px; min-height: 62px; padding: 0 30px 0 26px; margin-top: 28px; font-family: var(--c-hand) !important; font-style: normal; font-size: 1.42rem !important; letter-spacing: .01em; color: #1a0f2e !important;
+  background: linear-gradient(110deg, #f7dc97, #f0c35a 45%, #ffd9a8 70%, #f0c35a) !important; background-size: 220% 100% !important; animation: cs-flow 5s linear infinite;
+  box-shadow: 0 0 0 1px #fff3c9, 0 0 0 6px rgba(11, 13, 31, .9), 0 0 0 7px rgba(240, 195, 90, .55), 0 18px 46px -12px rgba(240, 195, 90, .85); }
+.cs-begin::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .7) 50%, transparent 65%); translate: -120% 0; animation: cs-sheen 3.4s ease-in-out infinite; }
+.cs-begin .cs-star { display: inline-block; font-size: 1.1rem; animation: cs-spin 6s linear infinite; }
+.cs-begin .cs-arrow { font-family: var(--c-sans); font-size: 1.1rem; transition: translate .25s; }
+.cs-begin:hover .cs-arrow { translate: 5px 0; }
+@keyframes cs-flow { to { background-position: -220% 0; } }
+@keyframes cs-sheen { 0%, 55% { translate: -120% 0; } 100% { translate: 120% 0; } }
+@keyframes cs-spin { to { rotate: 360deg; } }
+@media (max-width: 860px) {
+  .consult { padding: 46px 22px; align-items: center; }
+  .cs-card, .consult.wide .cs-card { height: auto; max-height: 100%; min-height: 0; grid-template-rows: auto minmax(0, auto); }
+  .cs-side { padding: 16px 18px 12px; }
+  .cs-top { padding: 12px 0 8px; grid-template-columns: auto 1fr auto; }
+  .cs-top > :last-child { visibility: visible; }
+  .cs-close { position: static; height: 36px; padding: 0 6px 0 13px; }
+  .cs-close b { width: 24px; height: 24px; }
+  .cs-dots { justify-self: center; } .cs-dots i { width: 13px; }
+  .cs-q { font-size: 1.55rem; }
+  .cs-sub { font-size: 1rem; margin-top: 8px; }
+  .cs-fine { margin-top: 14px; }
+  .cs-in { padding-bottom: 22px; }
+  .cs-begin { width: 100%; justify-content: center; min-height: 58px; margin-top: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .cs-begin, .cs-begin::after, .cs-begin .cs-star { animation: none; } }
+
+.cs-top { display: flex; align-items: center; justify-content: space-between; }
+.cs-dots { margin: 0 auto; }

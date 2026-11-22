@@ -14,7 +14,7 @@ const { chromium, devices } = require('playwright');
     if (tag === 'd') { await p.mouse.move(cx, cy); await p.mouse.down(); for (let i = 1; i <= 12; i++) await p.mouse.move(cx - i * 22, cy + i * 14); await p.mouse.up(); }
     else { const cdp = await ctx.newCDPSession(p); await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: cx, y: cy }] }); for (let i = 1; i <= 12; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: cx - i * 12, y: cy + i * 10 }] }); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); }
     await p.waitForTimeout(2500); await p.screenshot({ path: `raw/_g2-${tag}-1.jpg`, type: 'jpeg', quality: 78 });
-    await p.evaluate(() => { location.hash = '#grove--ginger'; }); await p.waitForTimeout(1800); await p.screenshot({ path: `raw/_g2-${tag}-plant.jpg`, type: 'jpeg', quality: 78 });
+    await p.evaluate(() => { location.hash = '#grove--ginger'; }); await p.waitForTimeout(2200); await p.screenshot({ path: `raw/_g2-${tag}-plant.jpg`, type: 'jpeg', quality: 78 });
     console.log(tag, 'plant:', await p.textContent('#info-title'), '| products:', await p.locator('.plant-goods li').count(), '| uses:', await p.locator('.plant-uses b').allTextContents());
     await p.click('#info-close'); await p.waitForTimeout(800);
     await p.click('.ask-sarah'); await p.waitForTimeout(900); await p.screenshot({ path: `raw/_g2-${tag}-ask.jpg`, type: 'jpeg', quality: 78 });

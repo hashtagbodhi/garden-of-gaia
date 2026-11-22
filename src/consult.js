@@ -175,7 +175,7 @@ let state;
 const STEPS = 5;
 
 function shell(body, { q, sub, back = true, n }) {
-  const close = el('button', { className: 'cs-close', type: 'button', ariaLabel: 'Close', textContent: '✕' }); close.onclick = closeConsult;
+  const close = el('button', { className: 'cs-close', type: 'button', ariaLabel: 'Close the consultation' }, el('span', { textContent: 'Close' }), el('b', { ariaHidden: 'true', textContent: '✕' })); close.onclick = closeConsult;
   const prev = back ? el('button', { className: 'cs-back', type: 'button', textContent: '← Back' }) : null;
   if (prev) prev.onclick = () => { state.step = Math.max(0, state.step - 1); render(); };
   const dots = n ? el('div', { className: 'cs-dots', ariaLabel: `Question ${n} of ${STEPS}` }, Array.from({ length: STEPS }, (_, i) => el('i', { className: i < n ? 'on' : '' }))) : null;
@@ -199,7 +199,7 @@ const next = () => { state.step++; render(); };
 function render() {
   const s = state; let view;
   if (s.step === 0) {
-    const go = el('button', { className: 'cs-go', type: 'button', textContent: 'Begin the consultation ✦' }); go.onclick = next;
+    const go = el('button', { className: 'cs-go', type: 'button', ariaLabel: 'Begin my ritual' }, el('span', { className: 'cs-star', ariaHidden: 'true', textContent: '✦' }), el('span', { textContent: 'Begin my ritual' }), el('span', { className: 'cs-arrow', ariaHidden: 'true', textContent: '→' })); go.classList.add('cs-begin'); go.onclick = next;
     view = shell(el('div', {}, go, el('p', { className: 'cs-fine', textContent: 'Based on traditional herbal use. It is not medical advice, so check with your practitioner if you are pregnant, nursing or on medication.' })),
       { q: 'Tell me what you are carrying, and I will choose from the shelves.', sub: 'Five quick questions about what you need, how you like to take your plants and anything I should be careful of. Then I will put together a small ritual of three, and tell you why each one.', back: false });
     view.classList.add('cs-hello');

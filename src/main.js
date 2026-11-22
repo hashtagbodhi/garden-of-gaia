@@ -136,37 +136,44 @@ const STAND = {
   ped0: { surf: 0.2, top: 0.75 }, ped1: { surf: 0.05, top: 0.55 }, ped2: { surf: 0.03, top: 0.5 },
   'stand-mshort': { surf: 0.1, top: 0.9 }, 'stand-mtall': { surf: 0.05, top: 0.95 }, 'stand-mound': { surf: 0.18, top: 0.75 }, 'stand-slice': { surf: 0.15, top: 0.9 },
 };
-/* The herb grove: a bed of real plants to wander with a finger. Each plant is a photograph on a garden marker,
-   and where a scanned 3D model of it exists (Poly Haven, CC0) the model grows beside it. */
+/* The herb grove: every plant we work with, a real photograph held in a drop of night air, drifting slowly.
+   Wide screens see the whole cloud at once; phones slide along it with a finger. */
 const GPLANTS = ingredientData.plants, GCOUNT = {};
 for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
 const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
 const GBED = GKEYS.filter((k) => plantPhotos[k] || plantModels[k]);
-const GCOLS = 6, GSX = 3.3, GSZ = 3.5, GCAM = 7.4, groveOrbs = [];
+const groveOrbs = [];
 const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
 function groveLayout(s) {
-  const rows = Math.ceil(GBED.length / GCOLS), w = (GCOLS - 0.5) * GSX;
-  s.D = s.p.clone().addScaledVector(s.f, 4).addScaledVector(s.r, -w / 2);   // the front-left corner of the bed
-  s.gLined = portrait; s.gFree = true; s.gW = w; s.gDepth = (rows - 1) * GSZ; s.gPos = {}; s.gXZ = {};
+  const n = GBED.length, cols = portrait ? 15 : 9, rows = Math.ceil(n / cols), sx = portrait ? 2.25 : 2.75, sy = portrait ? 2.05 : 2.3;
+  s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait; s.gFree = portrait; s.gPos = {}; s.gXZ = {};
+  const half = ((cols - 1) / 2) * sx; s.gHalf = half + 1.5;
   GBED.forEach((k, i) => {
-    const row = Math.floor(i / GCOLS), col = i % GCOLS, h = khash(k);
-    const x = col * GSX + (row % 2 ? GSX * 0.5 : 0) + ((h % 7) - 3) * 0.08, z = row * GSZ + (((h >> 3) % 7) - 3) * 0.07;
-    s.gXZ[k] = [x, z]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, -z).setY(0);
+    const row = Math.floor(i / cols), m = Math.min(cols, n - row * cols), col = i % cols, h = khash(k);
+    const x = (col - (m - 1) / 2) * sx + (row % 2 ? sx * 0.28 : -sx * 0.14) + ((h % 7) - 3) * 0.07;
+    const y = 1.75 + (rows - 1 - row) * sy + (((h >> 3) % 7) - 3) * 0.09, z = -(((h >> 6) % 9) / 8) * 2.4 - (rows - 1 - row) * 0.35;
+    s.gXZ[k] = [x, y]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(y);
   });
-  if (s.gx == null) { s.gx = s.gtx = w / 2; s.gz = s.gtz = 0; }
-  groveView(s);
+  const top = 1.75 + (rows - 1) * sy;
+  if (portrait) { if (s.gx == null || Math.abs(s.gx) > half) s.gx = s.gtx = -half + 2.3; s.gMid = (1.75 + top) / 2; groveView(s); }
+  else {
+    const fit = (half + 2.3) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
+    s.camPos = s.D.clone().addScaledVector(s.f, 1.5 + fit).setY(top * 0.5 + 1.1);
+    s.camLook = s.D.clone().addScaledVector(s.f, -1).setY(top * 0.5 + 0.75);
+    s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 3.2)).addScaledVector(s.f, 2.4);
+  }
+  s.propPos = s.D.clone().addScaledVector(s.f, -8.5);
   if (built) placeGrove(s);
 }
 function groveView(s) {
-  const base = s.D.clone().addScaledVector(s.r, s.gx).addScaledVector(s.f, -s.gz);
-  s.camPos = base.clone().addScaledVector(s.f, GCAM).setY(portrait ? 3.3 : 3.5);
-  s.camLook = base.clone().addScaledVector(s.f, -1.4).setY(1.75);
-  s.witchPos = s.D.clone().addScaledVector(s.r, -2.3).addScaledVector(s.f, 0.4);
-  s.propPos = s.D.clone().addScaledVector(s.r, s.gW / 2).addScaledVector(s.f, -(s.gDepth + 7));
+  const base = s.D.clone().addScaledVector(s.r, s.gx);
+  s.camPos = base.clone().addScaledVector(s.f, 10.6).setY(s.gMid + 0.5);
+  s.camLook = base.clone().setY(s.gMid + 0.25);
+  s.witchPos = s.D.clone().addScaledVector(s.r, -(s.gHalf + 1.2)).addScaledVector(s.f, 1.2);
 }
-// the plant nearest to where you are looking
-const groveFocus = (s) => { let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, z] = s.gXZ[k], d = (x - s.gtx) ** 2 + (z - s.gtz - 0.5) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
-const groveClamp = (s) => { s.gtx = THREE.MathUtils.clamp(s.gtx, -0.8, s.gW + 0.8); s.gtz = THREE.MathUtils.clamp(s.gtz, -1.6, s.gDepth + 0.4); };
+// the plant nearest the middle of the view
+const groveFocus = (s) => { let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, y] = s.gXZ[k], d = (x - s.gtx) ** 2 + ((y - s.gMid) * 0.55) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
+const groveClamp = (s) => { s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + 1, s.gHalf - 1); };
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -350,20 +357,26 @@ function placeItems(s) {
 
 const credit = (k) => (plantPhotos[k]?.by || '').replace(/^\(c\)\s*/, '').replace(/, some rights reserved \((.*?)\)/, ', $1').replace(/^no rights reserved.*/, 'public domain (CC0)');
 function roundRect2(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
-// a garden marker: the real photograph of the plant, its name written beneath
-function plateTexture(k) {
-  const pl = GPLANTS[k], photo = !!plantPhotos[k], W = 384, H = photo ? 580 : 150, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
+// a drop of air holding the real photograph: thin rim, a soft highlight, the name written beneath
+function bubbleTexture(k) {
+  const pl = GPLANTS[k], photo = !!plantPhotos[k], W = 384, H = 500, R = 172, cx = W / 2, cy = 190, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const draw = (img) => {
     x.clearRect(0, 0, W, H);
-    roundRect2(x, 2, 2, W - 4, H - 4, 26); x.fillStyle = '#15102a'; x.fill(); x.lineWidth = 3; x.strokeStyle = '#d9b256'; x.stroke();
-    const ty = photo ? 462 : 12;
-    if (photo) { x.save(); roundRect2(x, 14, 14, W - 28, 440, 16); x.clip(); x.fillStyle = '#0c1a14'; x.fillRect(14, 14, W - 28, 440); if (img) { const sc = Math.max((W - 28) / img.width, 440 / img.height), iw = img.width * sc, ih = img.height * sc; x.drawImage(img, 14 + (W - 28 - iw) / 2, 14 + (440 - ih) / 2, iw, ih); } x.restore(); }
-    x.textAlign = 'center'; x.fillStyle = '#f6efdc';
-    let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 40 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
-    x.fillText(pl.n, W / 2, ty + 50);
-    x.font = '600 20px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
-    x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, W / 2, ty + 88);
+    x.save(); x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.clip();
+    x.fillStyle = photo ? '#0d1f1a' : 'rgba(60,110,90,.16)'; x.fillRect(0, 0, W, 384);
+    if (img) { const sc = Math.max((R * 2) / img.width, (R * 2) / img.height), iw = img.width * sc, ih = img.height * sc; x.drawImage(img, cx - iw / 2, cy - ih / 2, iw, ih); }
+    // the roundness of a bubble: darker towards the edge, a pale reflection up and to the left
+    const sh = x.createRadialGradient(cx - 30, cy - 40, R * 0.45, cx, cy, R); sh.addColorStop(0, 'rgba(4,10,20,0)'); sh.addColorStop(0.82, 'rgba(4,10,20,.12)'); sh.addColorStop(1, 'rgba(4,10,20,.62)'); x.fillStyle = sh; x.fillRect(0, 0, W, 384);
+    const hl = x.createRadialGradient(cx - 74, cy - 92, 2, cx - 74, cy - 92, 78); hl.addColorStop(0, 'rgba(255,255,255,.42)'); hl.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = hl; x.fillRect(0, 0, W, 384);
+    x.restore();
+    x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.lineWidth = 2.5; x.strokeStyle = 'rgba(235,245,255,.6)'; x.stroke();
+    x.beginPath(); x.arc(cx, cy, R - 7, Math.PI * 1.08, Math.PI * 1.42); x.lineWidth = 3; x.lineCap = 'round'; x.strokeStyle = 'rgba(255,255,255,.55)'; x.stroke();
+    x.textAlign = 'center'; x.fillStyle = '#f6efdc'; x.shadowColor = 'rgba(0,0,0,.95)'; x.shadowBlur = 10;
+    let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 16 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
+    x.fillText(pl.n, cx, 422);
+    x.font = '600 19px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
+    x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, cx, 456); x.shadowBlur = 0;
     t.needsUpdate = true;
   };
   draw(null); document.fonts.ready.then(() => draw(t.userData.img || null));
@@ -371,17 +384,13 @@ function plateTexture(k) {
   return { t, ratio: H / W };
 }
 function buildGrove(s) {
-  const stakeMat = new THREE.MeshBasicMaterial({ color: 0x241a12, fog: true });
   for (const k of GBED) {
-    const { t, ratio } = plateTexture(k), w = plantPhotos[k] ? 1.3 : 1.15;
-    const mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: t, alphaTest: 0.5, fog: true, color: 0xe6e2da }));
+    const { t, ratio } = bubbleTexture(k), w = (portrait ? 1.62 : 2.1) + Math.min(GCOUNT[k], 9) * 0.035;
+    const mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, fog: true, color: 0xe8e6e0 }));
     mesh.userData.plant = k; mesh.renderOrder = 2;
-    const stake = new THREE.Mesh(unit, stakeMat);
-    const f = khash(k) % 16, sp = sprites['flower' + f];
-    const bloom = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex['flower' + f], alphaTest: 0.5, fog: true, color: 0xc8d0d8 }));
-    bloom.scale.set(0.8 * sp.w / sp.h, 0.8, 1);
-    scene.add(stake, bloom, mesh); upright.push(mesh, stake, bloom);
-    groveOrbs.push({ k, mesh, stake, bloom, w, h: w * ratio, ph: (f + 1) * 0.7, hover: 0, model: null });
+    scene.add(mesh); upright.push(mesh);
+    const h = khash(k);
+    groveOrbs.push({ k, mesh, w, h: w * ratio, ph: (h % 628) / 100, sp: 0.16 + ((h >> 4) % 10) * 0.012, hover: 0, model: null });
   }
   placeGrove(s);
 }
@@ -402,26 +411,18 @@ async function loadGroveModels(s) {
       dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004e4942, true); glb.set(raw, 28 + jl);
       loader.parse(glb.buffer, base, (g) => {
       const root = g.scene, box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
-      const sc = 1.15 / Math.max(size.x, size.y, size.z);
+      const sc = (plantPhotos[o.k] ? 0.3 : 0.52) * o.w / Math.max(size.x, size.y, size.z);
       root.traverse((m) => { if (m.isMesh) { const map = m.material.map; if (map) map.colorSpace = THREE.SRGBColorSpace; m.material = new THREE.MeshBasicMaterial({ map, alphaTest: 0.4, side: THREE.DoubleSide, fog: true, color: 0xdcdcdc }); } });
       root.position.set(-c.x * sc, -box.min.y * sc, -c.z * sc); root.scale.setScalar(sc);
-      const grp = new THREE.Group(); grp.add(root); scene.add(grp); o.model = grp; o.mh = size.y * sc;
-      const hit = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); hit.scale.set(1.3, 1.3, 1); hit.userData.plant = o.k; scene.add(hit); upright.push(hit); o.hit = hit;
+      const grp = new THREE.Group(); grp.add(root); scene.add(grp); o.model = grp;
+      o.mh = size.y * sc;
       placeGrove(s);
       });
     }).catch(() => { /* the photograph stands on its own */ });
   }
 }
 function placeGrove(s) {
-  const k2 = portrait ? 1 : 1.12;
-  for (const o of groveOrbs) {
-    const p = s.gPos[o.k]; if (!p) continue;
-    const lift = plantPhotos[o.k] ? 0.55 + (khash(o.k) % 5) * 0.09 : 1.75;   // a bare name tag floats above its model
-    o.k2 = k2; o.base = p.clone().setY(lift + (o.h * k2) / 2); o.mesh.position.copy(o.base);
-    o.stake.scale.set(0.05, lift + 0.1, 1); o.stake.position.copy(p).setY((lift + 0.1) / 2).addScaledVector(s.f, -0.03);
-    o.bloom.position.copy(p).setY(0.36).addScaledVector(s.f, 0.12).addScaledVector(s.r, 0.5);
-    if (o.model) { const mp = p.clone().addScaledVector(s.f, plantPhotos[o.k] ? 0.75 : 0.05).addScaledVector(s.r, plantPhotos[o.k] ? -0.55 : 0).setY(0.05); o.model.position.copy(mp); o.hit.position.copy(mp).setY(0.6); }
-  }
+  for (const o of groveOrbs) { const p = s.gPos[o.k]; if (!p) continue; o.k2 = 1; o.base = p.clone(); o.mesh.position.copy(p); }
   if (s.mesh) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
 }
 
@@ -479,7 +480,7 @@ function buildWorld() {
       if (Math.abs(lx - s.mid) < s.half + 2.2 && lz > (s.lined ? -6.5 : -4) && lz < 34) return false;   // nothing grows between the visitor and the display
     }
     for (const [a, b] of corridors) if (segDist(x, z, a, b) < lane) return false;
-    const g = byId.grove; if (g?.gFree) { const lx = (x - g.D.x) * g.r.x + (z - g.D.z) * g.r.z, lz = (x - g.D.x) * g.f.x + (z - g.D.z) * g.f.z; if (lx > -4 && lx < g.gW + 4 && lz > -(g.gDepth + 3.5) && lz < 13) return false; }
+    const g = byId.grove; if (g?.gHalf) { const lx = (x - g.D.x) * g.r.x + (z - g.D.z) * g.r.z, lz = (x - g.D.x) * g.f.x + (z - g.D.z) * g.f.z; if (Math.abs(lx) < g.gHalf + 2.5 && lz > -6 && lz < 16) return false; }
     return true;
   };
   const flowers = Array.from({ length: 16 }, () => []);
@@ -903,7 +904,7 @@ function syncDetail() {
 function closeOverlays(keep) {
   ['#detail', '#info', '#basket', '#index', '#menu', '#lightbox'].forEach((s) => { $(s).hidden = true; });
   if (!keep && location.hash.startsWith('#grove--')) history.replaceState(null, '', '#grove');
-  document.body.classList.remove('reading'); restShift();
+  document.body.classList.remove('reading', 'pop-on'); restShift();
   const wasPaged = paged; paged = false; document.body.classList.remove('paged');
   if (selected && current?.lined) hoverItem = focusOf(current);
   if (selected) { if (!wasPaged) setMood(false); selected = null; if (!keep && current) { if (!wasPaged) flyTo(current, false, 1.4); history.replaceState(null, '', `#${current.id}`); } }
@@ -912,7 +913,7 @@ const WORDS = { id: 'words', title: 'Kind words', build: () => [el('p', { classN
 function openInfo(i) {
   closeOverlays(true); $('#info').hidden = false; document.body.classList.add('reading');
   paged = narrow.matches; document.body.classList.toggle('paged', paged);   // phones: a full page, like a product
-  $('#info-close').textContent = i.back || 'Back to the roots';
+  $('#info-close').textContent = i.back || 'Back to the roots'; $('#info').classList.toggle('pop', i.id === 'plant' || i.id === 'plants'); document.body.classList.toggle('pop-on', i.id === 'plant' || i.id === 'plants');
   if (i.build) $('#info-body').replaceChildren(...i.build()); else $('#info-body').innerHTML = i.html; $('#info .column-in').scrollTop = 0; audio.play('flutter', 0.4);
   $('#info-close').focus({ preventScroll: true });
 }
@@ -1022,7 +1023,7 @@ function syncFocus() {
     const k = groveFocus(current), pl = GPLANTS[k];
     if (k !== lastFocus && lastFocus && entered) audio.play('flutter', 0.14, 1.3);
     lastFocus = k;
-    $('#focus-count').textContent = 'Shop by plant · drag to wander the bed';
+    $('#focus-count').textContent = 'Shop by plant · slide to drift along';
     $('#focus-name').textContent = pl.n; $('#focus-price').textContent = [pl.b, `${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`].filter(Boolean).join(' · ');
     $('#focus-open').textContent = 'Meet the plant'; $('#focus-list').textContent = 'See all plants as a list';
     return;
@@ -1103,11 +1104,8 @@ function pick(e) {
 canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, last: e.clientX }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } });
 canvas.addEventListener('pointermove', (e) => {
   if (down && entered && current?.gFree && $('#info').hidden && travel.t >= 0.999) {
-    // a finger on the floor: drag the bed any way you like
-    const perPx = (2 * 8 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight, s = current;
-    const dx = e.clientX - down.last, dy = e.clientY - (down.lastY ?? down.y);
-    s.gtx -= dx * perPx * 1.1; s.gtz += dy * perPx * 2.1; groveClamp(s);
-    down.vx = dx; down.vy = dy; down.last = e.clientX; down.lastY = e.clientY; canvas.style.cursor = 'grabbing'; syncFocus(); return;
+    const perPx = (2 * 10.6 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth, s = current, dx = e.clientX - down.last;
+    s.gtx -= dx * perPx * 1.15; groveClamp(s); down.vx = dx; down.last = e.clientX; syncFocus(); return;
   }
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
@@ -1130,7 +1128,7 @@ function resolveHover(now) {
 canvas.addEventListener('pointerup', (e) => {
   if (!down || !entered) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), downWas = down; down = null;
   if (current?.lined && current.items.length && !selected) { current.panTarget = focusOf(current).index * STEP; syncFocus(); }
-  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * 8 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight; current.gtx -= (downWas.vx || 0) * perPx * 5; current.gtz += (downWas.vy || 0) * perPx * 9; groveClamp(current); canvas.style.cursor = ''; syncFocus(); }
+  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * 10.6 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth; current.gtx -= (downWas.vx || 0) * perPx * 6; groveClamp(current); syncFocus(); }
   if (moved > 8) return;
   const hit = pick(e);
   if (!hit) { if (selected) closeOverlays(); return; }
@@ -1167,7 +1165,7 @@ $('#detail-close').onclick = () => closeOverlays();
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
 $('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
 $('#focus-open').onclick = () => (current.gLined ? openPlant(groveFocus(current)) : select(focusOf(current)));
-const groveStep = (d) => { const k = GBED[THREE.MathUtils.clamp(GBED.indexOf(groveFocus(current)) + d, 0, GBED.length - 1)]; [current.gtx, current.gtz] = [current.gXZ[k][0], current.gXZ[k][1] - 0.5]; syncFocus(); };
+const groveStep = (d) => { const order = [...GBED].sort((a, b) => current.gXZ[a][0] - current.gXZ[b][0]), k = order[THREE.MathUtils.clamp(order.indexOf(groveFocus(current)) + d, 0, order.length - 1)]; current.gtx = current.gXZ[k][0]; groveClamp(current); syncFocus(); };
 $('#focus-prev').onclick = () => { if (current.gLined) return groveStep(-1); current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
 $('#focus-next').onclick = () => { if (current.gLined) return groveStep(1); current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
 $('#focus-list').onclick = () => (current.gLined ? openPlantList() : openIndex(current.id));
@@ -1214,19 +1212,20 @@ function frame() {
     if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
   }
   if (current?.gFree) {
-    const s = current, e = Math.min(1, dt * 7); s.gx += (s.gtx - s.gx) * e; s.gz += (s.gtz - s.gz) * e; groveView(s);
-    if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (!groveModels) loadGroveModels(s); }
+    const s = current; s.gx += (s.gtx - s.gx) * Math.min(1, dt * 7); groveView(s);
+    if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); }
   }
   if (groveOrbs.length) {
-    const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null;
+    const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null, g = byId.grove;
+    if (near && !groveModels && travel.t >= 0.999) loadGroveModels(g);
     for (const o of groveOrbs) {
       if (!o.base) continue;
       const want = o.k === hoverPlant || o.k === fk ? 1 : 0; o.hover += (want - o.hover) * Math.min(1, dt * 8);
-      const ahead = near && current.gXZ ? current.gXZ[o.k][1] - current.gz + GCAM : 9, vis = THREE.MathUtils.clamp((ahead - 3.4) / 1.8, 0, 1), on = vis > 0.03;
-      const sc = (o.k2 || 1) * (1 + o.hover * 0.1) * (0.4 + vis * 0.6); o.mesh.scale.set(o.w * sc, o.h * sc, 1);
-      o.mesh.visible = o.stake.visible = o.bloom.visible = on; if (o.model) o.model.visible = on;
-      o.mesh.position.y = o.base.y + Math.sin(t * 0.8 + o.ph) * 0.025 * k + o.hover * 0.1;
-      if (o.model) o.model.rotation.y = t * 0.45 * (k || 0) + o.ph;
+      // slow, weightless drift: each bubble on its own little orbit
+      const a = t * o.sp + o.ph, dx = Math.sin(a) * 0.3 * k, dy = Math.sin(a * 1.31 + o.ph) * 0.22 * k, dz = Math.cos(a * 0.8) * 0.25 * k;
+      o.mesh.position.set(o.base.x + g.r.x * dx + g.f.x * dz, o.base.y + dy + o.hover * 0.08, o.base.z + g.r.z * dx + g.f.z * dz);
+      const sc = (1 + o.hover * 0.14) * (1 + Math.sin(a * 2.1) * 0.015 * k); o.mesh.scale.set(o.w * sc, o.h * sc, 1);
+      if (o.model) { const inside = !plantPhotos[o.k]; o.model.position.copy(o.mesh.position).addScaledVector(g.r, inside ? 0 : o.w * 0.4).addScaledVector(g.f, 0.35); o.model.position.y += (inside ? o.h * 0.12 : -o.h * 0.14) - (o.mh || 0.4) / 2; o.model.rotation.y = t * 0.5 * (k || 0) + o.ph; }
     }
   }
   if (witch) witch.visible = !witchHidden && !(portrait && selected && !paged);
@@ -1309,3 +1308,6 @@ Promise.all(Object.keys(sprites).concat(['sky', 'ground']).map((n) => loadTex(n)
   wantCuts(STATIONS.flatMap((x) => x.items), false);   // the rest trickle in behind the garden, four at a time
   window.__ready = true; window.__dbg = { STATIONS, camPos, camLook, get selected() { return selected; } };
 });
+
+// a wheel turned anywhere scrolls whatever is open to read
+addEventListener('wheel', (e) => { const box = ['#info .column-in', '#detail .panel-in'].map((q) => document.querySelector(q)).find((n) => n && !n.closest('[hidden]')); if (box && !box.contains(e.target) && !e.target.closest('.consult, .sheet, #menu, #index')) box.scrollTop += e.deltaY; }, { passive: true });
