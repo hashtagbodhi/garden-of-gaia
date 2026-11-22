@@ -89,7 +89,7 @@ for (const s of STATIONS) { s.p = V(s.pos); s.f = V(s.face).normalize(); s.r = n
 for (const p of catalog) {
   const c = cuts[p.handle] || { w: 400, h: 400 };
   const t = `${p.handle} ${p.name}`.toLowerCase();
-  const cls = /tin|resin-incense|frankincense|candle|cacao/.test(t) ? 0.72 : /smudge|palo|tea-bags|gift-card/.test(t) ? 0.8 : /tincture|oil|spray|syrup|elixir/.test(t) && !/bundle/.test(t) ? 0.84 : /balm|sticky-chai/.test(t) && !/bundle|collection/.test(t) ? 0.78 : /bundle|collection|trinity|moringa-moringa/.test(t) ? 1.08 : 1;   // rough real-world size, so a tin is not as tall as a tea bag
+  const cls = /priesthood-anointing/.test(t) ? 0.5 : /tin|resin-incense|frankincense|candle|cacao/.test(t) ? 0.72 : /smudge|palo|tea-bags|gift-card/.test(t) ? 0.8 : /tincture|oil|spray|syrup|elixir/.test(t) && !/bundle/.test(t) ? 0.84 : /balm|sticky-chai/.test(t) && !/bundle|collection/.test(t) ? 0.78 : /bundle|collection|trinity|moringa-moringa/.test(t) ? 1.08 : 1;   // rough real-world size, so a tin is not as tall as a tea bag
   const k = Math.min(2.05 / c.w, 2.45 / c.h) * cls;
   byId[p.station].items.push({ p, w: c.w * k, h: c.h * k, jx: rr(-0.22, 0.22), jz: rr(-0.25, 0.25), ph: rnd() * 6.28, hover: 0, pos: new THREE.Vector3() });
 }
