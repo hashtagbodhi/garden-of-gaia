@@ -22,6 +22,8 @@ fs.writeFileSync(`${out}/index.html`, `<title>Garden of Gaia Apothecary</title>\
 // the classic site: a second, complete page
 fs.writeFileSync(`${out}/classic.html`, fs.readFileSync('dist/classic.html', 'utf8').replace('</head>', `${FONTS}\n</head>`)); files.push('classic.html');
 // images and sound
-for (const d of ['img', 'img-s', 'cut', 'card', 'thumb', 'gal', 'sfx', 'stock']) for (const f of fs.readdirSync(`dist/assets/${d}`)) copy(`assets/${d}/${f}`);
+for (const d of ['img', 'img-s', 'cut', 'card', 'thumb', 'gal', 'sfx', 'stock', 'plants']) for (const f of fs.readdirSync(`dist/assets/${d}`)) copy(`assets/${d}/${f}`);
+const walk = (d) => fs.readdirSync(`dist/${d}`, { withFileTypes: true }).forEach((e) => (e.isDirectory() ? walk(`${d}/${e.name}`) : copy(`${d}/${e.name}`)));
+walk('assets/models');   // scanned 3D plants: gltf + bin + texture
 fs.writeFileSync('raw/files.json', JSON.stringify(files.map((p) => ({ path: p }))));
 console.log(files.length, 'files', (fs.readFileSync(`${out}/index.html`).length / 1024).toFixed(1) + 'KB page');

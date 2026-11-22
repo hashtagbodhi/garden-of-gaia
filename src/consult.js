@@ -100,6 +100,7 @@ const PROFILE = {
   'black-sage-smudge-stick': { n: { ritual: 3, calm: 1 }, f: ['smoke'], t: 'pm', x: ['smoke'], m: [], fam: 'sage', why: 'Black sage, a deeper, earthier smudge for clearing and settling before rest, used with respect for the traditions it comes from.' },
   'lemon-balm-peppermint-smudge-stick': { n: { ritual: 2, mood: 2, calm: 1, energy: 1 }, f: ['smoke'], t: 'am', x: ['smoke'], m: [], fam: 'sage', why: 'Lemon balm and peppermint: a bright, minty smudge that lifts a room and eases nervousness.' },
 };
+export const usesOf = (handle) => Object.entries(PROFILE[handle]?.n || {}).filter(([k, v]) => v >= 2 && k !== 'gift').sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => NEEDS.find((x) => x.k === k)?.l).filter(Boolean);
 // gift cards stand in for someone who cannot choose; tea bags join any loose tea; the guide is free for everyone
 const GIFT_CARD = 'garden-of-gaia-gift-cards', TEA_BAGS = 'cotton-reusable-tea-bags-unbleached', GUIDE = 'free-guide-creating-your-own-divine-pantry';
 
@@ -157,6 +158,7 @@ export function openConsult(opts) {
   if (!root) {
     root = el('section', { className: 'consult', id: 'consult', role: 'dialog', ariaModal: 'true', ariaLabelledby: 'consult-q' });
     root.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeConsult(); });
+    root.addEventListener('click', closeConsult);   // a tap outside the pop-out closes it
     document.body.append(root);
   }
   state = { step: 0, needs: [], forms: [], time: null, care: [], meds: [], budget: null };
@@ -177,10 +179,18 @@ function shell(body, { q, sub, back = true, n }) {
   const prev = back ? el('button', { className: 'cs-back', type: 'button', textContent: '← Back' }) : null;
   if (prev) prev.onclick = () => { state.step = Math.max(0, state.step - 1); render(); };
   const dots = n ? el('div', { className: 'cs-dots', ariaLabel: `Question ${n} of ${STEPS}` }, Array.from({ length: STEPS }, (_, i) => el('i', { className: i < n ? 'on' : '' }))) : null;
-  return el('div', { className: 'cs-in' },
-    el('div', { className: 'cs-top' }, prev || el('span'), dots, close),
-    el('div', { className: 'cs-body' }, el('p', { className: 'cs-kick', textContent: n ? `Question ${n} of ${STEPS}` : 'Ask Sarah' }), el('h2', { id: 'consult-q', className: 'cs-q', textContent: q }), sub ? el('p', { className: 'cs-sub', textContent: sub }) : null, body));
+  // the pop-out: Sarah on one side with a word for this moment, the question on the other
+  const side = el('aside', { className: 'cs-side' },
+    ctx.figure ? el('img', { className: 'cs-fig', src: ctx.figure, alt: '' }) : null,
+    el('blockquote', { className: 'cs-say' }, el('p', { textContent: SAYS[Math.min(state.step, SAYS.length - 1)] }), el('cite', { textContent: 'Sarah, your herbalist' })));
+  const card = el('div', { className: 'cs-card' }, el('i', { className: 'cs-orn', ariaHidden: 'true' }), side,
+    el('div', { className: 'cs-in' },
+      el('div', { className: 'cs-top' }, prev || el('span', { className: 'cs-brand', textContent: '✦ Ask Sarah' }), dots, close),
+      el('div', { className: 'cs-body' }, n ? el('p', { className: 'cs-kick', textContent: `Question ${n} of ${STEPS}` }) : null, el('h2', { id: 'consult-q', className: 'cs-q', textContent: q }), sub ? el('p', { className: 'cs-sub', textContent: sub }) : null, body)));
+  card.addEventListener('click', (e) => e.stopPropagation());
+  return card;
 }
+const SAYS = ['Welcome in. Sit with me a moment.', 'Start with what weighs on you most.', 'Every body takes its plants differently.', 'Some herbs wake you, some settle you. Timing matters.', 'This is the part I never skip.', 'A good ritual does not need to be costly.', 'Here is what I would pour for you.'];
 function choice(o, on, click, multi) {
   const b = el('button', { type: 'button', className: `cs-opt${on ? ' on' : ''}`, ariaPressed: String(!!on) }, el('span', { className: 'cs-mark', ariaHidden: 'true', textContent: multi ? (on ? '✓' : '') : '✦' }), el('span', { className: 'cs-l', textContent: o.l }), o.s ? el('span', { className: 'cs-s', textContent: o.s }) : null);
   b.onclick = click; return b;
@@ -190,14 +200,9 @@ function render() {
   const s = state; let view;
   if (s.step === 0) {
     const go = el('button', { className: 'cs-go', type: 'button', textContent: 'Begin the consultation ✦' }); go.onclick = next;
-    view = el('div', { className: 'cs-in cs-hello' },
-      el('div', { className: 'cs-top' }, el('span'), null, Object.assign(el('button', { className: 'cs-close', type: 'button', ariaLabel: 'Close', textContent: '✕' }), { onclick: closeConsult })),
-      el('div', { className: 'cs-body' },
-        ctx.face ? el('img', { className: 'cs-face', src: ctx.face, alt: '' }) : null,
-        el('p', { className: 'cs-kick', textContent: 'Ask Sarah' }),
-        el('h2', { id: 'consult-q', className: 'cs-q', textContent: 'Tell me what you are carrying, and I will choose from the shelves.' }),
-        el('p', { className: 'cs-sub', textContent: 'Five quick questions about what you need, how you like to take your plants and anything I should be careful of. I will put together a small ritual of three, and tell you why each one.' }),
-        go, el('p', { className: 'cs-fine', textContent: 'Based on traditional herbal use. It is not medical advice, so check with your practitioner if you are pregnant, nursing or on medication.' })));
+    view = shell(el('div', {}, go, el('p', { className: 'cs-fine', textContent: 'Based on traditional herbal use. It is not medical advice, so check with your practitioner if you are pregnant, nursing or on medication.' })),
+      { q: 'Tell me what you are carrying, and I will choose from the shelves.', sub: 'Five quick questions about what you need, how you like to take your plants and anything I should be careful of. Then I will put together a small ritual of three, and tell you why each one.', back: false });
+    view.classList.add('cs-hello');
   } else if (s.step === 1) {
     const grid = el('div', { className: 'cs-grid' }, NEEDS.map((o) => choice(o, s.needs.includes(o.k), () => {
       if (s.needs.includes(o.k)) s.needs = s.needs.filter((k) => k !== o.k); else { s.needs.push(o.k); if (s.needs.length > 2) s.needs.shift(); }
@@ -226,7 +231,7 @@ function render() {
   } else if (s.step === 5) {
     view = shell(el('div', { className: 'cs-grid cs-one' }, BUDGETS.map((o) => choice(o, s.budget === o.k, () => { s.budget = o.k; next(); }))), { q: 'What would you like to spend?', sub: 'For your whole ritual, roughly.', n: 5 });
   } else view = results();
-  root.replaceChildren(view); root.scrollTop = 0;
+  root.replaceChildren(view); root.scrollTop = 0; root.classList.toggle('wide', s.step > 5);
   (root.querySelector('.cs-opt, .cs-go') || root.querySelector('.cs-close'))?.focus({ preventScroll: true });
 }
 
@@ -275,4 +280,12 @@ function results() {
   { q: 'Your ritual', sub: intro });
   view.classList.add('cs-result');
   return view;
+}
+
+// the way in: Sarah's portrait waiting at the edge of the page
+export function mountAsk(open, face) {
+  const b = el('button', { className: 'ask-sarah', type: 'button', ariaLabel: 'Ask Sarah: a short consultation to find your ritual' },
+    el('span', { className: 'as-face' }, el('img', { src: face, alt: '' })),
+    el('span', { className: 'as-t' }, el('b', { textContent: 'Ask Sarah' }), el('small', { textContent: 'Find your ritual' })));
+  b.onclick = open; document.body.append(b); return b;
 }

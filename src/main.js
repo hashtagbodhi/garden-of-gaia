@@ -42,7 +42,9 @@ import ingredientData from './ingredients.json';
 const TI = { 'apple': ti_apple, 'bottle': ti_bottle, 'bowl': ti_bowl, 'candle': ti_candle, 'cherry': ti_cherry, 'clover': ti_clover, 'cup': ti_cup, 'droplet': ti_droplet, 'flame': ti_flame, 'flower': ti_flower, 'grain': ti_grain, 'leaf': ti_leaf, 'leaf-2': ti_leaf_2, 'lemon': ti_lemon, 'lemon-2': ti_lemon_2, 'mushroom': ti_mushroom, 'nut': ti_nut, 'pepper': ti_pepper, 'plant-2': ti_plant_2, 'salt': ti_salt, 'seedling': ti_seedling, 'tree': ti_tree, 'trees': ti_trees, 'wheat': ti_wheat };
 const ICON = { plant: TI['plant-2'], cup: TI.cup, lotus: TI.flower, leaf: TI.leaf, package: TI.bottle, flower: TI.flower };
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY } from './content.js';
-import { openConsult } from './consult.js';
+import { openConsult, usesOf, mountAsk } from './consult.js';
+import plantPhotos from './plants.json';
+import plantModels from './models.json';
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
@@ -134,41 +136,37 @@ const STAND = {
   ped0: { surf: 0.2, top: 0.75 }, ped1: { surf: 0.05, top: 0.55 }, ped2: { surf: 0.03, top: 0.5 },
   'stand-mshort': { surf: 0.1, top: 0.9 }, 'stand-mtall': { surf: 0.05, top: 0.95 }, 'stand-mound': { surf: 0.18, top: 0.75 }, 'stand-slice': { surf: 0.15, top: 0.9 },
 };
-/* The herb grove: every plant we work with, as a glowing seed orb on a lit stalk. */
+/* The herb grove: a bed of real plants to wander with a finger. Each plant is a photograph on a garden marker,
+   and where a scanned 3D model of it exists (Poly Haven, CC0) the model grows beside it. */
 const GPLANTS = ingredientData.plants, GCOUNT = {};
 for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
 const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
-const GSTEP = 2.3, groveOrbs = [];
+const GBED = GKEYS.filter((k) => plantPhotos[k] || plantModels[k]);
+const GCOLS = 6, GSX = 3.3, GSZ = 3.5, GCAM = 7.4, groveOrbs = [];
+const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
 function groveLayout(s) {
-  const n = GKEYS.length; s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait;
-  if (portrait) {
-    // phones: one row to swipe along, like the products
-    GKEYS.forEach((k, i) => { (s.gPos ||= {})[k] = s.D.clone().addScaledVector(s.r, i * GSTEP).setY(2.1 + Math.sin(i * 1.7) * 0.25); });
-    s.gPan = Math.min(s.gPan ?? 0, (n - 1) * GSTEP); s.gTarget = s.gPan ?? 0; groveView(s);
-  } else {
-    const per = 11, rows = Math.ceil(n / per), sp = 2.45;
-    GKEYS.forEach((k, i) => {
-      const row = Math.floor(i / per), m = Math.min(per, n - row * per), j = i % per;
-      const x = (j - (m - 1) / 2) * sp + (row % 2 ? sp * 0.3 : 0), z = -row * 2.4 - x * x * 0.01;
-      (s.gPos ||= {})[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(1.6 + row * 1.32);
-    });
-    const half = ((per - 1) / 2) * sp + 1.4, fit = (half + 2.2) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
-    s.half = half;
-    s.camPos = s.D.clone().addScaledVector(s.f, 2.5 + fit).setY(4.4 + rows * 0.5);
-    s.camLook = s.D.clone().addScaledVector(s.f, -rows * 0.9).setY(2.6 + rows * 0.42);
-    s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 1.4)).addScaledVector(s.f, 1.2);
-    s.propPos = s.D.clone().addScaledVector(s.f, -rows * 2.4 - 3.5);
-  }
+  const rows = Math.ceil(GBED.length / GCOLS), w = (GCOLS - 0.5) * GSX;
+  s.D = s.p.clone().addScaledVector(s.f, 4).addScaledVector(s.r, -w / 2);   // the front-left corner of the bed
+  s.gLined = portrait; s.gFree = true; s.gW = w; s.gDepth = (rows - 1) * GSZ; s.gPos = {}; s.gXZ = {};
+  GBED.forEach((k, i) => {
+    const row = Math.floor(i / GCOLS), col = i % GCOLS, h = khash(k);
+    const x = col * GSX + (row % 2 ? GSX * 0.5 : 0) + ((h % 7) - 3) * 0.08, z = row * GSZ + (((h >> 3) % 7) - 3) * 0.07;
+    s.gXZ[k] = [x, z]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, -z).setY(0);
+  });
+  if (s.gx == null) { s.gx = s.gtx = w / 2; s.gz = s.gtz = 0; }
+  groveView(s);
   if (built) placeGrove(s);
 }
 function groveView(s) {
-  const base = s.D.clone().addScaledVector(s.r, s.gPan);
-  s.camPos = base.clone().addScaledVector(s.f, 8.2).setY(3.2);
-  s.camLook = base.clone().setY(2.3);
-  s.witchPos = s.D.clone().addScaledVector(s.r, -2.1).addScaledVector(s.f, -1.2);
-  s.propPos = s.D.clone().addScaledVector(s.r, ((GKEYS.length - 1) * GSTEP) / 2).addScaledVector(s.f, -6);
+  const base = s.D.clone().addScaledVector(s.r, s.gx).addScaledVector(s.f, -s.gz);
+  s.camPos = base.clone().addScaledVector(s.f, GCAM).setY(portrait ? 3.3 : 3.5);
+  s.camLook = base.clone().addScaledVector(s.f, -1.4).setY(1.75);
+  s.witchPos = s.D.clone().addScaledVector(s.r, -2.3).addScaledVector(s.f, 0.4);
+  s.propPos = s.D.clone().addScaledVector(s.r, s.gW / 2).addScaledVector(s.f, -(s.gDepth + 7));
 }
-const groveFocus = (s) => GKEYS[THREE.MathUtils.clamp(Math.round(s.gTarget / GSTEP), 0, GKEYS.length - 1)];
+// the plant nearest to where you are looking
+const groveFocus = (s) => { let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, z] = s.gXZ[k], d = (x - s.gtx) ** 2 + (z - s.gtz - 0.5) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
+const groveClamp = (s) => { s.gtx = THREE.MathUtils.clamp(s.gtx, -0.8, s.gW + 0.8); s.gtz = THREE.MathUtils.clamp(s.gtz, -1.6, s.gDepth + 0.4); };
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -350,51 +348,70 @@ function placeItems(s) {
   if (s.mesh && !s.flat) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
 }
 
-function orbTexture(k) {
-  const pl = GPLANTS[k], c = el('canvas', { width: 256, height: 320 }), x = c.getContext('2d');
+const credit = (k) => (plantPhotos[k]?.by || '').replace(/^\(c\)\s*/, '').replace(/, some rights reserved \((.*?)\)/, ', $1').replace(/^no rights reserved.*/, 'public domain (CC0)');
+function roundRect2(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
+// a garden marker: the real photograph of the plant, its name written beneath
+function plateTexture(k) {
+  const pl = GPLANTS[k], photo = !!plantPhotos[k], W = 384, H = photo ? 580 : 150, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const draw = (img) => {
-    x.clearRect(0, 0, 256, 320);
-    const g = x.createRadialGradient(128, 120, 10, 128, 120, 120); g.addColorStop(0, 'rgba(185,246,85,.38)'); g.addColorStop(1, 'rgba(185,246,85,0)');
-    x.fillStyle = g; x.fillRect(0, 0, 256, 250);
-    const o = x.createRadialGradient(108, 92, 6, 128, 120, 80); o.addColorStop(0, '#2c5a3c'); o.addColorStop(0.7, '#0c2118'); o.addColorStop(1, '#06120c');
-    x.beginPath(); x.arc(128, 120, 78, 0, Math.PI * 2); x.fillStyle = o; x.fill();
-    x.lineWidth = 3; x.strokeStyle = 'rgba(185,246,85,.85)'; x.shadowColor = '#b9f655'; x.shadowBlur = 18; x.stroke(); x.shadowBlur = 0;
-    x.beginPath(); x.ellipse(100, 82, 26, 12, -0.6, 0, Math.PI * 2); x.fillStyle = 'rgba(255,255,255,.16)'; x.fill();
-    if (img) x.drawImage(img, 128 - 44, 120 - 44, 88, 88);
-    x.textAlign = 'center'; x.fillStyle = '#f4efe3'; x.shadowColor = 'rgba(0,0,0,.9)'; x.shadowBlur = 8;
-    let fs = 34; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > 246 && fs > 18) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
-    x.fillText(pl.n, 128, 248);
-    x.font = '600 19px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
-    x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, 128, 280); x.shadowBlur = 0;
+    x.clearRect(0, 0, W, H);
+    roundRect2(x, 2, 2, W - 4, H - 4, 26); x.fillStyle = '#15102a'; x.fill(); x.lineWidth = 3; x.strokeStyle = '#d9b256'; x.stroke();
+    const ty = photo ? 462 : 12;
+    if (photo) { x.save(); roundRect2(x, 14, 14, W - 28, 440, 16); x.clip(); x.fillStyle = '#0c1a14'; x.fillRect(14, 14, W - 28, 440); if (img) { const sc = Math.max((W - 28) / img.width, 440 / img.height), iw = img.width * sc, ih = img.height * sc; x.drawImage(img, 14 + (W - 28 - iw) / 2, 14 + (440 - ih) / 2, iw, ih); } x.restore(); }
+    x.textAlign = 'center'; x.fillStyle = '#f6efdc';
+    let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 40 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
+    x.fillText(pl.n, W / 2, ty + 50);
+    x.font = '600 20px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
+    x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, W / 2, ty + 88);
     t.needsUpdate = true;
   };
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  draw(null);
-  const svg = (TI[pl.ic] || TI.leaf).replace(/currentColor/g, '#b9f655').replace(/stroke-width="[^"]*"/, 'stroke-width="1.5"');
-  const img = new Image(); img.onload = () => { document.fonts.ready.then(() => draw(img)); }; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-  return t;
+  draw(null); document.fonts.ready.then(() => draw(t.userData.img || null));
+  if (photo) { const img = new Image(); img.decoding = 'async'; img.onload = () => { t.userData.img = img; draw(img); }; img.src = A(`assets/plants/${k}.webp`); }
+  return { t, ratio: H / W };
 }
 function buildGrove(s) {
-  const stalkTex = softTex((x) => { const g = x.createLinearGradient(0, 0, 0, 256); g.addColorStop(0, 'rgba(185,246,85,.9)'); g.addColorStop(1, 'rgba(185,246,85,0)'); x.fillStyle = g; x.fillRect(118, 0, 20, 256); });
-  for (const k of GKEYS) {
-    const size = 1.25 + Math.min(GCOUNT[k], 9) * 0.045;
-    const mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: orbTexture(k), transparent: true, depthWrite: false, fog: true }));
-    mesh.scale.set(size, size * 1.25, 1); mesh.userData.plant = k; mesh.renderOrder = 2;
-    const stalk = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: stalkTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
-    const f = (Math.abs(k.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % 16) | 0, sp = sprites['flower' + f];
+  const stakeMat = new THREE.MeshBasicMaterial({ color: 0x241a12, fog: true });
+  for (const k of GBED) {
+    const { t, ratio } = plateTexture(k), w = plantPhotos[k] ? 1.3 : 1.15;
+    const mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: t, alphaTest: 0.5, fog: true, color: 0xe6e2da }));
+    mesh.userData.plant = k; mesh.renderOrder = 2;
+    const stake = new THREE.Mesh(unit, stakeMat);
+    const f = khash(k) % 16, sp = sprites['flower' + f];
     const bloom = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex['flower' + f], alphaTest: 0.5, fog: true, color: 0xc8d0d8 }));
-    bloom.scale.set(0.9 * sp.w / sp.h, 0.9, 1);
-    scene.add(stalk, bloom, mesh); upright.push(mesh, stalk, bloom);
-    groveOrbs.push({ k, mesh, stalk, bloom, size, ph: (f + 1) * 0.7, hover: 0 });
+    bloom.scale.set(0.8 * sp.w / sp.h, 0.8, 1);
+    scene.add(stake, bloom, mesh); upright.push(mesh, stake, bloom);
+    groveOrbs.push({ k, mesh, stake, bloom, w, h: w * ratio, ph: (f + 1) * 0.7, hover: 0, model: null });
   }
   placeGrove(s);
 }
-function placeGrove(s) {
+// scanned 3D plants, fetched only once someone walks into the grove
+let groveModels = false;
+async function loadGroveModels(s) {
+  if (groveModels) return; groveModels = true;
+  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'); const loader = new GLTFLoader();
   for (const o of groveOrbs) {
-    const p = s.gPos[o.k]; if (!p) continue; o.k2 = portrait ? 1 : 1.45;
-    o.base = p; o.mesh.position.copy(p);
-    const top = p.y - o.size * (o.k2 || 1) * 0.55; o.stalk.scale.set(0.5, top, 1); o.stalk.position.copy(p).setY(top / 2);
-    o.bloom.position.copy(p).setY(0.42).addScaledVector(s.f, 0.05);
+    if (!plantModels[o.k]) continue;
+    loader.load(A(`assets/models/${o.k}/model.gltf`), (g) => {
+      const root = g.scene, box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+      const sc = 1.15 / Math.max(size.x, size.y, size.z);
+      root.traverse((m) => { if (m.isMesh) { const map = m.material.map; if (map) map.colorSpace = THREE.SRGBColorSpace; m.material = new THREE.MeshBasicMaterial({ map, alphaTest: 0.4, side: THREE.DoubleSide, fog: true, color: 0xdcdcdc }); } });
+      root.position.set(-c.x * sc, -box.min.y * sc, -c.z * sc); root.scale.setScalar(sc);
+      const grp = new THREE.Group(); grp.add(root); scene.add(grp); o.model = grp; o.mh = size.y * sc;
+      const hit = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); hit.scale.set(1.3, 1.3, 1); hit.userData.plant = o.k; scene.add(hit); upright.push(hit); o.hit = hit;
+      placeGrove(s);
+    });
+  }
+}
+function placeGrove(s) {
+  const k2 = portrait ? 1 : 1.12;
+  for (const o of groveOrbs) {
+    const p = s.gPos[o.k]; if (!p) continue;
+    const lift = plantPhotos[o.k] ? 0.55 + (khash(o.k) % 5) * 0.09 : 1.75;   // a bare name tag floats above its model
+    o.k2 = k2; o.base = p.clone().setY(lift + (o.h * k2) / 2); o.mesh.position.copy(o.base);
+    o.stake.scale.set(0.05, lift + 0.1, 1); o.stake.position.copy(p).setY((lift + 0.1) / 2).addScaledVector(s.f, -0.03);
+    o.bloom.position.copy(p).setY(0.36).addScaledVector(s.f, 0.12).addScaledVector(s.r, 0.5);
+    if (o.model) { const mp = p.clone().addScaledVector(s.f, plantPhotos[o.k] ? 0.75 : 0.05).addScaledVector(s.r, plantPhotos[o.k] ? -0.55 : 0).setY(0.05); o.model.position.copy(mp); o.hit.position.copy(mp).setY(0.6); }
   }
   if (s.mesh) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
 }
@@ -453,6 +470,7 @@ function buildWorld() {
       if (Math.abs(lx - s.mid) < s.half + 2.2 && lz > (s.lined ? -6.5 : -4) && lz < 34) return false;   // nothing grows between the visitor and the display
     }
     for (const [a, b] of corridors) if (segDist(x, z, a, b) < lane) return false;
+    const g = byId.grove; if (g?.gFree) { const lx = (x - g.D.x) * g.r.x + (z - g.D.z) * g.r.z, lz = (x - g.D.x) * g.f.x + (z - g.D.z) * g.f.z; if (lx > -4 && lx < g.gW + 4 && lz > -(g.gDepth + 3.5) && lz < 13) return false; }
     return true;
   };
   const flowers = Array.from({ length: 16 }, () => []);
@@ -890,23 +908,42 @@ function openInfo(i) {
   $('#info-close').focus({ preventScroll: true });
 }
 function plantProducts(k) { return allItems.filter((it) => (ingredientData.products[it.p.handle] || []).includes(k)); }
+const PLANT_USES = {
+  'blue-lotus': ['Calm', 'Dreamy sleep', 'Meditation'], 'white-lotus': ['Clarity', 'Stillness'], hibiscus: ['Heart', 'Hydration', 'Cycle'], 'butterfly-pea': ['Focus', 'Antioxidants'], lavender: ['Calm', 'Sleep', 'Skin'],
+  chamomile: ['Calm', 'Digestion', 'Sleep'], calendula: ['Skin', 'Soothing'], rose: ['Heart', 'Skin', 'Mood'], saffron: ['Radiance', 'Mood'], 'ylang-ylang': ['Mood', 'Sensuality'], geranium: ['Balance', 'Skin'],
+  damiana: ['Mood', 'Relaxation'], mullein: ['Lungs', 'Breath'], moringa: ['Energy', 'Nourishment'], soursop: ['Resilience', 'Evening calm'], nettle: ['Minerals', 'Seasonal ease'], skullcap: ['Nerves', 'Sleep'],
+  'lemon-balm': ['Calm', 'Bright mood'], peppermint: ['Digestion', 'Clarity'], mugwort: ['Dreams', 'Cycle'], 'wild-dagga': ['Uplift', 'Ease'], 'white-sage': ['Cleansing', 'Ritual'], 'black-sage': ['Clearing', 'Rest'],
+  sage: ['Cleansing', 'Clarity'], rosemary: ['Memory', 'Scalp'], eucalyptus: ['Breath', 'Freshness'], lemongrass: ['Freshness', 'Digestion'], 'black-tea': ['Energy', 'Focus'], valerian: ['Deep sleep', 'Nerves'],
+  dandelion: ['Liver', 'Digestion'], 'milk-thistle': ['Liver', 'Protection'], marshmallow: ['Throat', 'Soothing'], turmeric: ['Inflammation', 'Digestion'], ginger: ['Digestion', 'Warmth', 'Immunity'],
+  cinnamon: ['Warmth', 'Digestion'], cardamom: ['Digestion', 'Breath'], clove: ['Warmth', 'Immunity'], 'star-anise': ['Immunity', 'Digestion'], fennel: ['Digestion', 'Bloating'], allspice: ['Warmth', 'Digestion'],
+  'black-pepper': ['Absorption', 'Warmth'], 'black-seed': ['Immunity', 'Scalp'], annatto: ['Colour', 'Antioxidants'], elderberry: ['Immunity', 'Seasonal wellness'], orange: ['Brightness', 'Vitamin C'], lemon: ['Brightness', 'Digestion'],
+  lime: ['Freshness', 'Hydration'], reishi: ['Resilience', 'Calm'], cacao: ['Skin', 'Massage'], 'cacao-bean': ['Heart', 'Mood', 'Ceremony'], frankincense: ['Prayer', 'Skin', 'Calm'], 'dragons-blood': ['Protection', 'Ritual'],
+  benzoin: ['Grounding', 'Sweet smoke'], oud: ['Grounding', 'Devotion'], sandalwood: ['Meditation', 'Skin'], spruce: ['Grounding', 'Breath'], birch: ['Muscles', 'Freshness'], 'palo-santo': ['Uplift', 'Blessing'],
+  lilac: ['Softness', 'Scent'], vanilla: ['Comfort', 'Warmth'], 'almond-oil': ['Skin', 'Hair'], tallow: ['Skin barrier', 'Deep moisture'], beeswax: ['Protection', 'Skin'], magnesium: ['Muscles', 'Sleep'],
+  'witch-hazel': ['Toning', 'Skin'], 'oat-straw': ['Nerves', 'Minerals'], acv: ['Digestion', 'Extraction'],
+};
 function openPlant(k) {
   const pl = GPLANTS[k]; if (!pl) return;
-  const list = plantProducts(k);
+  const list = plantProducts(k), ph = plantPhotos[k], md = plantModels[k];
   openInfo({ id: 'plant', back: 'Back to the grove', build: () => [
-    el('p', { className: 'label', textContent: 'Shop by plant' }),
-    el('h2', { id: 'info-title', textContent: pl.n }),
-    ...(pl.b ? [el('p', { className: 'plant-bot', textContent: pl.b })] : []),
-    el('p', { className: 'lede', textContent: pl.note || '' }),
-    el('p', { className: 'label', textContent: `${list.length} ${list.length === 1 ? 'product' : 'products'} made with ${pl.n.toLowerCase()}` }),
+    el('div', { className: `plant-head${ph ? '' : ' no-photo'}` },
+      ph ? el('figure', { className: 'plant-photo' }, el('img', { src: A(`assets/plants/${k}.webp`), alt: pl.n }), el('figcaption', {}, 'Photo: ', el('a', { href: ph.src, target: '_blank', rel: 'noopener', textContent: credit(k) }))) : '',
+      el('div', {},
+        el('p', { className: 'label', textContent: 'Meet the plant' }),
+        el('h2', { id: 'info-title', textContent: pl.n }),
+        pl.b ? el('p', { className: 'plant-bot', textContent: pl.b }) : '',
+        el('p', { className: 'lede', textContent: pl.note || '' }),
+        PLANT_USES[k] ? el('p', { className: 'plant-uses' }, el('span', { className: 'label', textContent: 'Traditionally used for' }), ...PLANT_USES[k].map((u) => el('b', { textContent: u }))) : '')),
+    el('p', { className: 'label', textContent: `${list.length} ${list.length === 1 ? 'product' : 'products'} we make with ${pl.n.toLowerCase()}` }),
     el('ul', { className: 'plant-goods' }, ...list.map((it) => {
-      const p = it.p, v = p.variants.find((x) => x.available) || p.variants[0];
+      const pr = it.p, v = pr.variants.find((x) => x.available) || pr.variants[0], uses = usesOf(pr.handle);
       const see = el('button', { className: 'text-link', textContent: `See it at the ${it.station.name.replace(/^The /, '').toLowerCase()}` });
       see.onclick = () => { closeOverlays(true); go(it.station.id); select(it); };
       const add = el('button', { className: 'pg-add', textContent: v.available ? '+ Add' : 'Sold out', disabled: !v.available });
       add.onclick = () => { addToBasket(v.id, 1); add.textContent = 'Added ✓'; setTimeout(() => { add.textContent = '+ Add'; }, 1600); };
-      return el('li', {}, el('img', { src: thumbUrl(p), alt: '' }), el('div', {}, el('strong', { textContent: p.name }), el('span', { textContent: [priceLabel(p), p.sub].filter(Boolean).join(' · ') }), see), add);
+      return el('li', {}, el('img', { src: thumbUrl(pr), alt: '' }), el('div', {}, el('strong', { textContent: pr.name }), el('span', { textContent: [priceLabel(pr), pr.sub].filter(Boolean).join(' · ') }), uses.length ? el('em', { className: 'pg-use', textContent: `For ${uses.join(', ').toLowerCase()}` }) : '', see), add);
     })),
+    md ? el('p', { className: 'plant-credit', textContent: `3D model: “${md.name}” by ${md.by.join(' & ')}, Poly Haven (CC0).` }) : '',
   ] });
   if (location.hash !== `#grove--${k}`) history.replaceState(null, '', `#grove--${k}`);
 }
@@ -967,6 +1004,7 @@ function openMenu() {
 
 /* ---------- places ---------- */
 let entered = false;
+
 let labels = [], lastFocus = null, reading = false;
 new MutationObserver(() => { reading = document.body.classList.contains('reading'); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 function syncFocus() {
@@ -975,7 +1013,7 @@ function syncFocus() {
     const k = groveFocus(current), pl = GPLANTS[k];
     if (k !== lastFocus && lastFocus && entered) audio.play('flutter', 0.14, 1.3);
     lastFocus = k;
-    $('#focus-count').textContent = `Shop by plant · ${GKEYS.indexOf(k) + 1} of ${GKEYS.length}`;
+    $('#focus-count').textContent = 'Shop by plant · drag to wander the bed';
     $('#focus-name').textContent = pl.n; $('#focus-price').textContent = [pl.b, `${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`].filter(Boolean).join(' · ');
     $('#focus-open').textContent = 'Meet the plant'; $('#focus-list').textContent = 'See all plants as a list';
     return;
@@ -1055,10 +1093,12 @@ function pick(e) {
 }
 canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, last: e.clientX }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ } });
 canvas.addEventListener('pointermove', (e) => {
-  if (down && entered && current?.gLined && $('#info').hidden) {
-    const perPx = (2 * 8.2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / innerWidth;
-    current.gTarget = THREE.MathUtils.clamp(current.gTarget - (e.clientX - down.last) * perPx * 1.15, -0.6, (GKEYS.length - 1) * GSTEP + 0.6);
-    down.last = e.clientX; syncFocus(); return;
+  if (down && entered && current?.gFree && $('#info').hidden && travel.t >= 0.999) {
+    // a finger on the floor: drag the bed any way you like
+    const perPx = (2 * 8 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight, s = current;
+    const dx = e.clientX - down.last, dy = e.clientY - (down.lastY ?? down.y);
+    s.gtx -= dx * perPx * 1.1; s.gtz += dy * perPx * 2.1; groveClamp(s);
+    down.vx = dx; down.vy = dy; down.last = e.clientX; down.lastY = e.clientY; canvas.style.cursor = 'grabbing'; syncFocus(); return;
   }
   if (down && entered && current?.lined && current.items.length && !selected) {
     // swipe along the row
@@ -1079,9 +1119,9 @@ function resolveHover(now) {
   const cur = hit ? 'pointer' : ''; if (canvas.style.cursor !== cur) canvas.style.cursor = cur;
 }
 canvas.addEventListener('pointerup', (e) => {
-  if (!down || !entered) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null;
+  if (!down || !entered) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), downWas = down; down = null;
   if (current?.lined && current.items.length && !selected) { current.panTarget = focusOf(current).index * STEP; syncFocus(); }
-  if (current?.gLined) { current.gTarget = GKEYS.indexOf(groveFocus(current)) * GSTEP; syncFocus(); }
+  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * 8 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight; current.gtx -= (downWas.vx || 0) * perPx * 5; current.gtz += (downWas.vy || 0) * perPx * 9; groveClamp(current); canvas.style.cursor = ''; syncFocus(); }
   if (moved > 8) return;
   const hit = pick(e);
   if (!hit) { if (selected) closeOverlays(); return; }
@@ -1103,7 +1143,8 @@ addEventListener('keydown', (e) => {
 
 /* ---------- DOM wiring ---------- */
 for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.id === 'gate' ? 'witch-face' : s.icon}.webp`)})`; if (s.id === 'gate') i.style.backgroundSize = 'cover'; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
-const askSarah = () => openConsult({ catalog, now, face: A('assets/img/witch-face.webp'), img: (p) => A(p.img), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
+let askBtn = null;
+const askSarah = () => openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => A(p.img), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
 $('#gifts-top').onclick = () => openIndex('gift25');
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };
 $('#places-prev').onclick = () => step(-1); $('#places-next').onclick = () => step(1);
@@ -1116,7 +1157,7 @@ $('#detail-close').onclick = () => closeOverlays();
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
 $('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
 $('#focus-open').onclick = () => (current.gLined ? openPlant(groveFocus(current)) : select(focusOf(current)));
-const groveStep = (d) => { current.gTarget = THREE.MathUtils.clamp(GKEYS.indexOf(groveFocus(current)) + d, 0, GKEYS.length - 1) * GSTEP; syncFocus(); };
+const groveStep = (d) => { const k = GBED[THREE.MathUtils.clamp(GBED.indexOf(groveFocus(current)) + d, 0, GBED.length - 1)]; [current.gtx, current.gtz] = [current.gXZ[k][0], current.gXZ[k][1] - 0.5]; syncFocus(); };
 $('#focus-prev').onclick = () => { if (current.gLined) return groveStep(-1); current.panTarget = Math.max(0, focusOf(current).index - 1) * STEP; syncFocus(); };
 $('#focus-next').onclick = () => { if (current.gLined) return groveStep(1); current.panTarget = Math.min(current.items.length - 1, focusOf(current).index + 1) * STEP; syncFocus(); };
 $('#focus-list').onclick = () => (current.gLined ? openPlantList() : openIndex(current.id));
@@ -1148,7 +1189,7 @@ $('#enter-yes').onclick = () => {
   $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle').textContent = withSound ? 'Sound on' : 'Sound off';
   $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 1000);
   $('#topbar').hidden = false; $('#hud').hidden = false;
-  gsap.killTweensOf(camPos); entered = true; current = null; route(false);
+  gsap.killTweensOf(camPos); entered = true; current = null; route(false); askBtn ||= mountAsk(askSarah, A('assets/img/witch-face.webp'));
 };
 
 /* ---------- frame ---------- */
@@ -1162,18 +1203,20 @@ function frame() {
     const s = current; s.pan += (s.panTarget - s.pan) * Math.min(1, dt * 9); panView(s);
     if (!selected && travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
   }
-  if (current?.gLined) {
-    const s = current; s.gPan += (s.gTarget - s.gPan) * Math.min(1, dt * 9); groveView(s);
-    if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (witch && !witchHidden) { witchAt(s, tmp); witch.position.x += (tmp.x - witch.position.x) * Math.min(1, dt * 3.5); witch.position.z += (tmp.z - witch.position.z) * Math.min(1, dt * 3.5); } }
+  if (current?.gFree) {
+    const s = current, e = Math.min(1, dt * 7); s.gx += (s.gtx - s.gx) * e; s.gz += (s.gtz - s.gz) * e; groveView(s);
+    if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); if (!groveModels) loadGroveModels(s); }
   }
   if (groveOrbs.length) {
     const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null;
     for (const o of groveOrbs) {
       if (!o.base) continue;
       const want = o.k === hoverPlant || o.k === fk ? 1 : 0; o.hover += (want - o.hover) * Math.min(1, dt * 8);
-      const sc = (o.k2 || 1) * (1 + o.hover * 0.16); o.mesh.scale.set(o.size * sc, o.size * 1.25 * sc, 1);
-      o.mesh.position.y = o.base.y + Math.sin(t * 0.9 + o.ph) * 0.09 * k + o.hover * 0.12;
-      o.stalk.material.opacity = 0.35 + o.hover * 0.5 + Math.sin(t * 1.4 + o.ph) * 0.08;
+      const ahead = near && current.gXZ ? current.gXZ[o.k][1] - current.gz + GCAM : 9, vis = THREE.MathUtils.clamp((ahead - 3.4) / 1.8, 0, 1), on = vis > 0.03;
+      const sc = (o.k2 || 1) * (1 + o.hover * 0.1) * (0.4 + vis * 0.6); o.mesh.scale.set(o.w * sc, o.h * sc, 1);
+      o.mesh.visible = o.stake.visible = o.bloom.visible = on; if (o.model) o.model.visible = on;
+      o.mesh.position.y = o.base.y + Math.sin(t * 0.8 + o.ph) * 0.025 * k + o.hover * 0.1;
+      if (o.model) o.model.rotation.y = t * 0.45 * (k || 0) + o.ph;
     }
   }
   if (witch) witch.visible = !witchHidden && !(portrait && selected && !paged);
