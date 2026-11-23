@@ -908,3 +908,21 @@ body.home .place #place-label, body.home .place #place-line, body.home .place #p
 body.home .place h2 { max-width: 9.5em !important; text-wrap: balance; margin-inline: auto; }
 @media (min-width: 821px) { body.home .place { gap: 18px; } body.home .place h2 { font-size: clamp(3rem, 4.8vw, 4.8rem) !important; line-height: 1; } }
 html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: none !important; }
+
+/* ================= carved wooden signs in the garden ================= */
+/* "Walk into the garden": a plank hung on twine, with a firefly lantern */
+body.home #place-actions a.btn { display: grid; place-items: center; width: min(340px, 78vw); aspect-ratio: 688 / 332; min-height: 0; padding: 22% 12% 4% 9% !important; border: 0 !important; border-radius: 0 !important; background: url(../assets/img/ui-banner.webp) center / contain no-repeat !important; box-shadow: none !important; font-family: 'Emilys Candy', 'EB Garamond', serif !important; font-style: normal !important; font-size: clamp(1.25rem, 1.9vw, 1.6rem) !important; line-height: 1.05; color: #fff3d6 !important; text-shadow: 0 2px 0 #2a1608, 0 0 12px rgba(0, 0, 0, .55); filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .6)); transform-origin: 50% 0; animation: sign-sway 5.5s ease-in-out infinite; transition: filter .25s; }
+body.home #place-actions a.btn::after, body.home #place-actions a.btn::before { content: none !important; }
+body.home #place-actions a.btn:hover { filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .6)) drop-shadow(0 0 16px rgba(240, 195, 90, .7)) brightness(1.08); }
+@keyframes sign-sway { 0%, 100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.4deg); } }
+body.home .place { gap: 4px !important; }
+/* "Shop by plant · Herb grove": a mossy signboard with a gold inlay */
+.grove-cap { display: grid !important; justify-items: center; align-content: center; gap: 0 !important; width: min(330px, 76vw); aspect-ratio: 655 / 260; padding: 13% 14% 3% !important; bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important; background: url(../assets/img/ui-board.webp) center / contain no-repeat; text-shadow: none !important; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .6)); }
+.grove-cap i { font-size: .92rem !important; line-height: 1.1; color: #d6ff8a !important; text-shadow: 0 1px 0 #2a1608; }
+.grove-cap i::after { content: none !important; }
+.grove-cap b { font-size: 1.45rem !important; line-height: 1 !important; color: #fff3d6 !important; text-shadow: 0 2px 0 #2a1608, 0 0 10px rgba(0, 0, 0, .5); }
+@media (max-width: 820px) { .grove-cap { width: min(250px, 66vw); } .grove-cap b { font-size: 1.12rem !important; } .grove-cap i { font-size: .78rem !important; } }
+@media (prefers-reduced-motion: reduce) { body.home #place-actions a.btn { animation: none; } }
+.entry .check { display: none !important; }
+.grove-cap { box-sizing: border-box; width: 300px !important; height: 119px; aspect-ratio: auto !important; padding: 46px 34px 10px !important; }
+@media (max-width: 820px) { .grove-cap { width: 236px !important; height: 94px; padding: 38px 26px 8px !important; } }

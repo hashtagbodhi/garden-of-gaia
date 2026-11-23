@@ -432,7 +432,9 @@ function buildGrove(s) {
     const mound = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex['stand-mound'], alphaTest: 0.5, fog: true, color: 0xb8c0b4 })); mound.scale.set(1.1, 1.1 * md.h / md.w, 1);
     stake.visible = mound.visible = !air && !art;
     scene.add(stake, mound, mesh); upright.push(mesh, stake, mound); 
-    groveOrbs.push({ k, mesh, stake, mound, label, air, art: !!art, w, h, ph: (h0 % 628) / 100, sp: 0.16 + ((h0 >> 4) % 10) * 0.012, hover: 0, model: null });
+    buildGrove.mat ||= new THREE.MeshBasicMaterial({ map: softPuff(), color: 0x010502, opacity: 0.8, transparent: true, depthWrite: false, fog: false });
+    const shade = new THREE.Mesh(shadowGeo, buildGrove.mat); shade.renderOrder = 1; shade.layers.set(GROVE); scene.add(shade);
+    groveOrbs.push({ shade, k, mesh, stake, mound, label, air, art: !!art, w, h, ph: (h0 % 628) / 100, sp: 0.16 + ((h0 >> 4) % 10) * 0.012, hover: 0, model: null });
   }
   placeGrove(s);
 }
@@ -442,7 +444,7 @@ function placeGrove(s) {
     // the window can change shape after the grove is built (a phone turned, a preview frame that grows): size each plant for the shape it has now
     if (o.art) { const a = plantArt[o.k], h0 = khash(o.k); o.air = false; o.h = 3.9 + (h0 % 5) * 0.12; o.w = o.h * a.w / a.h; if (portrait && o.w > 2.7) { o.w = 2.7; o.h = o.w * a.h / a.w; } o.mesh.scale.set(o.w, o.h, 1); }
     if (o.air) { o.base = p.clone(); o.mesh.position.copy(p); continue; }
-    if (o.art) { o.base = p.clone().setY(o.h / 2 - 0.12); o.mesh.position.copy(o.base); continue; }
+    if (o.art) { o.base = p.clone().setY(o.h / 2 - 0.3); o.mesh.position.copy(o.base); o.shade.scale.set(o.w * 1.25, 1, Math.max(0.9, o.w * 0.42)); o.shade.position.copy(p).setY(0.03).addScaledVector(s.f, 0.12); continue; }
     const lift = 1.25 + (khash(o.k) % 4) * 0.12;   // no painting yet: its photograph in a round frame, on a stake
     o.base = p.clone().setY(lift + o.h * 0.62); o.mesh.position.copy(o.base);
     o.stake.scale.set(0.07, o.base.y - o.h * 0.12, 1); o.stake.position.copy(p).setY((o.base.y - o.h * 0.12) / 2).addScaledVector(s.f, -0.04);
@@ -1068,7 +1070,7 @@ function buildLabels(s) {
 function restShift() { if (current?.id === 'gate' && !portrait) { shift.tx = 0; shift.ty = innerHeight * 0.13; return; }   // the gate rides a little high, leaving the foot of the page for the welcome
   if (!openK && current?.id === 'grove') { shift.tx = 0; shift.ty = innerHeight * (portrait ? 0.03 : -0.12); return; } if (openK) { shift.ty = portrait ? innerHeight * 0.3 : 0; shift.tx = portrait ? 0 : Math.min(250, innerWidth * 0.16); return; } shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
-  if (id && id !== 'gate') id = 'grove';   // the garden is the herb grove; there are no other clearings to visit
+  id = 'grove';   // the garden is the herb grove and nothing else: no gate, no other clearings
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
   const home = s.id === 'gate', place = $('#place');
@@ -1236,7 +1238,7 @@ $('#enter-yes').onclick = () => {
   try { localStorage.setItem('gaia-21', 'true'); } catch (e) { /* private mode */ }
   audio.start(withSound);
   $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle .sr').textContent = withSound ? 'Sound on' : 'Sound off';
-  $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 1000);
+  $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 600);
   $('#topbar').hidden = false; $('#hud').hidden = false;
   gsap.killTweensOf(camPos); entered = true; current = null; route(false);
 };
@@ -1367,7 +1369,9 @@ Promise.all(Object.keys(sprites).concat(['sky', 'ground', 'grove-bg']).map((n) =
   moveWitch(byId.gate, true);
   camPos.set(0, 7, 64); camLook.copy(byId.gate.camLook);
   gsap.to(camPos, { z: 58, duration: 6, ease: 'sine.out' });
-  const b = $('#enter-yes'); b.disabled = false; b.textContent = 'I am 21 or older, open the gate';
+  const b = $('#enter-yes'); b.disabled = false; b.textContent = 'I am 21 or older, enter the garden';
+  // age already confirmed (here or in the apothecary): straight in, to the plants
+  try { if (localStorage.getItem('gaia-21') === 'true') setTimeout(() => b.click(), 0); } catch (e) { /* private mode */ }
   requestAnimationFrame(frame);
   wantCuts(STATIONS.flatMap((x) => x.items), false);   // the rest trickle in behind the garden, four at a time
   window.__ready = true; window.__dbg = { STATIONS, camPos, camLook, get selected() { return selected; } };

@@ -1731,3 +1731,28 @@ html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: 
 .stamp-ring text { font-family: var(--display) !important; font-size: 12.5px !important; letter-spacing: 2px !important; fill: #fff3d6; paint-order: stroke; stroke: #2a1608; stroke-width: 2.4px; }
 .stamp .stamp-ic { width: 50px !important; height: 50px !important; padding: 10px !important; color: #1c0f05 !important; background: radial-gradient(circle at 35% 30%, #e6ffb0, #b9f655 60%, #8fd13a) !important; box-shadow: 0 0 0 2px #2a1608, 0 0 14px rgba(185, 246, 85, .5) !important; }
 @media (max-width: 760px) { .stamp { width: 98px; height: 98px; } .stamp-ring text { font-size: 12px !important; } .stamp .stamp-ic { width: 36px !important; height: 36px !important; padding: 7px !important; } }
+
+/* ================= carved wooden labels (painted art) in the shop ================= */
+/* the sale tag: a wooden tag on a twine loop */
+.badge { top: -8px !important; left: 4px !important; width: 74px !important; height: 108px !important; min-width: 0 !important; padding: 44px 6px 0 14px !important; display: grid !important; place-content: center; border-radius: 0 !important; background: url(../assets/img/ui-tag.webp) center / contain no-repeat !important; box-shadow: none !important; transform: none !important; color: #fff3d6 !important; font-size: .82rem !important; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .6)); }
+.badge::before, .badge::after { content: none !important; }
+.badge b, .badge { rotate: none; }
+.badge > b { margin: 0 !important; font-size: 1.38rem !important; color: #d6ff8a; rotate: 14deg; translate: 2px 0; }
+.badge { text-indent: 0; } .badge::selection { background: none; }
+.badge { font-style: italic; } .badge b + * { rotate: 14deg; }
+.card .badge, .pp-shot .badge { writing-mode: horizontal-tb; }
+.badge { --r: 14deg; } .badge { line-height: 1.05 !important; }
+.pp-shot .badge { top: -6px !important; left: 14px !important; width: 104px !important; height: 152px !important; padding: 62px 8px 0 20px !important; font-size: 1.08rem !important; } .pp-shot .badge > b { font-size: 1.95rem !important; }
+@media (max-width: 760px) { .badge { width: 58px !important; height: 85px !important; padding: 35px 4px 0 11px !important; font-size: .66rem !important; } .badge > b { font-size: 1.05rem !important; } }
+/* the round seal: a slice of trunk in a leaf wreath, the words carved once around the inside */
+.stamp { width: 172px !important; height: 163px !important; background: url(../assets/img/ui-disc.webp) center / contain no-repeat; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .6)); }
+.stamp::before, .stamp::after { content: none !important; }
+.stamp .stamp-ring { inset: 19% 18% 17% 18% !important; }
+.stamp-ring text { font-size: 15px !important; letter-spacing: 1px !important; fill: #fff3d6; stroke: #3a2009; stroke-width: 3px; }
+.stamp .stamp-ic { width: 42px !important; height: 42px !important; padding: 8px !important; }
+@media (max-width: 760px) { .stamp { width: 124px !important; height: 118px !important; } .stamp .stamp-ic { width: 30px !important; height: 30px !important; padding: 6px !important; } }
+/* the newsletter's 10% off: a gold-rimmed leaf tag */
+.fn-burst { width: 118px !important; height: 115px !important; padding: 34px 14px 0 0; transform: rotate(-4deg) !important; background: url(../assets/img/ui-leaf.webp) center / contain no-repeat; color: #fff3d6 !important; text-shadow: 0 1px 0 #10300f, 0 0 8px rgba(0, 0, 0, .5); filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .55)); }
+.fn-burst::before, .fn-burst::after { content: none !important; }
+.fn-burst b { color: #fff3d6; font-size: 1.75rem !important; }
+@media (max-width: 560px) { .fn-burst { width: 92px !important; height: 90px !important; padding: 26px 10px 0 0; } .fn-burst b { font-size: 1.35rem !important; } }

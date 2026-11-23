@@ -115,7 +115,7 @@ function productCard(p, i = 0) {
   const a = el('a', { className: `card tone-${col.tone}`, href: `#p--${p.handle}` },
     el('div', { className: 'card-art' }, el('div', { className: 'card-win' }, el('img', { src: photo(p), alt: '', loading: 'lazy', decoding: 'async' }), p.gallery[1] ? el('img', { className: 'alt', src: photo(p, 1), alt: '', loading: 'lazy', decoding: 'async' }) : null),
       el('span', { className: 'card-no', textContent: `No. ${String(catalog.indexOf(p) + 1).padStart(2, '0')}` }),
-      p.sale && SALE.pct ? el('span', { className: 'badge' }, el('b', { textContent: `${SALE.pct}%` }), 'off') : null),
+      p.sale && SALE.pct ? el('span', { className: 'badge' }, el('b', { textContent: `${SALE.pct}%` }), el('i', { textContent: 'off' })) : null),
     el('div', { className: 'card-body' },
       el('p', { className: 'card-col', textContent: col.short }),
       el('h3', { className: 'card-name', textContent: p.name }),
@@ -270,7 +270,7 @@ function hero() {
       el('p', { className: 'kicker', textContent: 'Organic herbal teas, tinctures and ritual tools' }),
       el('h1', { textContent: 'Reconnecting you with your roots' }),
       el('p', { className: 'lede', textContent: 'Small-batch herbal teas, potions and whole flowers, hand harvested from regenerative family farms in Sri Lanka. Loose leaf, farm-direct, nothing you can’t pronounce.' }),
-      el('div', { className: 'row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'btn btn-glow', href: './#gate', textContent: 'Walk the 3D garden' })),
+      el('div', { className: 'row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'btn btn-glow', href: './#grove', textContent: 'Walk the 3D garden' })),
       el('div', { className: 'h-fav' }, el('p', { className: 'kicker', textContent: 'Most loved right now' }), el('div', { className: 'h-cards' }, fav.map((p, i) => el('a', { className: 'h-card', href: `#p--${p.handle}`, style: `--r:${(i - 1) * 5}deg` }, el('img', { src: photo(p), alt: '' }), el('span', { textContent: p.name })))))),
     stamp('FARM DIRECT ✦ SRI LANKA ✦ SMALL BATCH ✦ ', 'flower', 'h-stamp'));
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches && matchMedia('(pointer: fine)').matches) {
@@ -350,7 +350,7 @@ function product(p) {
     pl.length ? el('div', { className: 'chips' }, pl.slice(0, 8).map((x) => el('a', { className: 'chip', href: `#plant--${x.k}` }, icon(x.ic), x.n))) : null,
     price, variants, el('div', { className: 'pp-row' }, el('div', { className: 'qty' }, minus, qv, plus), add), ship,
     el('ul', { className: 'pp-promises' }, ['Sourced direct from farmers in Sri Lanka', 'Regenerative agriculture partners', 'Organic loose leaf herbs'].map((t) => el('li', { textContent: t }))));
-  const top = el('section', { className: `pp pp-${col.tone}` }, deco('fx0', 'pp-d0 sway'), deco('bfly2', 'pp-d1 fl'), el('div', { className: 'pp-gallery pp-stack' }, imgs.map((src, i) => el('figure', { className: `pp-shot${i === 0 ? ' first' : ''}` }, el('img', { src: A(src), alt: i === 0 ? p.title : '', loading: i ? 'lazy' : 'eager', decoding: 'async' }), i === 0 ? p.sale && SALE.pct ? el('span', { className: 'badge' }, el('b', { textContent: `${SALE.pct}%` }), 'off') : null : null))), buy);
+  const top = el('section', { className: `pp pp-${col.tone}` }, deco('fx0', 'pp-d0 sway'), deco('bfly2', 'pp-d1 fl'), el('div', { className: 'pp-gallery pp-stack' }, imgs.map((src, i) => el('figure', { className: `pp-shot${i === 0 ? ' first' : ''}` }, el('img', { src: A(src), alt: i === 0 ? p.title : '', loading: i ? 'lazy' : 'eager', decoding: 'async' }), i === 0 ? p.sale && SALE.pct ? el('span', { className: 'badge' }, el('b', { textContent: `${SALE.pct}%` }), el('i', { textContent: 'off' })) : null : null))), buy);
   const crumbs = el('nav', { className: 'crumbs', ariaLabel: 'You are here' }, el('a', { className: 'cr-back', href: `#shop-${p.station}`, textContent: `← ${col.name}` }), el('span', { className: 'cr-trail' }, el('a', { href: '#shop', textContent: 'Shop all' }), ' / ', el('a', { href: `#shop-${p.station}`, textContent: col.short || col.name }), ' / ', el('b', { textContent: p.name })));
   const out = [crumbs, top];
   if (pl.length) out.push(el('section', { className: 'sec tone-moss inside' }, deco('plant1', 'in-d0 sway'), deco('fx7', 'in-d1'), sectionHead(pl.length === 1 ? 'The plant' : `${pl.length} plants inside`, pl.length === 1 ? 'What it is' : 'What’s inside', null, null, [p, ...catalog.filter((x) => x.station === p.station && x !== p && x.gallery.length).slice(0, 3)]), el('div', { className: 'inside-grid' }, pl.map((x) => el('a', { className: 'ing', href: `#plant--${x.k}` }, plantFace(x.k, 'sm'), el('h3', { textContent: x.n }), x.b ? el('p', { className: 'bot', textContent: x.b }) : null, el('p', { textContent: x.note }), (PLANT_USES[x.k] || []).length ? el('p', { className: 'puses' }, PLANT_USES[x.k].slice(0, 3).map((t) => el('span', { textContent: t }))) : null)))));
@@ -466,7 +466,7 @@ function footer() {
   const top = el('button', { className: 'to-top', type: 'button', textContent: 'Back to top ↑' }); top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
   const plantKeys = ['blue-lotus', 'hibiscus', 'butterfly-pea', 'moringa', 'cinnamon', 'turmeric', 'lavender', 'frankincense', 'mullein', 'calendula'].filter((k) => PLANTS[k]);
   f.replaceChildren(edge(['plant5', 'fx7', 'plant8', 'fx0', 'plant4', 'fx6', 'plant5', 'fx1', 'plant2', 'fx7', 'plant5'], 'foot-edge'),
-    el('div', { className: 'foot-top' }, el('a', { className: 'foot-logo', href: '#home', ariaLabel: 'The Garden of Gaia Apothecary, home' }), el('p', { className: 'foot-line', textContent: 'Steep slow. Stay rooted.' }), el('div', { className: 'foot-acts' }, el('a', { className: 'btn btn-glow', href: './#gate', textContent: 'Walk the 3D garden' }), top)),
+    el('div', { className: 'foot-top' }, el('a', { className: 'foot-logo', href: '#home', ariaLabel: 'The Garden of Gaia Apothecary, home' }), el('p', { className: 'foot-line', textContent: 'Steep slow. Stay rooted.' }), el('div', { className: 'foot-acts' }, el('a', { className: 'btn btn-glow', href: './#grove', textContent: 'Walk the 3D garden' }), top)),
     el('div', { className: 'foot-grid' },
       group('Shop the apothecary', [el('ul', { className: 'f-cols' }, ORDER.map((k) => { const l = catalog.filter((p) => p.station === k); const pic = l.find((p) => p.gallery.length); return el('li', {}, el('a', { href: `#shop-${k}` }, pic ? el('img', { src: photo(pic), alt: '', loading: 'lazy' }) : null, el('span', { className: 'fc-n', textContent: COL[k].name }), el('span', { className: 'fc-c', textContent: `${l.length}` }))); })), links([['Shop all', '#shop'], ['Gifts by budget', '#gifts'], ['Gift cards', `#p--${CARD}`]])], 'f-shop'),
       group('Shop by plant', [el('div', { className: 'f-chips' }, plantKeys.map((k) => el('a', { className: 'f-chip', href: `#plant--${k}` }, icon(PLANTS[k].ic), PLANTS[k].n)), el('a', { className: 'f-chip all', href: '#plants', textContent: 'All plants →' }))], 'f-plants'),
@@ -529,7 +529,7 @@ function buildMenu() {
   form.onsubmit = (e) => { e.preventDefault(); const q = form.querySelector('input').value.trim(); if (q) { location.hash = `#search--${encodeURIComponent(q)}`; form.querySelector('input').blur(); closeMenu(); } };
   const ask = el('button', { type: 'button', className: 'mn-ask' }, el('img', { src: A('assets/img/witch-face.webp'), alt: '' }), el('span', {}, el('b', { textContent: 'Ask Sarah' }), el('small', { textContent: 'Five questions, and a ritual chosen for you' })), el('i', { ariaHidden: 'true', textContent: '→' }));
   ask.onclick = () => { closeMenu(); askSarah(); };
-  const garden = el('a', { className: 'mn-garden', href: './#gate' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'Meet every plant we work with' })));
+  const garden = el('a', { className: 'mn-garden', href: './#grove' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'Meet every plant we work with' })));
   const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
   const idx = el('button', { type: 'button', className: 'mn-idx' }, el('b', { textContent: 'Shop index' }), el('small', { textContent: 'Everything, in one list' })); idx.onclick = () => { closeMenu(); openIndex('all'); };
   // Gifts: the second of the two big doors in the menu, dressed like a wrapped present
