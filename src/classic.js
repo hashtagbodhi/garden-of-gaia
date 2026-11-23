@@ -423,6 +423,16 @@ function infoPage(id) {
   if (id === 'reviews') return [el('section', { className: 'page-head tone-plum' }, el('p', { className: 'kicker', textContent: `${stars(5)} 5.0 from ${reviews.length} reviews` }), el('h1', { textContent: 'Kind words' })), el('section', { className: 'sec tone-plum' }, el('div', { className: 'quotes' }, reviews.map((r, i) => { const c = reviewCard(r, true); if (i >= 9) c.classList.add('later'); return c; })), reviews.length > 9 ? (() => { const b = el('button', { type: 'button', className: 'btn more-reviews', textContent: `Show all ${reviews.length} reviews` }); b.onclick = () => { b.closest('.sec').classList.add('all'); b.remove(); }; return b; })() : null)];
   const tone = { story: 'moss', brew: 'lotus', wholesale: 'hibiscus', elixir: 'marigold', hello: 'night' }[id] || 'night';
   const body = html('div', 'info-body', i.html.replace(/assets\//g, A('assets/')).replace(/href="#(tea|pond)"/g, 'href="#shop-$1"'));
+  if (id === 'story') {
+    const media = el('div', { className: 'st-media' }), text = el('div', { className: 'st-text' }); let card = null, n = 0;
+    for (const node of [...body.children]) {
+      if (node.matches('figure, .pair')) media.append(node);
+      else if (node.matches('h3')) { card = el('article', { className: 'st-card' }, el('span', { className: 'st-n', ariaHidden: 'true', textContent: ROMAN[n++] })); card.append(node); text.append(card); }
+      else if (node.matches('p') && card) card.append(node);
+      else if (!node.matches('.lede, h2')) text.append(node);
+    }
+    body.replaceChildren(media, text); body.classList.add('story-2col');
+  }
   return [el('section', { className: `page-head tone-${tone}` }, deco('flower4', 'ph-d0'), deco('bfly0', 'ph-d1'), el('p', { className: 'kicker', textContent: 'The Garden of Gaia' }), el('h1', { textContent: i.title }), body.querySelector('.lede') ? el('p', { className: 'lede', textContent: body.querySelector('.lede').textContent }) : null), el('section', { className: 'sec tone-cream info' }, body)];
 }
 
@@ -440,7 +450,11 @@ function footer() {
       group('Shop by plant', [el('div', { className: 'f-chips' }, plantKeys.map((k) => el('a', { className: 'f-chip', href: `#plant--${k}` }, icon(PLANTS[k].ic), PLANTS[k].n)), el('a', { className: 'f-chip all', href: '#plants', textContent: 'All plants →' }))], 'f-plants'),
       group('About us', [links([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']])], 'f-about'),
       group('Help', [links([['Questions, answered', '#faq'], ['Refund policy', `${STORE}/policies/refund-policy`, 1], ['Privacy policy', `${STORE}/policies/privacy-policy`, 1], ['Terms of service', `${STORE}/policies/terms-of-service`, 1], ['Contact information', `${STORE}/policies/contact-information`, 1], ['Wholesale application', `${STORE}/pages/wholesale-blue-water-lily`, 1]])], 'f-help'),
-      el('div', { className: 'f-news' }, el('h3', { textContent: 'Join the garden' }), el('p', { textContent: 'Herbal rituals, new blends and 10% off your first order.' }), el('a', { className: 'btn btn-main', href: STORE, target: '_blank', rel: 'noopener', textContent: 'Join the newsletter' }), el('p', { className: 'fine' }, 'Write to us at ', el('span', { className: 'sel', textContent: EMAIL })), el('a', { className: 'f-ig', href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Follow us on Instagram' }))),
+      el('div', { className: 'f-news max' }, el('span', { className: 'fn-rays', ariaHidden: 'true' }),
+        el('span', { className: 'fn-burst', ariaHidden: 'true' }, el('b', { textContent: '10%' }), 'off'),
+        el('div', { className: 'fn-t' }, el('small', { textContent: 'Letters from the garden' }), el('h3', { textContent: 'Join the garden' }), el('p', { textContent: 'Herbal rituals, new blends and 10% off your first order.' })),
+        el('a', { className: 'btn btn-main fn-go', href: STORE, target: '_blank', rel: 'noopener', textContent: 'Join the newsletter' }),
+        el('div', { className: 'fn-links' }, el('a', { className: 'f-ig', href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Follow us on Instagram' }), el('p', { className: 'fine' }, 'Write to us at ', el('span', { className: 'sel', textContent: EMAIL }))))),
     el('div', { className: 'foot-fine' }, el('p', { className: 'fine', textContent: `© 2026 The Garden of Gaia Apothecary. ${SALE.line || ''}` }), el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. Our products are not intended to diagnose, treat, cure, or prevent any disease.' })));
   const fold = () => f.querySelectorAll('details.fg').forEach((d) => { d.open = innerWidth > 760; });
   fold(); addEventListener('resize', fold);

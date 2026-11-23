@@ -72,8 +72,8 @@ let dpr = Math.min(devicePixelRatio, coarse ? 2 : 1.5);
 const dprFloor = coarse ? 1.5 : 0.8;
 renderer.setPixelRatio(dpr);
 const scene = new THREE.Scene();
-const FOG = new THREE.Color('#081726');
-scene.background = new THREE.Color('#040a16');
+const FOG = new THREE.Color('#06200f');   // a deep leaf green, not the old blue haze
+scene.background = new THREE.Color('#03110a');
 scene.fog = new THREE.Fog(FOG, 26, 135);
 const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
@@ -432,7 +432,7 @@ function buildWorld() {
     half.position.y = H / 2 - H * 0.2; half.rotation.y = Math.PI * 0.5; scene.add(half);
   });
   tex.ground.wrapS = tex.ground.wrapT = THREE.RepeatWrapping; tex.ground.repeat.set(44, 44);
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(170, 64), new THREE.MeshBasicMaterial({ map: tex.ground, color: 0xd6e2ee }));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(170, 64), new THREE.MeshBasicMaterial({ map: tex.ground, color: 0xb6f29a }));
   ground.rotation.x = -Math.PI / 2; scene.add(ground);
 
   shadowMat = new THREE.MeshBasicMaterial({ map: softPuff(), color: 0x000308, opacity: 0.7, transparent: true, depthWrite: false, fog: true });
