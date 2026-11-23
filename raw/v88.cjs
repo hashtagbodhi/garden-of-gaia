@@ -1,0 +1,2 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch(); for (const [n, o] of [['a', devices['iPhone 13']], ['b', { viewport: { width: 320, height: 640 }, deviceScaleFactor: 2 }], ['c', { viewport: { width: 1440, height: 810 } }]]) { const c = await b.newContext(o); const p = await c.newPage(); await p.goto('http://127.0.0.1:4175/classic.html'); await p.waitForTimeout(2000); await p.locator('.age-in').screenshot({ path: `raw/_s${n}.jpg`, type: 'jpeg', quality: 82 }); await c.close(); } await b.close(); })();
