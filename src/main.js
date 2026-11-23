@@ -370,6 +370,7 @@ function pumpCuts() {
   }
 }
 function placeItems(s) {
+  if (!s.items[0]?.mesh) return;
   for (const it of s.items) {
     it.mesh.position.copy(it.pos);
     // the stand fits the product: its surface meets the product's base, and it is a little wider than the product
@@ -454,6 +455,8 @@ function placeGrove(s) {
 }
 
 function buildWorld() {
+  // the garden is the herb grove: a painted glade and the plants. Nothing else is built or loaded
+  buildGrove(byId.grove); built = true; return;
   const SR = 190, H = Math.PI * SR * (tex.sky.image.height / tex.sky.image.width);
   tex.sky.wrapS = THREE.RepeatWrapping; tex.sky.generateMipmaps = false; tex.sky.minFilter = THREE.LinearFilter;
   const flip = tex.sky.clone(); flip.repeat.x = -1; flip.offset.x = 1; flip.needsUpdate = true;
@@ -677,6 +680,7 @@ function puffAt(pos) {
   gsap.timeline().to(flash.material, { opacity: 0.2, duration: 0.45, ease: 'sine.out' }).to(flash.material, { opacity: 0, duration: 1.15, ease: 'sine.inOut' });
 }
 function moveWitch(s, instant) {
+  if (!witch) return;
   const place = () => { setPose(s); const w = witchAt(s, new THREE.Vector3()); witch.position.set(w.x, 2.8 * wbig(s), w.z); witch.rotation.y = Math.atan2(s.f.x, s.f.z); };
   if (instant || reduce) { place(); return; }
   puffAt(witch.position); witchHidden = true;
@@ -1292,8 +1296,8 @@ function frame() {
   // products and pedestals turn to face the visitor
   const yaw = Math.atan2(camPos.x - camLook.x, camPos.z - camLook.z);
   for (const m of upright) m.rotation.y = yaw;
-  if (selected) selected.mesh.rotation.y = yaw + parS.x * 0.32 * k;   // the product turns a little with the pointer
-  for (const s of STATIONS) for (const it of s.items) {
+  if (selected?.mesh) selected.mesh.rotation.y = yaw + parS.x * 0.32 * k;   // the product turns a little with the pointer
+  for (const s of []) for (const it of s.items) {
     const on = it === hoverItem || it === selected;
     it.hover += ((on ? 1 : 0) - it.hover) * Math.min(1, dt * 9);
     if (it.hop > 0) it.hop = Math.max(0, it.hop - dt * 2.2);
@@ -1363,17 +1367,15 @@ function frame() {
 
 /* ---------- boot ---------- */
 resize();
-Promise.all(Object.keys(sprites).concat(['sky', 'ground', 'grove-bg']).map((n) => loadTex(n))).then(() => {
+Promise.all(['grove-bg'].map((n) => loadTex(n))).then(() => {
   buildWorld(); buildBackdrop();
   renderBasket();
-  moveWitch(byId.gate, true);
   camPos.set(0, 7, 64); camLook.copy(byId.gate.camLook);
   gsap.to(camPos, { z: 58, duration: 6, ease: 'sine.out' });
   const b = $('#enter-yes'); b.disabled = false; b.textContent = 'I am 21 or older, enter the garden';
   // age already confirmed (here or in the apothecary): straight in, to the plants
   setTimeout(() => b.click(), 0);   // there is no opening screen: age is confirmed in the apothecary, which is the only way in
   requestAnimationFrame(frame);
-  wantCuts(STATIONS.flatMap((x) => x.items), false);   // the rest trickle in behind the garden, four at a time
   window.__ready = true; window.__dbg = { STATIONS, camPos, camLook, get selected() { return selected; } };
 });
 

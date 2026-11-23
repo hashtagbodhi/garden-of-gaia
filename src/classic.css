@@ -1745,7 +1745,6 @@ html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: 
 .pp-shot .badge { top: -6px !important; left: 14px !important; width: 104px !important; height: 152px !important; padding: 62px 8px 0 20px !important; font-size: 1.08rem !important; } .pp-shot .badge > b { font-size: 1.95rem !important; }
 @media (max-width: 760px) { .badge { width: 58px !important; height: 85px !important; padding: 35px 4px 0 11px !important; font-size: .66rem !important; } .badge > b { font-size: 1.05rem !important; } }
 /* the round seal: a slice of trunk in a leaf wreath, the words carved once around the inside */
-.stamp { width: 172px !important; height: 163px !important; background: url(../assets/img/ui-disc.webp) center / contain no-repeat; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .6)); }
 .stamp::before, .stamp::after { content: none !important; }
 .stamp .stamp-ring { inset: 19% 18% 17% 18% !important; }
 .stamp-ring text { font-size: 15px !important; letter-spacing: 1px !important; fill: #fff3d6; stroke: #3a2009; stroke-width: 3px; }
@@ -1780,3 +1779,11 @@ html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: 
 .fs-ic:hover { color: #d6ff8a; transform: translateY(-3px); }
 .fs-ic:hover svg { color: #120d24; background: #b9f655; box-shadow: 0 0 24px rgba(185, 246, 85, .5); }
 @media (max-width: 560px) { .f-social { padding: 24px 14px 26px; } .fs-ic svg { width: 54px; height: 54px; padding: 13px; } }
+
+/* the round seal is retired; the wooden sale tag stays */
+.stamp { display: none !important; }
+
+/* the three promises sit at the foot of every page, between the links and the fine print */
+footer .promises { background: none !important; padding: 0 !important; margin: 22px 0 0 !important; max-width: none; }
+footer .promises .pr-sun, footer .promises .sec-flies { display: none !important; }
+footer .promises { margin-bottom: 22px !important; }

@@ -206,7 +206,6 @@ function home() {
   m.push(hero());
   m.push(ribbons(['Hand harvested', 'Farm direct from Sri Lanka', 'Small batch', 'Organic & pesticide-free', 'Brewed under the full moon'], ['Blue lotus', 'Butterfly pea', 'Hibiscus', 'Moringa', 'Ceylon cinnamon', 'Turmeric', 'Frankincense']));
   // promises
-  m.push(el('section', { className: 'promises tone-marigold' }, sun('pr-sun'), ...[['leaf', 'Organic & pesticide-free', 'Grown in rich soil and hand harvested. Our Blue Lotus is tested and backed by a COA.'], ['plant-2', 'Farmer direct', 'Direct trade with multigenerational regenerative farmers in Sri Lanka. No middlemen.'], ['flower', 'Made in-house', 'Signature blends like Butterfly Chai and Full Spectrum Hibiscus, made by hand in small batches.']].map(([ic, t, d]) => el('div', { className: 'promise' }, icon(ic), el('h3', { textContent: t }), el('p', { textContent: d })))));
   // shop by collection
   m.push(el('section', { className: 'sec tone-cream cols-sec scal' }, deco('fx0', 'c-d0 sway'), deco('fx6', 'c-d1 sway'), sectionHead('Shop by ritual', 'The whole apothecary', 'Four corners of the garden, each with its own character.', null, ORDER.map((k) => catalog.find((p) => p.station === k && p.gallery.length)), 'Apothecary'),
     el('div', { className: 'cols' }, ...ORDER.filter((id) => id !== 'roots').map((id) => { const c = COL[id], all = catalog.filter((p) => p.station === id); const hero = byHandle[{ tea: 'butterfly-chai-organic-whole-spice-blend-ceylon-black-tea', potions: 'blue-water-lily-tincture', pond: 'blue-water-lily-flowers-organic-whole-flower', altar: 'brass-resin-burner-w-wooden-handle' }[id]];
@@ -253,6 +252,8 @@ function home() {
     door('#brew', 'steam', 'Brew it your way', 'Hot, cold or in the sun'), door('#wholesale', 'droplet', 'Wholesale & Elixir Bar', 'For shops, cafés and events'))));
   return keep;
 }
+// what the shop stands by: shown at the foot of every page, above the fine print
+const promisesRow = () => el('section', { className: 'promises tone-marigold' }, sun('pr-sun'), ...[['leaf', 'Organic & pesticide-free', 'Grown in rich soil and hand harvested. Our Blue Lotus is tested and backed by a COA.'], ['plant-2', 'Farmer direct', 'Direct trade with multigenerational regenerative farmers in Sri Lanka. No middlemen.'], ['flower', 'Made in-house', 'Signature blends like Butterfly Chai and Full Spectrum Hibiscus, made by hand in small batches.']].map(([ic, t, d]) => el('div', { className: 'promise' }, icon(ic), el('h3', { textContent: t }), el('p', { textContent: d }))));
 function hero() {
   const L = (name, cls, d) => { const i = el('img', { className: `hl ${cls}`, src: A(`assets/img/${name}.webp`), alt: '', decoding: 'async' }); i.style.setProperty('--d', d); return i; };
   const flies = el('div', { className: 'hl flies' }, Array.from({ length: 34 }, (_, i) => { const f = el('i'); f.style.cssText = `left:${(i * 37 + 11) % 100}%;top:${(i * 53 + 7) % 92}%;animation-delay:${-((i * 1.3) % 9).toFixed(1)}s;animation-duration:${6 + (i % 5)}s;--s:${1 + (i % 3) * .6}`; return f; }));
@@ -472,6 +473,7 @@ function footer() {
       group('Shop by plant', [el('div', { className: 'f-chips' }, plantKeys.map((k) => el('a', { className: 'f-chip', href: `#plant--${k}` }, icon(PLANTS[k].ic), PLANTS[k].n)), el('a', { className: 'f-chip all', href: '#plants', textContent: 'All plants →' }))], 'f-plants'),
       group('About us', [links([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']])], 'f-about'),
       group('Help', [links([['Questions, answered', '#faq'], ['Refund policy', `${STORE}/policies/refund-policy`, 1], ['Privacy policy', `${STORE}/policies/privacy-policy`, 1], ['Terms of service', `${STORE}/policies/terms-of-service`, 1], ['Contact information', `${STORE}/policies/contact-information`, 1], ['Wholesale application', `${STORE}/pages/wholesale-blue-water-lily`, 1]])], 'f-help')),
+    promisesRow(),
     el('div', { className: 'foot-fine' }, el('p', { className: 'fine', textContent: `© 2026 The Garden of Gaia Apothecary. ${SALE.line || ''}` }), el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. Our products are not intended to diagnose, treat, cure, or prevent any disease.' })));
   const fold = () => f.querySelectorAll('details.fg').forEach((d) => { d.open = innerWidth > 760; });
   fold(); addEventListener('resize', fold);
