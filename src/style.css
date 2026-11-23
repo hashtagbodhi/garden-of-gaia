@@ -924,3 +924,10 @@ body.home .place { gap: 4px !important; }
 .entry .check { display: none !important; }
 .grove-cap { box-sizing: border-box; width: 300px !important; height: 119px; aspect-ratio: auto !important; padding: 46px 34px 10px !important; }
 @media (max-width: 820px) { .grove-cap { width: 236px !important; height: 94px; padding: 38px 26px 8px !important; } }
+/* the grove signboard: both lines centred on the flat of the board */
+.grove-cap { padding: 43px 13px 11px 31px !important; place-content: center !important; text-align: center; }
+.grove-cap i { font-style: italic; } 
+.grove-cap b { font-family: 'Fraunces Variable', 'Fraunces', serif !important; font-weight: 780 !important; font-size: 1.3rem !important; font-variation-settings: "SOFT" 100, "WONK" 0; letter-spacing: .01em; }
+@media (max-width: 820px) { .grove-cap { padding: 34px 10px 9px 24px !important; } .grove-cap b { font-size: 1.02rem !important; } }
+/* no opening screen in the garden: it goes straight to the plants */
+#entry { display: none !important; }

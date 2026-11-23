@@ -1756,3 +1756,27 @@ html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: 
 .fn-burst::before, .fn-burst::after { content: none !important; }
 .fn-burst b { color: #fff3d6; font-size: 1.75rem !important; }
 @media (max-width: 560px) { .fn-burst { width: 92px !important; height: 90px !important; padding: 26px 10px 0 0; } .fn-burst b { font-size: 1.35rem !important; } }
+/* wooden labels: lettering centred on the flat face of each piece, in the same heavy face */
+.badge { padding: 19px 6px 0 0 !important; place-content: center !important; justify-items: center; text-align: center; font-family: 'Fraunces Variable', 'Fraunces', serif !important; font-style: normal !important; font-weight: 700 !important; font-size: .74rem !important; font-variation-settings: "SOFT" 100, "WONK" 0; }
+.badge > b { font-family: inherit !important; font-weight: 820 !important; font-size: 1.22rem !important; color: #fff1d0 !important; translate: none !important; text-shadow: 0 1.5px 0 #2a1608 !important; }
+.badge > i { display: block; font-style: normal; rotate: 14deg; translate: -3px 1px; }
+.pp-shot .badge { padding: 27px 8px 0 0 !important; font-size: 1rem !important; } .pp-shot .badge > b { font-size: 1.75rem !important; }
+@media (max-width: 760px) { .badge { padding: 15px 5px 0 0 !important; font-size: .6rem !important; } .badge > b { font-size: .98rem !important; } }
+.stamp .stamp-ring { inset: 17.2% 16% 17.2% 22% !important; }
+.stamp .stamp-ic { translate: 3% 0; }
+.stamp-ring text { font-family: 'Fraunces Variable', 'Fraunces', serif !important; font-weight: 800; font-size: 13.5px !important; letter-spacing: .6px !important; stroke-width: 2.6px; }
+.fn-burst { padding: 25px 0 0 0 !important; place-content: center; font-family: 'Fraunces Variable', 'Fraunces', serif !important; font-style: normal !important; font-weight: 700; }
+.fn-burst b { font-family: inherit !important; font-weight: 820 !important; font-size: 1.6rem !important; }
+@media (max-width: 560px) { .fn-burst { padding: 20px 0 0 0 !important; } }
+/* links that were dressed as outline buttons inside dark tiles keep working as planks; long ones may wrap on phones */
+@media (max-width: 560px) { html body .btn:not(.btn-main) { white-space: normal; text-align: center; line-height: 1.1 !important; } }
+
+/* footer: a quiet, centred row of places to find the shop */
+.f-social { grid-column: 1 / -1; display: grid; justify-items: center; gap: 14px; padding: 30px 20px 32px; border-radius: 26px; text-align: center; background: linear-gradient(180deg, #0f2a1c, #0a1c14); box-shadow: inset 0 0 0 1px rgba(185, 246, 85, .28); }
+.fs-k { margin: 0; font-family: var(--serif); font-style: italic; font-size: 1.1rem; color: #d6ff8a; }
+.fs-row { display: flex; justify-content: center; gap: clamp(22px, 5vw, 54px); }
+.fs-ic { display: grid; justify-items: center; gap: 8px; text-decoration: none; color: #f6efdc; font-family: 'Fraunces Variable', 'Fraunces', serif; font-weight: 700; font-size: .95rem; transition: color .2s, transform .25s; }
+.fs-ic svg { width: 62px; height: 62px; padding: 15px; border-radius: 50%; box-sizing: border-box; background: rgba(246, 239, 220, .06); box-shadow: inset 0 0 0 1.5px rgba(246, 239, 220, .3); transition: background .2s, box-shadow .2s, color .2s; }
+.fs-ic:hover { color: #d6ff8a; transform: translateY(-3px); }
+.fs-ic:hover svg { color: #120d24; background: #b9f655; box-shadow: 0 0 24px rgba(185, 246, 85, .5); }
+@media (max-width: 560px) { .f-social { padding: 24px 14px 26px; } .fs-ic svg { width: 54px; height: 54px; padding: 13px; } }

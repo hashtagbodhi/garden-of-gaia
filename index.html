@@ -7,7 +7,7 @@
 <title>The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures</title>
 <meta name="description" content="Small-batch herbal teas, tinctures and ritual tools, hand harvested from regenerative family farms in Sri Lanka. Walk the garden and shop farm-direct.">
 <meta name="theme-color" content="#050c15">
-<script>if (!location.hash) location.replace('./classic.html');</script>
+<script>try { if (!location.hash || localStorage.getItem('gaia-21') !== 'true') location.replace('./classic.html'); } catch (e) { location.replace('./classic.html'); }</script>
 </head>
 <body>
 <canvas id="world" aria-hidden="true"></canvas>
@@ -32,7 +32,7 @@
 </section>
 
 <header class="top" id="topbar" hidden>
-  <a class="mark" href="#grove" aria-label="The Garden of Gaia Apothecary, the herb grove">
+  <a class="mark" href="./classic.html" aria-label="The Garden of Gaia Apothecary, to the apothecary">
     <img src="./assets/img/logo.webp" alt="Garden of Gaia Apothecary" width="130" height="86">
   </a>
   <p id="sale-line" class="sale-line"></p>

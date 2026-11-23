@@ -2,6 +2,7 @@
 export const STORE = 'https://gardenofgaiaapothecary.com';
 export const EMAIL = 'thegardenofgaiaapothecary@gmail.com';
 export const INSTAGRAM = 'https://instagram.com/thegardenofgaiaapothecary';
+export const TIKTOK = '';   // paste the shop's TikTok address here and its icon appears in the footer
 export const FREE_SHIPPING_AT = 65;
 // Current promotion on the live store. Clear both strings when it ends.
 export const SALE = { pct: 20, line: '20% off everything through November 26, applied at checkout. Free U.S. shipping over $65.', note: '20% off is applied at checkout.' };

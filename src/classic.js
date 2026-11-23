@@ -10,7 +10,7 @@ import './sheet.css';
 import catalog from './catalog.json';
 import reviewData from './reviews.json';
 import ingredientData from './ingredients.json';
-import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY, EMAIL, INSTAGRAM } from './content.js';
+import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY, EMAIL, INSTAGRAM, TIKTOK } from './content.js';
 import { openConsult, mountAsk, usesOf } from './consult.js';
 import { runTicker } from './ticker.js';
 import plantPhotos from './plants.json';
@@ -472,11 +472,11 @@ function footer() {
       group('Shop by plant', [el('div', { className: 'f-chips' }, plantKeys.map((k) => el('a', { className: 'f-chip', href: `#plant--${k}` }, icon(PLANTS[k].ic), PLANTS[k].n)), el('a', { className: 'f-chip all', href: '#plants', textContent: 'All plants →' }))], 'f-plants'),
       group('About us', [links([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']])], 'f-about'),
       group('Help', [links([['Questions, answered', '#faq'], ['Refund policy', `${STORE}/policies/refund-policy`, 1], ['Privacy policy', `${STORE}/policies/privacy-policy`, 1], ['Terms of service', `${STORE}/policies/terms-of-service`, 1], ['Contact information', `${STORE}/policies/contact-information`, 1], ['Wholesale application', `${STORE}/pages/wholesale-blue-water-lily`, 1]])], 'f-help'),
-      el('div', { className: 'f-news max' }, el('span', { className: 'fn-rays', ariaHidden: 'true' }),
-        el('span', { className: 'fn-burst', ariaHidden: 'true' }, el('b', { textContent: '10%' }), 'off'),
-        el('div', { className: 'fn-t' }, el('small', { textContent: 'Letters from the garden' }), el('h3', { textContent: 'Join the garden' }), el('p', { textContent: 'Herbal rituals, new blends and 10% off your first order.' })),
-        el('a', { className: 'btn btn-main fn-go', href: STORE, target: '_blank', rel: 'noopener', textContent: 'Join the newsletter' }),
-        el('div', { className: 'fn-links' }, el('a', { className: 'f-ig', href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Follow us on Instagram' }), el('p', { className: 'fine' }, 'Write to us at ', el('span', { className: 'sel', textContent: EMAIL }))))),
+      el('div', { className: 'f-social' }, el('p', { className: 'fs-k', textContent: 'Come and find us' }),
+        el('div', { className: 'fs-row' },
+          (() => { const a = html('a', 'fs-ic', `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.500" y="3.500" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.700"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.700"/><circle cx="17.200" cy="6.800" r="1.100" fill="currentColor"/></svg><span>Instagram</span>`); a.href = INSTAGRAM; a.target = '_blank'; a.rel = 'noopener'; return a; })(),
+          TIKTOK ? (() => { const a = html('a', 'fs-ic', `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.500v10.800a3.700 3.700 0 1 1-3.700-3.700M14 3.500c.3 2.600 2 4.300 4.600 4.600" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round"/></svg><span>TikTok</span>`); a.href = TIKTOK; a.target = '_blank'; a.rel = 'noopener'; return a; })() : null,
+          (() => { const a = html('a', 'fs-ic', `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.500" width="18" height="13" rx="2.500" fill="none" stroke="currentColor" stroke-width="1.700"/><path d="M4 7.500l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.700" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Email</span>`); a.href = `mailto:${EMAIL}`; return a; })()))),
     el('div', { className: 'foot-fine' }, el('p', { className: 'fine', textContent: `© 2026 The Garden of Gaia Apothecary. ${SALE.line || ''}` }), el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. Our products are not intended to diagnose, treat, cure, or prevent any disease.' })));
   const fold = () => f.querySelectorAll('details.fg').forEach((d) => { d.open = innerWidth > 760; });
   fold(); addEventListener('resize', fold);

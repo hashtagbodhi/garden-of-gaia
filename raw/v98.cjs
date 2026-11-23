@@ -1,0 +1,11 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.setDefaultTimeout(8000); p.on('pageerror', (e) => errs.push(String(e))); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + 'classic.html#home'); await p.waitForTimeout(2200); await p.screenshot({ path: 'raw/_C0.jpg', type: 'jpeg', quality: 84 });
+  const st = p.locator('.stamp').first(); await st.scrollIntoViewIfNeeded(); await p.waitForTimeout(400); const bb = await st.boundingBox(); await p.screenshot({ path: 'raw/_C1.jpg', type: 'jpeg', quality: 92, clip: { x: bb.x - 10, y: bb.y - 10, width: bb.width + 20, height: bb.height + 20 } });
+  await p.locator('.loved').scrollIntoViewIfNeeded(); await p.waitForTimeout(700); await p.screenshot({ path: 'raw/_C2.jpg', type: 'jpeg', quality: 84 });
+  await p.locator('.fn-burst').scrollIntoViewIfNeeded(); await p.waitForTimeout(500); await p.screenshot({ path: 'raw/_C3.jpg', type: 'jpeg', quality: 84 });
+  console.log('wooden buttons on home:', await p.evaluate(() => [...document.querySelectorAll('.btn:not(.btn-main)')].filter((x) => x.offsetParent).length, null), 'all .btn:', await p.evaluate(() => [...document.querySelectorAll('.btn')].filter((x) => x.offsetParent).length));
+  await p.goto(U + '#grove'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); await p.waitForTimeout(3500); await p.screenshot({ path: 'raw/_C4.jpg', type: 'jpeg', quality: 84 });
+  const c = await b.newContext(devices['iPhone 13']); const q = await c.newPage(); q.on('pageerror', (e) => errs.push('m ' + e)); await q.addInitScript(() => localStorage.setItem('gaia-21', 'true')); await q.goto(U + 'classic.html#home'); await q.waitForTimeout(2000); await q.screenshot({ path: 'raw/_C5.jpg', type: 'jpeg', quality: 82 });
+  console.log('errors', errs); await b.close(); })();

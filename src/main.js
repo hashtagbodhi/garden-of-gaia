@@ -1238,7 +1238,7 @@ $('#enter-yes').onclick = () => {
   try { localStorage.setItem('gaia-21', 'true'); } catch (e) { /* private mode */ }
   audio.start(withSound);
   $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle .sr').textContent = withSound ? 'Sound on' : 'Sound off';
-  $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 600);
+  $('#entry').hidden = true;
   $('#topbar').hidden = false; $('#hud').hidden = false;
   gsap.killTweensOf(camPos); entered = true; current = null; route(false);
 };
@@ -1371,7 +1371,7 @@ Promise.all(Object.keys(sprites).concat(['sky', 'ground', 'grove-bg']).map((n) =
   gsap.to(camPos, { z: 58, duration: 6, ease: 'sine.out' });
   const b = $('#enter-yes'); b.disabled = false; b.textContent = 'I am 21 or older, enter the garden';
   // age already confirmed (here or in the apothecary): straight in, to the plants
-  try { if (localStorage.getItem('gaia-21') === 'true') setTimeout(() => b.click(), 0); } catch (e) { /* private mode */ }
+  setTimeout(() => b.click(), 0);   // there is no opening screen: age is confirmed in the apothecary, which is the only way in
   requestAnimationFrame(frame);
   wantCuts(STATIONS.flatMap((x) => x.items), false);   // the rest trickle in behind the garden, four at a time
   window.__ready = true; window.__dbg = { STATIONS, camPos, camLook, get selected() { return selected; } };
