@@ -10,6 +10,7 @@ const copy = (rel) => { fs.mkdirSync(require('path').dirname(`${out}/${rel}`), {
 for (const f of fs.readdirSync('dist/assets')) {
   const rel = `assets/${f}`;
   // a version of the preview may hold 511 files at most: its small list pictures are served from the card renders (the same picture, larger)
+  fs.mkdirSync(`${out}/assets`, { recursive: true });
   if (f.endsWith('.js')) { fs.writeFileSync(`${out}/${rel}`, fs.readFileSync(`dist/${rel}`, 'utf8').replaceAll('assets/thumb/', 'assets/card/')); files.push(rel); }
   else if (f.endsWith('.css')) { fs.mkdirSync(`${out}/assets`, { recursive: true }); fs.writeFileSync(`${out}/${rel}`, '@charset "UTF-8";\n' + fs.readFileSync(`dist/${rel}`, 'utf8').replace(/@charset "UTF-8";/, '').replace(/@font-face\{[^}]*\}/g, '')); files.push(rel); }
 }

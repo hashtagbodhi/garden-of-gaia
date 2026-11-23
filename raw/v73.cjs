@@ -1,0 +1,13 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch(); const errs = [];
+  let p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.on('pageerror', (e) => errs.push('desk ' + e)); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + 'classic.html'); await p.waitForTimeout(2000); await p.screenshot({ path: 'raw/_c0.jpg', type: 'jpeg', quality: 80, clip: { x: 0, y: 0, width: 1440, height: 160 } });
+  await p.click('#index-open'); await p.waitForTimeout(900); await p.screenshot({ path: 'raw/_c1.jpg', type: 'jpeg', quality: 80 });
+  await p.fill('#sidx-search', 'lotus'); await p.waitForTimeout(300); console.log('lotus rows', await p.locator('#sidx-list a:visible').count());
+  await p.fill('#sidx-search', ''); await p.click('#sidx-gifts button >> nth=0'); await p.waitForTimeout(400); console.log('gift title', await p.textContent('#sidx-title'), await p.locator('#sidx-list a').count());
+  await p.click('#sidx-list a >> nth=1'); await p.waitForTimeout(900); console.log('row opens', p.url(), 'index hidden', await p.isHidden('#sidx'));
+  await p.close();
+  const c = await b.newContext(devices['iPhone 13']); p = await c.newPage(); p.on('pageerror', (e) => errs.push('phone ' + e)); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + 'classic.html'); await p.waitForTimeout(2000); await p.tap('#menu-btn'); await p.waitForTimeout(800); await p.screenshot({ path: 'raw/_c2.jpg', type: 'jpeg', quality: 80 });
+  await p.tap('.mn-idx'); await p.waitForTimeout(900); await p.screenshot({ path: 'raw/_c3.jpg', type: 'jpeg', quality: 80 });
+  console.log('errors', errs); await b.close(); })();

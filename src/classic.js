@@ -475,8 +475,10 @@ function buildMenu() {
   ask.onclick = () => { closeMenu(); askSarah(); };
   const garden = el('a', { className: 'mn-garden', href: './#gate' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
   const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
+  const idx = el('button', { type: 'button', className: 'mn-idx' }, el('b', { textContent: 'Shop index' }), el('small', { textContent: 'Everything, in one list' })); idx.onclick = () => { closeMenu(); openIndex('all'); };
+  const duo = el('div', { className: 'mn-duo' }, el('a', { className: 'mn-gifts', href: '#gifts' }, el('b', { textContent: 'Gifts' }), el('small', { textContent: 'By budget, and gift cards' })), idx);
   const m = el('aside', { id: 'mnav', className: 'mnav', ariaLabel: 'Menu' }, el('div', { className: 'mn-in' },
-    form, ask,
+    form, ask, duo,
     el('p', { className: 'mn-label', textContent: 'Shop' }),
     el('ul', { className: 'mn-big' }, big('#shop', 'Shop all', `${catalog.length} things`, photo(typeof best[0] === 'string' ? byHandle[best[0]] : best[0], 0)), ...Object.entries(COL).filter(([k]) => first(k) && k !== 'roots').map(([k, c]) => big(`#shop-${k}`, c.short || c.name, `${count(k)}`, photo(first(k), 0))), big('#plants', 'Shop by plant', 'Meet the plants', A('assets/plants/blue-lotus.webp'))),
     el('div', { className: 'mn-cols' },
@@ -498,7 +500,49 @@ addEventListener('click', (e) => { if (e.target.closest?.('a[href^="./#"]')) sto
 $('#ask-top').onclick = () => { closeMenu(); askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
 mountAsk(askSarah, A('assets/img/witch-face.webp'));
-addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeBasket(); closeMenu(); } });
+/* ---------- shop index: everything in one list, opened the same way as in the garden ---------- */
+let sidxFilter = 'all';
+function sidxRow(p) {
+  const pl = plantsOf(p), a = el('a', { href: `#p--${p.handle}` }, el('img', { src: A(`assets/thumb/${p.handle}.webp`), alt: '', loading: 'lazy' }),
+    el('span', {}, el('span', { className: 'n', textContent: p.name }), el('span', { className: 's', textContent: pl.length ? pl.slice(0, 4).map((x) => x.n).join(' · ') + (pl.length > 4 ? ` · +${pl.length - 4}` : '') : p.sub || '' })),
+    el('span', { className: 'p', textContent: priceLabel(p) }));
+  a.dataset.q = `${p.name} ${p.sub || ''} ${pl.map((x) => x.n).join(' ')}`.toLowerCase();
+  a.onclick = () => closeIndex();
+  return a;
+}
+function openIndex(filter = 'all') {
+  closeBasket(); closeMenu(); sidxFilter = filter; const box = $('#sidx'); box.hidden = false; box.style.setProperty('--sidx-top', `${Math.max(0, Math.round($('#head').getBoundingClientRect().bottom))}px`); box.scrollTop = 0; document.body.classList.add('locked');
+  const gift = filter.startsWith('gift'), G = { gift25: [0, 25, 'Under $25'], gift40: [25, 40, '$25 to $40'], gift75: [40, 75, '$40 to $75'] };
+  const ids = ORDER.filter((id) => catalog.some((x) => x.station === id));
+  $('#sidx-title').textContent = gift ? 'Gifts' : 'Shop index';
+  $('#sidx-lede').textContent = gift ? 'Give a gift that keeps on giving. Pick a budget and we will show what fits.' : 'Everything in the apothecary, in one list.';
+  const tab = (id, name) => { const b = el('button', { type: 'button', textContent: name }); b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(id === sidxFilter)); b.onclick = () => openIndex(id); return b; };
+  $('#sidx-filter').replaceChildren(tab('all', 'Everything'), ...ids.map((id) => tab(id, COL[id].name)));
+  $('#sidx-gifts').replaceChildren(el('span', { className: 'sidx-label', textContent: 'Gifts' }), tab('gift25', 'Under $25'), tab('gift40', '$25 to $40'), tab('gift75', '$40 to $75'));
+  const list = $('#sidx-list'); list.replaceChildren();
+  if (gift) {
+    const [lo, hi, title] = G[filter] || G.gift25, cost = (x) => { const v = x.variants.find((z) => z.available) || x.variants[0]; return now(v.price, x); };
+    list.append(el('h3', { textContent: 'Let them choose' })); if (byHandle[CARD]) list.append(sidxRow(byHandle[CARD]));
+    list.append(el('h3', { textContent: `Gifts ${title.toLowerCase()}` }));
+    catalog.filter((x) => x.handle !== CARD && cost(x) > lo && cost(x) <= hi).sort((x, y) => cost(x) - cost(y)).forEach((x) => list.append(sidxRow(x)));
+  } else for (const id of ids.filter((x) => sidxFilter === 'all' || x === sidxFilter)) {
+    list.append(el('h3', { textContent: COL[id].name }));
+    catalog.filter((x) => x.station === id).sort((x, y) => x.name.localeCompare(y.name)).forEach((x) => list.append(sidxRow(x)));
+  }
+  $('#sidx-search').value = ''; $('#sidx-close').focus({ preventScroll: true });
+}
+function closeIndex() { if ($('#sidx').hidden) return; $('#sidx').hidden = true; if ($('#age').hidden) document.body.classList.remove('locked'); }
+$('#sidx-search').oninput = (e) => {
+  const t = e.target.value.trim().toLowerCase(); let shown = 0;
+  $('#sidx-list').querySelectorAll('a').forEach((r) => { const ok = !t || r.dataset.q.includes(t); r.hidden = !ok; if (ok) shown++; });
+  // a heading with nothing under it steps aside
+  $('#sidx-list').querySelectorAll('h3').forEach((hd) => { let n = hd.nextElementSibling, any = false; while (n && n.tagName !== 'H3') { if (!n.hidden) any = true; n = n.nextElementSibling; } hd.hidden = !any; });
+  $('#sidx-list').classList.toggle('none', !shown);
+};
+$('#index-open').onclick = () => openIndex('all');
+$('#sidx-close').onclick = closeIndex;
+addEventListener('hashchange', closeIndex);
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeIndex(); closeBasket(); closeMenu(); } });
 addEventListener('hashchange', route);
 addEventListener('scroll', () => $('#head').classList.toggle('scrolled', scrollY > 30), { passive: true });
 footer(); renderBasket(); route();

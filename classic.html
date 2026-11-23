@@ -37,7 +37,8 @@
       <a href="#shop-pond">Pantry</a>
       <a href="#shop-altar">Ritual</a>
       <a href="#plants">Plants</a>
-      <a href="#gifts">Gifts</a>
+      <a href="#gifts" class="nav-gifts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v9H4zM3 7.500h18V11H3zM12 7.500V20M12 7.500C10 3 5.500 4 7 6.500c.8 1.200 3 1 5 1zm0 0c2-4.500 6.500-3.500 5-1-.8 1.200-3 1-5 1z" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linejoin="round"/></svg>Gifts</a>
+      <button type="button" class="nav-index" id="index-open">Shop index</button>
       <a href="#story">Our story</a>
       <a href="./#gate" class="nav-garden">Enter the 3D garden</a>
       <button type="button" class="nav-sound" id="nav-sound">Garden sounds: on</button>
@@ -56,6 +57,23 @@
 </header>
 
 <main id="main" tabindex="-1"></main>
+
+<!-- Shop index: everything in one list, the same as in the garden -->
+<section id="sidx" class="sidx" role="dialog" aria-modal="true" aria-labelledby="sidx-title" hidden>
+  <div class="sidx-in">
+    <div class="sidx-head">
+      <button class="sidx-back" id="sidx-close" type="button">Back to the apothecary</button>
+      <h2 id="sidx-title">Shop index</h2>
+      <p class="sidx-lede" id="sidx-lede"></p>
+      <div class="sidx-tools">
+        <label class="sidx-search"><span class="sidx-label">Search</span><input id="sidx-search" type="search" placeholder="Blue lotus, chai, sage…" autocomplete="off"></label>
+        <div id="sidx-filter" class="sidx-filter" role="tablist" aria-label="Filter by collection"></div>
+        <div id="sidx-gifts" class="sidx-filter" role="tablist" aria-label="Gifts by budget"></div>
+      </div>
+    </div>
+    <div id="sidx-list" class="sidx-list"></div>
+  </div>
+</section>
 
 <footer class="foot" id="foot"></footer>
 
