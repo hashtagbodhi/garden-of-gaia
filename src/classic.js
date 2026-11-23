@@ -365,7 +365,29 @@ function product(p) {
   out.push(el('section', { className: 'sec tone-plum kind scal', id: 'pp-reviews' }, html('span', 'big-q', '“'), deco('fx3', 'k-d0 sway'), sectionHead(own.length ? `${stars(Math.round(avg))} ${avg} out of 5` : 'Kind words from the garden', own.length ? 'In their words' : 'What people say', own.length ? null : 'No reviews for this one yet. Here is what people say about the rest of the garden.'), el('div', { className: 'quotes' }, (own.length ? own : reviews.slice(0, 3)).map((r) => reviewCard(r, !own.length)))));
   const related = catalog.filter((x) => x.station === p.station && x !== p).slice(0, 4);
   if (related.length) out.push(el('section', { className: `sec tone-${col.tone} loved scal` }, deco('fx4', 'l-d1 sway'), sectionHead('From the same corner of the garden', `More ${COL[p.station].short.toLowerCase()}`, null, [`Shop ${COL[p.station].short.toLowerCase()}`, `#shop-${p.station}`]), grid(related, 'grid-4')));
-  return out;
+  // ---- a tighter page: buy box, then one sticky row of jumps (Details, Inside, Reviews, More), each section short ----
+  const page = out.filter((x) => x && !x.classList.contains('ribbons') && !x.classList.contains('duo-one'));
+  const find = (c) => page.find((x) => x.classList.contains(c));
+  const det = find('details'), ins = find('inside'), rev = find('kind'), more = find('loved');
+  if (det) { det.id = 'pp-details'; det.querySelector('.pp-aside')?.remove(); det.querySelectorAll('details').forEach((d, i) => { d.open = i === 0; }); }
+  if (ins) ins.id = 'pp-inside'; if (more) more.id = 'pp-more';
+  if (rev) { const q = [...rev.querySelectorAll('.quotes > *')]; q.slice(3).forEach((x) => x.remove()); if (own.length > 3) rev.append(el('a', { className: 'btn pp-allrev', href: '#reviews', textContent: `Read all ${reviews.length} reviews` })); }
+  // details first (what it is, how to use it), then what is inside, then reviews and neighbours
+  const order = [crumbs, top, null, det, ins, rev, more].filter((x) => x !== undefined);
+  const jump = (id, label) => { const b = el('button', { type: 'button', textContent: label }); b.onclick = () => document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); return b; };
+  const tabs = el('nav', { className: 'pp-tabs', ariaLabel: 'On this page' }, el('div', { className: 'pp-tabs-in' }, det ? jump('pp-details', 'Details') : null, ins ? jump('pp-inside', pl.length === 1 ? 'The plant' : `Inside (${pl.length})`) : null, rev ? jump('pp-reviews', own.length ? `Reviews (${own.length})` : 'Reviews') : null, more ? jump('pp-more', 'More like this') : null));
+  const hh = $('#head').offsetHeight; tabs.style.setProperty('--pp-top', `${hh}px`); document.documentElement.style.setProperty('--head-h3', `${hh + 56}px`);
+  // the next one along the same shelf, so nobody has to go back to move on
+  const shelf = catalog.filter((x) => x.station === p.station), nx = shelf[(shelf.indexOf(p) + 1) % shelf.length];
+  if (nx && nx !== p) crumbs.append(el('a', { className: 'cr-next', href: `#p--${nx.handle}` }, el('small', { textContent: 'Next' }), el('span', { textContent: nx.name }), ' →'));
+  // phones: once the Add button scrolls away, a slim bar keeps it within reach
+  const barPrice = el('b', { textContent: price.firstChild?.textContent || '' }), barAdd = el('button', { type: 'button', className: 'btn btn-main', textContent: add.textContent, disabled: add.disabled });
+  const bar = el('div', { className: 'pp-bar', ariaHidden: 'true' }, el('span', { className: 'pp-bar-n' }, el('small', { textContent: p.name }), barPrice), barAdd);
+  barAdd.onclick = () => add.click();
+  new MutationObserver(() => { barPrice.textContent = price.firstChild?.textContent || ''; }).observe(price, { childList: true, characterData: true, subtree: true });
+  new MutationObserver(() => { barAdd.textContent = add.textContent; barAdd.disabled = add.disabled; }).observe(add, { childList: true, characterData: true, subtree: true, attributes: true });
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting && e.boundingClientRect.top < 0 && bar.isConnected; bar.classList.toggle('on', on); document.body.classList.toggle('buybar-on', on); }).observe(add);
+  return [...order.map((x) => (x === null ? tabs : x)).filter(Boolean), bar];
 }
 function blocks(list) {
   const out = []; let ul = null;
@@ -475,6 +497,7 @@ function route() {
   else if (a === 'faq') { page = [el('section', { className: 'page-head tone-night' }, el('p', { className: 'kicker', textContent: 'Good to know' }), el('h1', { textContent: 'Questions, answered' })), faqBlock()]; title = `Questions | ${title}`; }
   else if (INFO.some((i) => i.id === a) || a === 'reviews') page = infoPage(a);
   else page = home();
+  document.body.classList.remove('buybar-on');
   $('#main').replaceChildren(...page.filter(Boolean));
   const noCards = () => document.querySelectorAll('#main .collage').forEach((c) => { c.closest('.sec-head')?.classList.add('solo'); c.remove(); });   // no hands of cards anywhere: they sent people off in every direction
   noCards();
