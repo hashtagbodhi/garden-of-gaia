@@ -476,13 +476,18 @@ function buildMenu() {
   const garden = el('a', { className: 'mn-garden', href: './#gate' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
   const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
   const idx = el('button', { type: 'button', className: 'mn-idx' }, el('b', { textContent: 'Shop index' }), el('small', { textContent: 'Everything, in one list' })); idx.onclick = () => { closeMenu(); openIndex('all'); };
-  const duo = el('div', { className: 'mn-duo' }, el('a', { className: 'mn-gifts', href: '#gifts' }, el('b', { textContent: 'Gifts' }), el('small', { textContent: 'By budget, and gift cards' })), idx);
+  // Gifts: the second of the two big doors in the menu, dressed like a wrapped present
+  const gifts = el('div', { className: 'mn-gift' },
+    el('a', { className: 'mg-main', href: '#gifts' }, el('span', { className: 'mg-rays', ariaHidden: 'true' }), el('img', { src: A(`assets/cut/${CARD}.webp`), alt: '', loading: 'lazy' }),
+      el('span', { className: 'mg-t' }, el('small', { textContent: 'Give the garden' }), el('b', { textContent: 'Gifts' }), el('em', { textContent: 'Wrapped rituals for every budget' })), el('i', { ariaHidden: 'true', textContent: '→' })),
+    el('span', { className: 'mg-bow', ariaHidden: 'true', textContent: '✿' }),
+    el('div', { className: 'mg-chips' }, [['Under $25', '#gifts-25'], ['$25 to $40', '#gifts-40'], ['$40 to $75', '#gifts-75'], ['Gift cards', `#p--${CARD}`]].map(([t, h]) => el('a', { href: h, textContent: t }))));
   const m = el('aside', { id: 'mnav', className: 'mnav', ariaLabel: 'Menu' }, el('div', { className: 'mn-in' },
-    form, ask, duo,
+    ask, gifts, form,
     el('p', { className: 'mn-label', textContent: 'Shop' }),
     el('ul', { className: 'mn-big' }, big('#shop', 'Shop all', `${catalog.length} things`, photo(typeof best[0] === 'string' ? byHandle[best[0]] : best[0], 0)), ...Object.entries(COL).filter(([k]) => first(k) && k !== 'roots').map(([k, c]) => big(`#shop-${k}`, c.short || c.name, `${count(k)}`, photo(first(k), 0))), big('#plants', 'Shop by plant', 'Meet the plants', A('assets/plants/blue-lotus.webp'))),
     el('div', { className: 'mn-cols' },
-      el('div', {}, el('p', { className: 'mn-label', textContent: 'Gifts' }), small([['Under $25', '#gifts-25'], ['$25 to $40', '#gifts-40'], ['$40 to $75', '#gifts-75'], ['Gift cards', `#p--${CARD}`]])),
+      el('div', {}, el('p', { className: 'mn-label', textContent: 'Find it fast' }), idx),
       el('div', {}, el('p', { className: 'mn-label', textContent: 'About' }), small([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']]))),
     garden,
     el('div', { className: 'mn-foot' }, sound, el('a', { href: `mailto:${EMAIL}`, textContent: 'Write to us' }), el('a', { href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Instagram' })),
@@ -495,7 +500,7 @@ const markMenu = () => { const h = location.hash || '#home'; document.querySelec
 /* ---------- boot ---------- */
 runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
-$('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; } };
+$('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; $('#mnav').style.setProperty('--mn-top', `${Math.max(0, Math.round($('#head').getBoundingClientRect().bottom))}px`); } };
 addEventListener('click', (e) => { if (e.target.closest?.('a[href^="./#"]')) store.set('gaia-view', 'garden'); }, true);
 $('#ask-top').onclick = () => { closeMenu(); askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
