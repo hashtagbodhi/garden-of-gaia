@@ -1511,3 +1511,5 @@ body.locked .head { background: rgba(6, 9, 20, .97) !important; }
   .gifts-band.clean .gt-card .gt-pics img { height: 58px; width: auto; }
   .gifts-band.clean .gt-n { font-size: 1.5rem !important; } .gifts-band.clean .gt-s { font-size: .92rem !important; margin-top: -6px; }
 }
+/* while the phone menu is open the offer ribbon steps aside, so it can never sit on top of the pinned header */
+@media (max-width: 1090px) { body.nav-open .ticker { visibility: hidden !important; } body.nav-open .head { z-index: 40; } }
