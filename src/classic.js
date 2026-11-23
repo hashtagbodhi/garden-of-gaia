@@ -236,7 +236,22 @@ function home() {
     el('a', { className: 'duo-card tone-hibiscus', href: '#wholesale' }, el('p', { className: 'kicker', textContent: 'For shops, cafés and makers' }), el('h3', { textContent: 'Wholesale herbs' }), el('p', { textContent: 'Farm-direct organic herbs and our own line at wholesale prices, with COA.' }), el('span', { className: 'btn', textContent: 'Find out more' })),
     el('a', { className: 'duo-card tone-marigold', href: '#elixir' }, el('p', { className: 'kicker', textContent: 'For your next event' }), el('h3', { textContent: 'The Elixir Bar' }), el('p', { textContent: 'Bring our mocktail and elixir bar to your celebration.' }), el('span', { className: 'btn', textContent: 'Book the bar' }))));
   m.push(faqBlock());
-  return m;
+  // a shorter home: the shelves, what is loved, gifts and kind words. The longer reads keep their own pages, one row of doors away
+  const drop = ['plants-sec', 'story-band', 'brew', 'duo', 'faq'], keep = [];
+  let ribbonsSeen = 0;
+  for (const sec of m) {
+    if (!sec) continue;
+    if (drop.some((c) => sec.classList.contains(c))) continue;
+    if (sec.classList.contains('ribbons') && ribbonsSeen++) continue;
+    sec.querySelectorAll('.sec-head .collage').forEach((c) => { c.closest('.sec-head').classList.add('solo'); c.remove(); });   // no hands of cards here: they sent people off in every direction
+    const q = sec.querySelector('.quotes'); if (q) [...q.children].slice(3).forEach((x) => x.remove());
+    keep.push(sec);
+  }
+  const door = (href, ic, t, d) => el('a', { className: 'door', href }, icon(ic), el('b', { textContent: t }), el('span', { textContent: d }), el('i', { ariaHidden: 'true', textContent: '→' }));
+  keep.push(el('section', { className: 'sec doors tone-night' }, el('div', { className: 'doors-in' },
+    door('#plants', 'leaf', 'Meet the plants', `${Object.keys(PLANTS).length} flowers, roots and spices`), door('#story', 'sun', 'Our story', 'From our family lakes to your cup'),
+    door('#brew', 'steam', 'Brew it your way', 'Hot, cold or in the sun'), door('#wholesale', 'droplet', 'Wholesale & Elixir Bar', 'For shops, cafés and events'))));
+  return keep;
 }
 function hero() {
   const L = (name, cls, d) => { const i = el('img', { className: `hl ${cls}`, src: A(`assets/img/${name}.webp`), alt: '', decoding: 'async' }); i.style.setProperty('--d', d); return i; };
@@ -350,7 +365,6 @@ function product(p) {
   out.push(el('section', { className: 'sec tone-plum kind scal', id: 'pp-reviews' }, html('span', 'big-q', '“'), deco('fx3', 'k-d0 sway'), sectionHead(own.length ? `${stars(Math.round(avg))} ${avg} out of 5` : 'Kind words from the garden', own.length ? 'In their words' : 'What people say', own.length ? null : 'No reviews for this one yet. Here is what people say about the rest of the garden.'), el('div', { className: 'quotes' }, (own.length ? own : reviews.slice(0, 3)).map((r) => reviewCard(r, !own.length)))));
   const related = catalog.filter((x) => x.station === p.station && x !== p).slice(0, 4);
   if (related.length) out.push(el('section', { className: `sec tone-${col.tone} loved scal` }, deco('fx4', 'l-d1 sway'), sectionHead('From the same corner of the garden', `More ${COL[p.station].short.toLowerCase()}`, null, [`Shop ${COL[p.station].short.toLowerCase()}`, `#shop-${p.station}`]), grid(related, 'grid-4')));
-  out.push(faqBlock());
   return out;
 }
 function blocks(list) {
@@ -406,7 +420,7 @@ function giftsPage(k) {
 }
 function infoPage(id) {
   const i = INFO.find((x) => x.id === id);
-  if (id === 'reviews') return [el('section', { className: 'page-head tone-plum' }, el('p', { className: 'kicker', textContent: `${stars(5)} 5.0 from ${reviews.length} reviews` }), el('h1', { textContent: 'Kind words' })), el('section', { className: 'sec tone-plum' }, el('div', { className: 'quotes' }, reviews.map((r) => reviewCard(r, true))))];
+  if (id === 'reviews') return [el('section', { className: 'page-head tone-plum' }, el('p', { className: 'kicker', textContent: `${stars(5)} 5.0 from ${reviews.length} reviews` }), el('h1', { textContent: 'Kind words' })), el('section', { className: 'sec tone-plum' }, el('div', { className: 'quotes' }, reviews.map((r, i) => { const c = reviewCard(r, true); if (i >= 9) c.classList.add('later'); return c; })), reviews.length > 9 ? (() => { const b = el('button', { type: 'button', className: 'btn more-reviews', textContent: `Show all ${reviews.length} reviews` }); b.onclick = () => { b.closest('.sec').classList.add('all'); b.remove(); }; return b; })() : null)];
   const tone = { story: 'moss', brew: 'lotus', wholesale: 'hibiscus', elixir: 'marigold', hello: 'night' }[id] || 'night';
   const body = html('div', 'info-body', i.html.replace(/assets\//g, A('assets/')).replace(/href="#(tea|pond)"/g, 'href="#shop-$1"'));
   return [el('section', { className: `page-head tone-${tone}` }, deco('flower4', 'ph-d0'), deco('bfly0', 'ph-d1'), el('p', { className: 'kicker', textContent: 'The Garden of Gaia' }), el('h1', { textContent: i.title }), body.querySelector('.lede') ? el('p', { className: 'lede', textContent: body.querySelector('.lede').textContent }) : null), el('section', { className: 'sec tone-cream info' }, body)];
@@ -425,7 +439,7 @@ function footer() {
       group('Shop the apothecary', [el('ul', { className: 'f-cols' }, ORDER.map((k) => { const l = catalog.filter((p) => p.station === k); const pic = l.find((p) => p.gallery.length); return el('li', {}, el('a', { href: `#shop-${k}` }, pic ? el('img', { src: photo(pic), alt: '', loading: 'lazy' }) : null, el('span', { className: 'fc-n', textContent: COL[k].name }), el('span', { className: 'fc-c', textContent: `${l.length}` }))); })), links([['Shop all', '#shop'], ['Gifts by budget', '#gifts'], ['Gift cards', `#p--${CARD}`]])], 'f-shop'),
       group('Shop by plant', [el('div', { className: 'f-chips' }, plantKeys.map((k) => el('a', { className: 'f-chip', href: `#plant--${k}` }, icon(PLANTS[k].ic), PLANTS[k].n)), el('a', { className: 'f-chip all', href: '#plants', textContent: 'All plants →' }))], 'f-plants'),
       group('About us', [links([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']])], 'f-about'),
-      group('Help', [links([['Refund policy', `${STORE}/policies/refund-policy`, 1], ['Privacy policy', `${STORE}/policies/privacy-policy`, 1], ['Terms of service', `${STORE}/policies/terms-of-service`, 1], ['Contact information', `${STORE}/policies/contact-information`, 1], ['Wholesale application', `${STORE}/pages/wholesale-blue-water-lily`, 1]])], 'f-help'),
+      group('Help', [links([['Questions, answered', '#faq'], ['Refund policy', `${STORE}/policies/refund-policy`, 1], ['Privacy policy', `${STORE}/policies/privacy-policy`, 1], ['Terms of service', `${STORE}/policies/terms-of-service`, 1], ['Contact information', `${STORE}/policies/contact-information`, 1], ['Wholesale application', `${STORE}/pages/wholesale-blue-water-lily`, 1]])], 'f-help'),
       el('div', { className: 'f-news' }, el('h3', { textContent: 'Join the garden' }), el('p', { textContent: 'Herbal rituals, new blends and 10% off your first order.' }), el('a', { className: 'btn btn-main', href: STORE, target: '_blank', rel: 'noopener', textContent: 'Join the newsletter' }), el('p', { className: 'fine' }, 'Write to us at ', el('span', { className: 'sel', textContent: EMAIL })), el('a', { className: 'f-ig', href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Follow us on Instagram' }))),
     el('div', { className: 'foot-fine' }, el('p', { className: 'fine', textContent: `© 2026 The Garden of Gaia Apothecary. ${SALE.line || ''}` }), el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. Our products are not intended to diagnose, treat, cure, or prevent any disease.' })));
   const fold = () => f.querySelectorAll('details.fg').forEach((d) => { d.open = innerWidth > 760; });
@@ -444,11 +458,12 @@ function route() {
   else if (a === 'plant' && PLANTS[b]) { page = plantPage(b); title = `${PLANTS[b].n} | ${title}`; }
   else if (a === 'gifts') page = giftsPage(null);
   else if (a.startsWith('gifts-')) page = giftsPage(a.slice(6));
+  else if (a === 'faq') { page = [el('section', { className: 'page-head tone-night' }, el('p', { className: 'kicker', textContent: 'Good to know' }), el('h1', { textContent: 'Questions, answered' })), faqBlock()]; title = `Questions | ${title}`; }
   else if (INFO.some((i) => i.id === a) || a === 'reviews') page = infoPage(a);
   else page = home();
   $('#main').replaceChildren(...page.filter(Boolean));
-  // phones: one hand of cards on the home page is enough; every other hand is left out
-  document.querySelectorAll('#main .collage').forEach((c, i) => c.classList.toggle('m-off', i > 0 || !['', '#home'].includes(location.hash)));
+  const noCards = () => document.querySelectorAll('#main .collage').forEach((c) => { c.closest('.sec-head')?.classList.add('solo'); c.remove(); });   // no hands of cards anywhere: they sent people off in every direction
+  noCards();
   document.querySelectorAll('#main .sec, #main .page-head, #main .story-band').forEach((sec, k) => sec.prepend(el('div', { className: 'sec-flies', ariaHidden: 'true' }, Array.from({ length: 12 }, (_, i) => { const f = el('i'); f.style.cssText = `left:${(i * 41 + k * 17) % 100}%;top:${(i * 59 + k * 23) % 96}%;animation-delay:-${((i * 1.7 + k) % 8).toFixed(1)}s;animation-duration:${6 + ((i + k) % 5)}s`; return f; }))));
   const ph = $('#main .page-head');
   if (a === 'shop' || a === 'search') dress(ph, b ? catalog.filter((p) => `${p.name} ${p.sub}`.toLowerCase().includes((b || '').toLowerCase())) : best, b ? 'Found' : 'Apothecary');
@@ -457,6 +472,7 @@ function route() {
   else if (a === 'plant') { if (!plantPhotos[b]) dress(ph, productsWith(b), PLANTS[b]?.n || 'Plant'); }   // a plant with its own photograph needs no card fan beside it
   else if (a.startsWith('gifts')) dress(ph, a === 'gifts' ? [byHandle[CARD], ...giftList('25').slice(0, 5)] : giftList(a.slice(6)), 'Gifts');
   else if (ph) dress(ph, a === 'story' ? ['green-valley', best[0], 'blue-lilies', best[1], best[5], best[3]] : [...new Set(reviews.map((r) => byHandle[r.handle]).filter(Boolean))], { story: 'Roots', brew: 'Steep', wholesale: 'Wholesale', elixir: 'Elixir', hello: 'Hello', reviews: 'Love' }[a] || 'Gaia');
+  noCards();
   document.title = a === 'home' ? 'The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures' : title;
   document.querySelectorAll('#nav a').forEach((x) => x.setAttribute('aria-current', String(x.getAttribute('href') === `#${a}` || (a === 'p' && x.getAttribute('href') === `#shop-${byHandle[b]?.station}`))));
   closeMenu();
@@ -490,7 +506,7 @@ function buildMenu() {
     el('ul', { className: 'mn-big' }, big('#shop', 'Shop all', `${catalog.length} things`, photo(typeof best[0] === 'string' ? byHandle[best[0]] : best[0], 0)), ...Object.entries(COL).filter(([k]) => first(k) && k !== 'roots').map(([k, c]) => big(`#shop-${k}`, c.short || c.name, `${count(k)}`, photo(first(k), 0))), big('#plants', 'Shop by plant', 'Meet the plants', A('assets/plants/blue-lotus.webp'))),
     el('div', { className: 'mn-cols' },
       el('div', {}, el('p', { className: 'mn-label', textContent: 'Find it fast' }), idx),
-      el('div', {}, el('p', { className: 'mn-label', textContent: 'About' }), small([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']]))),
+      el('div', {}, el('p', { className: 'mn-label', textContent: 'About' }), small([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews'], ['Questions', '#faq']]))),
     garden,
     el('div', { className: 'mn-foot' }, sound, el('a', { href: `mailto:${EMAIL}`, textContent: 'Write to us' }), el('a', { href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Instagram' })),
     el('p', { className: 'mn-fine', textContent: SALE.line })));
