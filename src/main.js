@@ -1340,3 +1340,10 @@ new ResizeObserver(headH).observe($('#topbar')); addEventListener('resize', head
 // in the grove the wheel (or a sideways swipe on a trackpad) walks along the bed
 canvas.addEventListener('wheel', (e) => { const s = current; if (!entered || s?.id !== 'grove' || !s.gFree || portrait || !($('#info').hidden || openK) || travel.t < 0.999) return; e.preventDefault(); s.gtx += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.012; s.gSel = null; groveClamp(s); }, { passive: false });
 addEventListener('keydown', (e) => { const s = current; if (!entered || s?.id !== 'grove' || !s.gFree || portrait || !($('#info').hidden || openK) || !$('#menu').hidden || e.target.closest?.('input, textarea')) return; if (e.key === 'ArrowRight') { s.gtx += 3.5; groveClamp(s); } if (e.key === 'ArrowLeft') { s.gtx -= 3.5; groveClamp(s); } });
+
+// phones: the photo strip takes the height of its tallest photograph, so a product is never cropped
+$('#detail-gallery').addEventListener('load', () => {
+  const g = $('#detail-gallery'), b = g.firstElementChild; if (!b) return; let h = 0;
+  for (const im of g.querySelectorAll('img')) if (im.naturalWidth) h = Math.max(h, b.clientWidth * im.naturalHeight / im.naturalWidth);
+  if (h) g.style.setProperty('--gal-h', `${Math.round(Math.min(h, innerHeight * 0.78))}px`);
+}, true);

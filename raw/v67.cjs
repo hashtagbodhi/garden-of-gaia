@@ -1,0 +1,11 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const c = await b.newContext({ ...devices['iPhone 13'] }); const p = await c.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-view', JSON.stringify('garden')); });
+  await p.goto(U + '#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); if (await p.isVisible('#enter-yes')) await p.tap('#enter-yes'); await p.waitForTimeout(3000);
+  await p.evaluate(() => { location.hash = '#pond--white-lotus-flower-1'; }); await p.waitForTimeout(9000); await p.screenshot({ path: 'raw/_x0.jpg', type: 'jpeg', quality: 80 });
+  console.log(await p.evaluate(() => ({ open: !document.querySelector('#detail').hidden, hash: location.hash })));
+  await p.addInitScript(() => localStorage.setItem('gaia-view', JSON.stringify('classic')));
+  await p.goto(U + 'classic.html#p--white-lotus-flower-1'); await p.waitForTimeout(2500); await p.screenshot({ path: 'raw/_x1.jpg', type: 'jpeg', quality: 80 });
+  await p.goto(U + 'classic.html#shop'); await p.waitForTimeout(2500); await p.evaluate(() => scrollBy(0, 700)); await p.waitForTimeout(800); await p.screenshot({ path: 'raw/_x2.jpg', type: 'jpeg', quality: 80 });
+  console.log('errors', errs); await b.close(); })();

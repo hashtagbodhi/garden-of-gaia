@@ -1370,3 +1370,7 @@ body.nav-open .ask-sarah, .sheet:not([hidden]) ~ .ask-sarah { display: none; }
 /* painted plants, where there is no photograph */
 .pface.painted { background: radial-gradient(circle at 50% 60%, #17362c, #0a1719); }
 .pface.painted img { object-fit: contain; padding: 9px; box-sizing: border-box; }
+
+/* ---- product photographs are shown whole: the frame takes the photo's own height ---- */
+.pp-main { aspect-ratio: auto !important; height: auto; max-height: 82vh; object-fit: contain !important; background: none !important; }
+.card-win img { object-fit: contain !important; }
