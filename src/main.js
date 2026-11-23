@@ -1348,3 +1348,7 @@ Promise.all(Object.keys(sprites).concat(['sky', 'ground']).map((n) => loadTex(n)
 addEventListener('wheel', (e) => { const box = ['#info .column-in', '#detail .panel-in'].map((q) => document.querySelector(q)).find((n) => n && !n.closest('[hidden]')); if (box && !box.contains(e.target) && !e.target.closest('.consult, .sheet, #menu, #index')) box.scrollTop += e.deltaY; }, { passive: true });
 
 new ResizeObserver(() => document.documentElement.style.setProperty('--bar-h', `${$('#places').offsetHeight}px`)).observe($('#places'));
+
+// the header tells the page how tall it is, so nothing that opens beneath it (a way back, a title) can hide under the logo
+const headH = () => { const m = document.querySelector('.top .mark'); if (m && m.offsetParent) document.documentElement.style.setProperty('--head-h', `${Math.ceil(m.getBoundingClientRect().bottom + 12)}px`); };
+new ResizeObserver(headH).observe($('#topbar')); addEventListener('resize', headH); document.fonts?.ready.then(headH); new MutationObserver(headH).observe($('#topbar'), { attributes: true, attributeFilter: ['hidden'] }); headH();

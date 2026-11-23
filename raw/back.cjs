@@ -1,0 +1,21 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const ctx = await b.newContext({ ...devices['iPhone 13'], viewport: { width: 390, height: 760 } }); const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-view', JSON.stringify('garden')); });
+  await p.goto('http://127.0.0.1:4175/#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 });
+  if (await p.isVisible('#enter-yes')) await p.click('#enter-yes'); await p.waitForTimeout(3500);
+  // is the way back fully visible, not under the header, and does it work?
+  const check = async (name, sel) => { const r = await p.evaluate((s) => { const e = document.querySelector(s), m = document.querySelector('.top .mark').getBoundingClientRect(), a = e.getBoundingClientRect(); const hit = document.elementFromPoint(a.left + 30, a.top + a.height / 2); return { top: Math.round(a.top), logoBottom: Math.round(m.bottom), clickable: !!hit && (e === hit || e.contains(hit)), text: e.textContent.trim() }; }, sel); console.log(name, JSON.stringify(r), r.top >= r.logoBottom && r.clickable ? 'OK' : 'HIDDEN'); };
+  const shot = (n) => p.screenshot({ path: `raw/_bk-${n}.jpg`, type: 'jpeg', quality: 78 });
+  await p.evaluate(() => { location.hash = '#grove--eucalyptus'; }); await p.waitForTimeout(9000); await check('plant page', '#info-close'); await shot('plant');
+  await p.evaluate(() => { document.querySelector('#info .column-in').scrollTop = 300; }); await p.waitForTimeout(400); await check('plant page scrolled', '#info-close');
+  await p.click('#info-close'); await p.waitForTimeout(900); console.log('back from plant ->', p.url().split('#')[1], '| closed:', await p.isHidden('#info'));
+  await p.evaluate(() => { location.hash = '#tea--sweet-dreamz-sleep-support-loose-leaf-tea-blend'; }); await p.waitForTimeout(6000); await check('product page', '#detail-close'); await shot('detail');
+  await p.click('#detail-close'); await p.waitForTimeout(900); console.log('back from product ->', p.url().split('#')[1], '| closed:', await p.isHidden('#detail'));
+  await p.evaluate(() => { location.hash = '#roots'; }); await p.waitForTimeout(6000); await p.locator('#place-menu button').first().click(); await p.waitForTimeout(1200); await check('story page', '#info-close'); await shot('story');
+  await p.click('#info-close'); await p.waitForTimeout(700);
+  await p.click('#menu-open'); await p.waitForTimeout(700); await check('menu', '#menu-close'); await shot('menu');
+  await p.evaluate(() => document.querySelector('[data-act="index"]').click()); await p.waitForTimeout(800); await check('shop index', '#index-close'); await shot('index');
+  await p.evaluate(() => localStorage.setItem('gaia-view', JSON.stringify('classic'))); await p.goto('http://127.0.0.1:4175/classic.html#p--blue-water-lily-tincture'); await p.waitForTimeout(2500); await shot('wprod');
+  console.log('website product crumb:', await p.textContent('.crumbs .cr-back')); await p.click('.crumbs .cr-back'); await p.waitForTimeout(700); console.log(' ->', p.url().split('#')[1]);
+  console.log('errors', errs); await b.close(); })();
