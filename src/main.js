@@ -83,6 +83,7 @@ composer.addPass(bloomPass);
 composer.addPass(new OutputPass());
 
 let portrait = false, built = false;
+const wside = () => (portrait ? -1 : 1), wbig = (s) => (portrait || s?.id === 'grove' ? 1 : 1.24);   // Sarah: which side of the stall she stands on, and how tall
 function applyQuality() { renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight, false); composer.setSize(innerWidth, innerHeight); }
 function resize() {
   const w = innerWidth, h = innerHeight;
@@ -222,12 +223,13 @@ function layout(s) {
   });
   const half = ((per - 1) / 2) * 2.9 + 1.6;
   s.half = half;
-  const fit = (half + (portrait ? 0.3 : 3.0)) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
+  const fit = (half + (portrait ? 0.3 : 4.3)) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
   const d = Math.max(s.minDist ?? 10, fit);
   s.camPos = s.D.clone().addScaledVector(s.f, 2.4 + d).setY(s.camH ?? 3.4 + rows * 0.75);
   // keep headroom above Sarah (she stands 5.9 tall) so her face never slides under the header
   s.camLook = s.D.clone().addScaledVector(s.f, 0.4).setY(portrait ? 0.6 + rows * 0.3 : Math.max(s.lookY ?? 0, 2.3 + rows * 0.45));
-  s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 1.3)).addScaledVector(s.f, 0.6);
+  // wide screens: Sarah stands to the right of her wares, clear of the title, and a little larger
+  s.witchPos = s.D.clone().addScaledVector(s.r, wside() > 0 ? half + 0.9 : -(half + 1.3)).addScaledVector(s.f, wside() > 0 ? 1.2 : 0.6);
   if (s.beside) { const w = s.propH * sprites[s.prop].w / sprites[s.prop].h; s.propPos = s.D.clone().addScaledVector(s.r, half + w / 2 + 0.2).addScaledVector(s.f, -0.6); }
   if (built) placeItems(s);
 }
@@ -263,10 +265,10 @@ function ringLayout(s) {
     it.out = new THREE.Vector3(it.pos.x - s.p.x, 0, it.pos.z - s.p.z).normalize();
   });
   s.half = R + 1.2;
-  const d = Math.max(9, (s.half + (portrait ? 0 : 2.5)) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect));
+  const d = Math.max(9, (s.half + (portrait ? 0 : 3.6)) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect));
   s.camPos = s.p.clone().addScaledVector(s.f, d + R * 0.6).setY(portrait ? 12 : 8.6);
   s.camLook = s.p.clone().setY(portrait ? -1.5 : 0.9);
-  s.witchPos = s.p.clone().addScaledVector(s.r, -(s.half + 1.6)).addScaledVector(s.f, -1.5);
+  s.witchPos = s.p.clone().addScaledVector(s.r, wside() > 0 ? s.half + 0.6 : -(s.half + 1.6)).addScaledVector(s.f, wside() > 0 ? 2.6 : -1.5);
   if (built) placeItems(s);
 }
 function closeUp(it) {
@@ -632,12 +634,14 @@ function setMood(close) {
 const POSE = { gate: 'witch', tea: 'witch-sip', potions: 'witch-present', pond: 'witch-sip', altar: 'witch-present', grove: 'witch-present', roots: 'witch' };
 let witchHidden = false, flash;
 const witchOff = { v: 0 };
+const mirrored = (s) => wside() > 0 && s.items.length > 0 && s.id !== 'grove';   // on the right she turns to face her wares
 function witchAt(s, out) { return out.copy(s.witchPos).addScaledVector(s.r, witchOff.v); }
 function setPose(s) {
   const n = tex[POSE[s.id]] ? POSE[s.id] : 'witch', sp = sprites[n], base = sprites.witch;
   witch.material.map = tex[n];
-  witch.scale.x = (sp.w / sp.h) / (base.w / base.h);
-  witchOff.v = (5.9 * (sp.w / sp.h - base.w / base.h)) / 2;   // keep her body where it was when the arm reaches out
+  const m = mirrored(s) ? -1 : 1;
+  witch.scale.set(m * wbig(s) * (sp.w / sp.h) / (base.w / base.h), wbig(s), 1);
+  witchOff.v = (m * wbig(s) * 5.9 * (sp.w / sp.h - base.w / base.h)) / 2;   // keep her body where it was when the arm reaches out
 }
 function puffAt(pos) {
   if (!flash) { flash = new THREE.Sprite(new THREE.SpriteMaterial({ map: softPuff(), color: 0xdfeecb, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); scene.add(flash); }
@@ -647,7 +651,7 @@ function puffAt(pos) {
   gsap.timeline().to(flash.material, { opacity: 0.2, duration: 0.45, ease: 'sine.out' }).to(flash.material, { opacity: 0, duration: 1.15, ease: 'sine.inOut' });
 }
 function moveWitch(s, instant) {
-  const place = () => { setPose(s); const w = witchAt(s, new THREE.Vector3()); witch.position.set(w.x, 2.8, w.z); witch.rotation.y = Math.atan2(s.f.x, s.f.z); };
+  const place = () => { setPose(s); const w = witchAt(s, new THREE.Vector3()); witch.position.set(w.x, 2.8 * wbig(s), w.z); witch.rotation.y = Math.atan2(s.f.x, s.f.z); };
   if (instant || reduce) { place(); return; }
   puffAt(witch.position); witchHidden = true;
   gsap.delayedCall(1.15, () => { place(); witchHidden = false; puffAt(witch.position); });
@@ -910,7 +914,7 @@ const WORDS = { id: 'words', title: 'Kind words', build: () => [el('p', { classN
 function openInfo(i) {
   closeOverlays(true); $('#info').hidden = false; document.body.classList.add('reading');
   paged = narrow.matches; document.body.classList.toggle('paged', paged);   // phones: a full page, like a product
-  $('#info-close').textContent = i.back || 'Back to the roots';
+  $('#info-close').textContent = i.back || 'Back to the roots'; $('#info-close').removeAttribute('aria-label');
   if (i.build) $('#info-body').replaceChildren(...i.build()); else $('#info-body').innerHTML = i.html; $('#info .column-in').scrollTop = 0; audio.play('flutter', 0.4);
   $('#info-close').focus({ preventScroll: true });
 }
@@ -941,6 +945,7 @@ function openPlant(k) {
   ] });
   if (location.hash !== `#grove--${k}`) history.replaceState(null, '', `#grove--${k}`);
   if (side) {
+    $('#info-close').setAttribute('aria-label', 'Close');
     const g = current; openK = k; paged = false; document.body.classList.remove('reading', 'paged'); document.body.classList.add('companion');
     g.gSel = k; g.gtx = g.gXZ[k][0]; if (portrait) g.gty = g.gXZ[k][1]; groveClamp(g); restShift();
     const b = $('#info-body'); b.classList.remove('swap'); if (swap) { void b.offsetWidth; b.classList.add('swap'); }
@@ -1284,7 +1289,7 @@ function frame() {
   }
   for (const m of drift) { const u = m.userData; if (u.shaft) m.material.opacity = u.o * (0.6 + 0.4 * Math.sin(t * 0.25 + u.ph)); else m.position.x = u.x + Math.sin(t * 0.05 * u.v + u.ph) * 6; }
   if (witchShadow) { witchShadow.position.set(witch.position.x + 0.7, 0.045, witch.position.z + 0.4); witchShadow.visible = witch.visible; }
-  if (witch) { witch.position.y = 2.8 + Math.sin(t * 1.1) * 0.05 * k; witch.rotation.z = Math.sin(t * 0.8) * 0.012 * k; }
+  if (witch) { witch.position.y = 2.8 * Math.abs(witch.scale.y) + Math.sin(t * 1.1) * 0.05 * k; witch.rotation.z = Math.sin(t * 0.8) * 0.012 * k; }
   for (const g of butterflies) {
     const u = g.userData, tt = t * u.s + u.ph;
     tmp.set(u.c.x + Math.sin(tt) * u.rx, u.c.y + Math.sin(tt * 2.3) * u.ry, u.c.z + Math.cos(tt * 0.8) * u.rz);
