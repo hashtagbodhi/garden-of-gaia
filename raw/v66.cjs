@@ -1,0 +1,22 @@
+// herb grove: name tags, and the plant page as a companion (desktop card, phone sheet) with the garden still live
+const { chromium, devices } = require('playwright');
+const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const init = () => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-view', JSON.stringify('garden')); };
+  const enter = async (p) => { await p.goto(U + '#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); if (await p.isVisible('#enter-yes')) await p.click('#enter-yes'); await p.waitForTimeout(3500); await p.evaluate(() => { location.hash = '#grove'; }); await p.waitForTimeout(15000); };
+  const st = (p) => p.evaluate(() => ({ open: !document.querySelector('#info').hidden, title: document.querySelector('#info-title')?.textContent, comp: document.body.classList.contains('companion') }));
+  let p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.on('pageerror', (e) => errs.push('desk ' + e)); await p.addInitScript(init); await enter(p);
+  await p.mouse.move(720, 380); await p.waitForTimeout(900); await p.screenshot({ path: 'raw/_w0.jpg', type: 'jpeg', quality: 82 });
+  await p.mouse.click(720, 380); await p.waitForTimeout(2200); console.log('desk open', await st(p)); await p.screenshot({ path: 'raw/_w1.jpg', type: 'jpeg', quality: 82 });
+  await p.mouse.move(500, 400); await p.mouse.wheel(0, 500); await p.waitForTimeout(1800); console.log('desk after scroll', await st(p));
+  await p.mouse.move(500, 380); await p.mouse.down(); for (let i = 1; i <= 10; i++) await p.mouse.move(500 - i * 30, 380); await p.mouse.up(); await p.waitForTimeout(1800); console.log('desk after drag', await st(p)); await p.screenshot({ path: 'raw/_w2.jpg', type: 'jpeg', quality: 82 });
+  for (const x of [300, 420, 540, 660]) { await p.mouse.click(x, 380); await p.waitForTimeout(900); } console.log('desk after clicking plants', await st(p)); await p.screenshot({ path: 'raw/_w3.jpg', type: 'jpeg', quality: 82 });
+  await p.mouse.click(400, 690); await p.waitForTimeout(1200); console.log('desk after ground click', await st(p)); await p.close();
+  const c = await b.newContext({ ...devices['iPhone 13'] }); p = await c.newPage(); p.on('pageerror', (e) => errs.push('phone ' + e)); await p.addInitScript(init); await enter(p);
+  await p.screenshot({ path: 'raw/_w4.jpg', type: 'jpeg', quality: 80 });
+  await p.touchscreen.tap(213, 285); await p.waitForTimeout(2200); console.log('phone open', await st(p)); await p.screenshot({ path: 'raw/_w5.jpg', type: 'jpeg', quality: 80 });
+  const cdp = await c.newCDPSession(p); const drag = async (x0, y0, x1, y1) => { await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0 }] }); for (let i = 1; i <= 8; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + (x1 - x0) * i / 8, y: y0 + (y1 - y0) * i / 8 }] }); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); };
+  await drag(300, 250, 90, 200); await p.waitForTimeout(1800); console.log('phone after swipe', await st(p)); await p.screenshot({ path: 'raw/_w6.jpg', type: 'jpeg', quality: 80 });
+  await p.touchscreen.tap(120, 250); await p.waitForTimeout(1500); console.log('phone after 2nd tap', await st(p));
+  await p.touchscreen.tap(380, 120); await p.waitForTimeout(600); await p.touchscreen.tap(15, 150); await p.waitForTimeout(1200); console.log('phone end', await st(p));
+  console.log('errors', errs); await b.close(); })();
