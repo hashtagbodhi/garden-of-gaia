@@ -1296,3 +1296,13 @@ body.nav-open .ask-sarah, .sheet:not([hidden]) ~ .ask-sarah { display: none; }
 .page-head.plant-head.has-photo > .plant-photo, .page-head.plant-head.has-photo > .plant-words { position: relative !important; }
 .plant-head.has-photo h1 { font-size: clamp(2.8rem, 6vw, 5rem); }
 @media (max-width: 760px) { .plant-head .plant-photo { max-width: 190px; } .plant-head.has-photo h1 { font-size: 2.7rem; } }
+
+/* announcement bar: keeps moving on every phone; with reduced motion it shows one message at a time instead */
+.ticker-track { will-change: transform; }
+.ticker-track.still { display: flex; justify-content: center; animation: none !important; width: 100%; }
+.ticker-track.still span { padding: 7px 14px; white-space: normal; text-align: center; justify-content: center; }
+/* rows you swipe sideways fade out at the edge, so it is clear there is more */
+@media (max-width: 760px) {
+  .tabs, .pf-chips { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 44px), transparent); padding-right: 44px !important; }
+  body.nav-open { overflow: hidden; }
+}

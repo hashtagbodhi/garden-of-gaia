@@ -46,6 +46,7 @@ import { openConsult, usesOf, mountAsk } from './consult.js';
 import plantPhotos from './plants.json';
 import plantModels from './models.json';
 import { PLANT_USES } from './plantdata.js';
+import { runTicker } from './ticker.js';
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
@@ -1046,6 +1047,7 @@ function syncFocus() {
     $('#focus-count').textContent = 'Shop by plant · swipe any way to explore';
     $('#focus-name').textContent = pl.n; $('#focus-price').textContent = [pl.b, `${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`].filter(Boolean).join(' · ');
     $('#focus-open').textContent = 'Meet the plant'; $('#focus-list').textContent = 'See all plants as a list';
+    $('#focus-prev').disabled = GBED.indexOf(k) === 0; $('#focus-next').disabled = GBED.indexOf(k) === GBED.length - 1;
     return;
   }
   $('#focus-open').textContent = 'View product'; $('#focus-list').textContent = 'See them all as a list';
@@ -1053,6 +1055,7 @@ function syncFocus() {
   $('#focus').hidden = !on; document.body.classList.toggle('lined', on);
   if (!on) { lastFocus = null; return; }
   const it = focusOf(s); hoverItem = selected ? null : it;
+  $('#focus-prev').disabled = it.index === 0; $('#focus-next').disabled = it.index === s.items.length - 1;
   if (it === lastFocus) return;
   if (lastFocus && entered) audio.play('flutter', 0.14, 1.3);
   lastFocus = it;
@@ -1179,7 +1182,7 @@ $('#ask-top').onclick = () => { closeOverlays(true); askSarah(); };
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };
 $('#places-prev').onclick = () => step(-1); $('#places-next').onclick = () => step(1);
 $('#gifts-open').onclick = () => openIndex('gift25');
-$('#menu-open').onclick = openMenu; $('#menu-close').onclick = () => closeOverlays();
+$('#menu-open').onclick = () => ($('#menu').hidden ? openMenu() : closeOverlays()); $('#menu-close').onclick = () => closeOverlays();
 $('#menu').addEventListener('click', (e) => { const t = e.target.closest('[data-act], a[href^="#"]'); if (!t) return; if (t.dataset.act === 'ask') { closeOverlays(true); askSarah(); } else if (t.dataset.act === 'index') openIndex(); else if (t.dataset.act?.startsWith('gift')) openIndex(t.dataset.act); else if (t.dataset.act === 'sound') $('#sound-toggle').click(); else closeOverlays(true); });
 $('#lightbox-close').onclick = () => { $('#lightbox').hidden = true; };
 $('#lightbox-prev').onclick = () => { lb.i--; showPhoto(); }; $('#lightbox-next').onclick = () => { lb.i++; showPhoto(); };
@@ -1194,14 +1197,17 @@ $('#focus-list').onclick = () => (current.gLined ? openPlantList() : openIndex(c
 $('#info-close').onclick = () => closeOverlays();
 $('#basket-close').onclick = $('#basket-tab').onclick = $('#basket-scrim').onclick = () => { $('#basket').hidden = true; };
 $('#index-close').onclick = () => closeOverlays();
-$('#index-open').onclick = () => openIndex();
-$('#basket-open').onclick = () => { renderBasket(); $('#basket').hidden = false; $('#basket-close').focus({ preventScroll: true }); };
+$('#index-open').onclick = () => ($('#index').hidden ? openIndex() : closeOverlays());
+$('#basket-open').onclick = () => { if (!$('#basket').hidden) { $('#basket').hidden = true; return; } renderBasket(); $('#basket').hidden = false; $('#basket-close').focus({ preventScroll: true }); };
+// the menu button shows which state it is in
+new MutationObserver(() => { const open = !$('#menu').hidden; $('#menu-open').setAttribute('aria-expanded', String(open)); $('#menu-open').classList.toggle('open', open); $('#menu-open .mt').textContent = open ? 'Close' : 'Menu'; $('#index-open').textContent = $('#index').hidden ? 'Shop index' : 'Close index'; }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
 $('#qty-minus').onclick = () => { qty = Math.max(1, qty - 1); syncDetail(); };
 $('#qty-plus').onclick = () => { qty++; syncDetail(); };
 $('#detail-add').onclick = () => { selected.hop = 1; addToBasket(chosen.id, qty); $('#detail-added').hidden = false; $('#detail-added-text').textContent = `${qty} × ${selected.p.name} added.`; };
 $('#detail-view-basket').onclick = () => $('#basket-open').click();
 $('#detail-rating').onclick = () => $('#detail-reviews')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
-$('#sale-line').textContent = SALE.line; $('#menu-sale').textContent = SALE.line;
+$('#sale-line').replaceChildren(el('span', { className: 'sl-text', textContent: SALE.line }), el('span', { className: 'sl-bar' }, el('span', { className: 'ticker-track', id: 'sl-track' }))); $('#menu-sale').textContent = SALE.line;
+runTicker($('#sl-track'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
 const searchIndex = (v) => { const q = v.trim().toLowerCase(); $('#index-list').querySelectorAll('button').forEach((b) => { b.hidden = !!q && !b.textContent.toLowerCase().includes(q); }); $('#index-list').querySelectorAll('h3').forEach((h) => { let n = h.nextElementSibling, any = false; while (n && n.tagName !== 'H3') { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; }); };
 $('#index-search').oninput = (e) => searchIndex(e.target.value);
 $('#menu-search-form').onsubmit = (e) => { e.preventDefault(); const q = $('#menu-search').value; openIndex('all'); $('#index-search').value = q; searchIndex(q); };

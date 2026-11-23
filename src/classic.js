@@ -10,6 +10,7 @@ import reviewData from './reviews.json';
 import ingredientData from './ingredients.json';
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY, EMAIL, INSTAGRAM } from './content.js';
 import { openConsult, mountAsk, usesOf } from './consult.js';
+import { runTicker } from './ticker.js';
 import plantPhotos from './plants.json';
 import plantModels from './models.json';
 import { PLANT_USES, USE_GROUPS, groupsOf, photoCredit } from './plantdata.js';
@@ -458,7 +459,7 @@ function askSarah() { openConsult({ catalog, now, figure: A('assets/img/witch-si
 const closeMenu = () => { document.body.classList.remove('nav-open'); $('#menu-btn').setAttribute('aria-expanded', 'false'); };
 
 /* ---------- boot ---------- */
-$('#ticker').append(...Array.from({ length: 2 }, () => el('div', { className: 'ticker-set' }, [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean).map((t) => el('span', {}, t, el('i', { textContent: '✦' }))))));
+runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); };
 $('#to-garden').onclick = () => store.set('gaia-view', 'garden');
