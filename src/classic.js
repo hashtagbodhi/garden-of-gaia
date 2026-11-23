@@ -512,6 +512,7 @@ function route() {
   noCards();
   document.title = a === 'home' ? 'The Garden of Gaia Apothecary | Organic Herbal Teas & Tinctures' : title;
   document.querySelectorAll('#nav a').forEach((x) => x.setAttribute('aria-current', String(x.getAttribute('href') === `#${a}` || (a === 'p' && x.getAttribute('href') === `#shop-${byHandle[b]?.station}`))));
+  $('#nav .nav-top').setAttribute('aria-current', String(a === 'shop' || a.startsWith('shop-') || a === 'p' || a === 'search'));
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'auto' });
   if (location.hash && location.hash !== '#home') $('#main').focus({ preventScroll: true });
@@ -600,6 +601,11 @@ $('#sidx-search').oninput = (e) => {
   $('#sidx-list').classList.toggle('none', !shown);
 };
 $('#index-open').onclick = () => openIndex('all');
+$('#find-top').onclick = () => { openIndex('all'); setTimeout(() => $('#sidx-search').focus(), 60); };
+// the Shop menu: the four collections with a picture and a line each
+$('#np-cols').replaceChildren(...ORDER.filter((id) => id !== 'roots').map((id) => { const c = COL[id], l = catalog.filter((x) => x.station === id), pic = l.find((x) => x.gallery.length);
+  return el('a', { className: 'np-col', href: `#shop-${id}` }, pic ? el('img', { src: photo(pic), alt: '', loading: 'lazy' }) : null, el('b', { textContent: c.short || c.name }), el('small', { textContent: `${l.length} · ${c.name}` })); }));
+{ const d = $('#nav-drop'); d.addEventListener('click', (e) => { if (e.target.closest('a, button')) { d.classList.add('shut'); document.activeElement?.blur(); } }); d.addEventListener('mouseleave', () => d.classList.remove('shut')); }
 $('#sidx-close').onclick = closeIndex;
 addEventListener('hashchange', closeIndex);
 addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeIndex(); closeBasket(); closeMenu(); } });
