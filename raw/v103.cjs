@@ -1,0 +1,11 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch(); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.setDefaultTimeout(8000); p.on('pageerror', (e) => errs.push(String(e))); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + 'classic.html#plant--vanilla'); await p.waitForTimeout(2000); await p.screenshot({ path: 'raw/_K0.jpg', type: 'jpeg', quality: 80 });
+  await p.goto(U + 'classic.html#shop-tea'); await p.waitForTimeout(1800); await p.screenshot({ path: 'raw/_K1.jpg', type: 'jpeg', quality: 80 });
+  await p.goto(U + 'classic.html#home'); await p.waitForTimeout(1800); await p.screenshot({ path: 'raw/_K2.jpg', type: 'jpeg', quality: 80 });
+  await p.click('#find-top'); await p.waitForTimeout(500); const a1 = await p.isVisible('#sidx'); await p.screenshot({ path: 'raw/_K3.jpg', type: 'jpeg', quality: 80, clip: { x: 800, y: 40, width: 640, height: 110 } }); await p.click('#find-top'); await p.waitForTimeout(400); console.log('search: opens', a1, 'second press closes', await p.isHidden('#sidx'));
+  await p.click('#basket-open'); await p.waitForTimeout(500); const b1 = await p.isVisible('#basket'); await p.keyboard.press('Escape'); await p.waitForTimeout(500); console.log('basket opens', b1);
+  await p.click('#ask-top'); await p.waitForTimeout(600); const c1 = await p.evaluate(() => document.documentElement.classList.contains('consult-on')); await p.click('#ask-top', { force: true }).catch(() => {}); await p.waitForTimeout(600); console.log('ask sarah: opens', c1, 'second press closes', await p.evaluate(() => !document.documentElement.classList.contains('consult-on')));
+  const c = await b.newContext(devices['iPhone 13']); const q = await c.newPage(); await q.addInitScript(() => localStorage.setItem('gaia-21', 'true')); await q.goto(U + 'classic.html#plant--vanilla'); await q.waitForTimeout(1800); await q.screenshot({ path: 'raw/_K4.jpg', type: 'jpeg', quality: 80 });
+  console.log('errors', errs); await b.close(); })();

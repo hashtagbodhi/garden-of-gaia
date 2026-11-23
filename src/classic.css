@@ -1796,3 +1796,24 @@ footer .promise h3 { text-wrap: balance; }
 .fso { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; color: #f6efdc; background: rgba(246, 239, 220, .06); box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .28); transition: color .2s, background .2s, transform .25s; }
 .fso svg { width: 22px; height: 22px; }
 .fso:hover { color: #120d24; background: var(--leaf); transform: translateY(-2px); }
+
+/* ================= legibility ================= */
+/* the giant outlined word is texture, not text: faint, set to the right, and never under the words people read */
+.bigword { opacity: .07 !important; }
+.page-head .bigword, .page-head.dressed .bigword { left: auto !important; right: -3% !important; top: 30% !important; opacity: .09 !important; font-size: clamp(5rem, 12vw, 10rem) !important; }
+@media (max-width: 760px) { .page-head .bigword, .sec-head .bigword { display: none !important; } }
+/* words over painted skies get a soft dark halo, so they read on any part of the picture */
+.page-head h1, .page-head .lede, .page-head .kicker, .page-head p, .page-head .alt-link, .page-head .label, .hero-copy h1, .hero-copy p, .hero-copy .kicker, .plant-head h1, .plant-head p, .plant-head .plant-bot, .plant-head .label {
+  text-shadow: 0 1px 2px rgba(5, 10, 20, .9), 0 0 18px rgba(5, 10, 20, .85), 0 0 36px rgba(5, 10, 20, .6) !important; }
+.page-head .lede, .plant-head .lede { color: #f3eee2 !important; }
+.page-head .chip, .plant-head .chip, .plant-uses b, .page-head .btn:not(.btn-main) { background: rgba(6, 10, 20, .62) !important; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.page-head::before { content: ''; position: absolute; z-index: 1; inset: 0 auto 0 0; width: min(760px, 70%); pointer-events: none; background: linear-gradient(90deg, rgba(5, 10, 20, .55), rgba(5, 10, 20, .25) 60%, transparent); }
+.page-head > * { position: relative; z-index: 2; }
+.page-head > .bigword, .page-head > .ribbon, .page-head > .edge, .page-head > .sun, .page-head > .deco, .page-head > .sec-flies { z-index: 0; }
+@media (max-width: 760px) { .page-head::before { width: 100%; background: linear-gradient(180deg, rgba(5, 10, 20, .5), rgba(5, 10, 20, .25) 70%, transparent); } }
+
+/* ================= a button that opens something shows it, and closes it on a second press ================= */
+.find-btn.is-open, .head-tools .ask-chip.is-open, .nav .nav-index.is-open { box-shadow: inset 0 0 0 1.5px var(--leaf), 0 0 16px rgba(185, 246, 85, .35) !important; color: var(--leaf) !important; }
+.find-btn.is-open svg { display: none; }
+.find-btn.is-open::before { content: '\2715'; font-size: .95rem; line-height: 1; }
+.basket-pill.is-open { box-shadow: 0 0 0 2px #0c1220, 0 0 0 3.5px var(--leaf) !important; }

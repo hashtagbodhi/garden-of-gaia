@@ -11,7 +11,7 @@ import catalog from './catalog.json';
 import reviewData from './reviews.json';
 import ingredientData from './ingredients.json';
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY, EMAIL, INSTAGRAM, TIKTOK, FACEBOOK } from './content.js';
-import { openConsult, mountAsk, usesOf } from './consult.js';
+import { openConsult, closeConsult, mountAsk, usesOf } from './consult.js';
 import { runTicker } from './ticker.js';
 import plantPhotos from './plants.json';
 import plantArt from './plantart.json';
@@ -553,10 +553,10 @@ const markMenu = () => { const h = location.hash || '#home'; document.querySelec
 
 /* ---------- boot ---------- */
 runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
-$('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
+$('#basket-open').onclick = () => ($('#basket').hidden ? openBasket() : closeBasket()); $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; $('#mnav').style.setProperty('--mn-top', `${Math.max(0, Math.round($('#head').getBoundingClientRect().bottom))}px`); } };
 addEventListener('click', (e) => { if (e.target.closest?.('a[href^="./#"]')) store.set('gaia-view', 'garden'); }, true);
-$('#ask-top').onclick = () => { closeMenu(); askSarah(); };
+$('#ask-top').onclick = () => { closeMenu(); if (document.documentElement.classList.contains('consult-on')) closeConsult(); else askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
 mountAsk(askSarah, A('assets/img/witch-face.webp'));
 /* ---------- shop index: everything in one list, opened the same way as in the garden ---------- */
@@ -598,8 +598,11 @@ $('#sidx-search').oninput = (e) => {
   $('#sidx-list').querySelectorAll('h3').forEach((hd) => { let n = hd.nextElementSibling, any = false; while (n && n.tagName !== 'H3') { if (!n.hidden) any = true; n = n.nextElementSibling; } hd.hidden = !any; });
   $('#sidx-list').classList.toggle('none', !shown);
 };
-$('#index-open').onclick = () => openIndex('all');
-$('#find-top').onclick = () => { openIndex('all'); setTimeout(() => $('#sidx-search').focus(), 60); };
+$('#index-open').onclick = () => ($('#sidx').hidden ? openIndex('all') : closeIndex());
+$('#find-top').onclick = () => { if (!$('#sidx').hidden) { closeIndex(); return; } openIndex('all'); setTimeout(() => $('#sidx-search').focus(), 60); };
+// a button that opens something closes it again: each one shows that it is open, and a second press puts things back
+{ const pair = (btn, open) => { const b = $(btn); if (!b) return; const sync = () => { const on = open(); b.classList.toggle('is-open', on); b.setAttribute('aria-expanded', String(on)); }; new MutationObserver(sync).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['hidden', 'class'] }); sync(); };
+  pair('#find-top', () => !$('#sidx').hidden); pair('#index-open', () => !$('#sidx').hidden); pair('#basket-open', () => !$('#basket').hidden); pair('#ask-top', () => document.documentElement.classList.contains('consult-on')); }
 // the Shop menu: the four collections with a picture and a line each
 $('#np-cols').replaceChildren(...ORDER.filter((id) => id !== 'roots').map((id) => { const c = COL[id], l = catalog.filter((x) => x.station === id), pic = l.find((x) => x.gallery.length);
   return el('a', { className: 'np-col', href: `#shop-${id}` }, pic ? el('img', { src: photo(pic), alt: '', loading: 'lazy' }) : null, el('b', { textContent: c.short || c.name }), el('small', { textContent: `${l.length} · ${c.name}` })); }));
