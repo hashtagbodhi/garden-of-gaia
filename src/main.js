@@ -938,8 +938,7 @@ function openPlant(k) {
     el('p', { className: 'label', textContent: `${list.length} ${list.length === 1 ? 'product' : 'products'} we make with ${pl.n.toLowerCase()}` }),
     el('ul', { className: 'plant-goods' }, ...list.map((it) => {
       const pr = it.p, v = pr.variants.find((x) => x.available) || pr.variants[0], uses = usesOf(pr.handle);
-      const see = el('button', { className: 'text-link', textContent: `See it at the ${it.station.name.replace(/^The /, '').toLowerCase()}` });
-      see.onclick = () => { closeOverlays(true); go(it.station.id); select(it); };
+      const see = el('a', { className: 'text-link', href: `./classic.html#p--${pr.handle}`, textContent: 'Read about it in the apothecary' });
       const add = el('button', { className: 'pg-add', textContent: v.available ? '+ Add' : 'Sold out', disabled: !v.available });
       add.onclick = () => { addToBasket(v.id, 1); add.textContent = 'Added ✓'; setTimeout(() => { add.textContent = '+ Add'; }, 1600); };
       return el('li', {}, el('img', { src: thumbUrl(pr), alt: '' }), el('div', {}, el('strong', { textContent: pr.name }), el('span', { textContent: [priceLabel(pr), pr.sub].filter(Boolean).join(' · ') }), uses.length ? el('em', { className: 'pg-use', textContent: `For ${uses.join(', ').toLowerCase()}` }) : '', see), add);
@@ -1044,6 +1043,7 @@ function buildLabels(s) {
 }
 function restShift() { if (openK) { shift.ty = portrait ? innerHeight * 0.3 : 0; shift.tx = portrait ? 0 : Math.min(250, innerWidth * 0.16); return; } shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
+  if (id && id !== 'gate') id = 'grove';   // the garden is the herb grove; there are no other clearings to visit
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
   const home = s.id === 'gate', place = $('#place');
@@ -1057,7 +1057,7 @@ function go(id, instant) {
   const menu = $('#place-menu'); menu.hidden = s.id !== 'roots'; menu.replaceChildren();
   if (s.id === 'roots') [...INFO, WORDS].forEach((i) => { const b = el('button', { textContent: i.title }); b.onclick = () => openInfo(i); menu.append(el('li', {}, b)); });
   const acts = $('#place-actions'); acts.replaceChildren();
-  if (home) { acts.append(el('a', { className: 'btn', href: '#tea', textContent: 'Walk into the garden' })); const b = el('a', { className: 'apo-link', href: './classic.html' }, el('span', { className: 'apo-ic', textContent: '✿' }), el('span', { textContent: 'Visit the apothecary' })); b.onclick = () => { try { localStorage.setItem('gaia-view', '"classic"'); } catch (e) { /* private mode */ } }; acts.append(b); }
+  if (home) acts.append(el('a', { className: 'btn', href: '#grove', textContent: 'Walk into the garden' }));
   else if (s.id === 'grove') { const b = el('button', { className: 'text-link', textContent: `See all ${GKEYS.length} plants as a list` }); b.onclick = () => openPlantList(); acts.append(b); }
   else if (s.id !== 'roots') { const b = el('button', { className: 'text-link', textContent: `Read all ${s.items.length} as a list` }); b.onclick = () => openIndex(s.id); acts.append(b); }
   document.querySelectorAll('#places-list a').forEach((a) => (a.dataset.id === s.id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
@@ -1071,6 +1071,7 @@ function go(id, instant) {
 }
 function route(instant) {
   const [id, handle] = location.hash.slice(1).split('--');
+  if (handle && id !== 'grove') { location.replace(`./classic.html#p--${handle}`); return; }   // products are read in the apothecary
   closeOverlays(true); go(id || 'gate', instant);
   if (id === 'grove' && handle && GPLANTS[handle]) { openPlant(handle); return; }
   const it = handle && current.items.find((x) => x.p.handle === handle);
@@ -1152,7 +1153,7 @@ addEventListener('keydown', (e) => {
 /* ---------- DOM wiring ---------- */
 for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.id === 'gate' ? 'witch-face' : s.icon}.webp`)})`; if (s.id === 'gate') i.style.backgroundSize = 'cover'; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
 let askBtn = null;
-const askSarah = () => openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => (p.gallery?.[0] ? A(p.gallery[0]) : A(`assets/card/${p.handle}.webp`)), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
+const askSarah = () => openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => (p.gallery?.[0] ? A(p.gallery[0]) : A(`assets/card/${p.handle}.webp`)), add: (p, v) => addToBasket(v.id, 1), open: (p) => { location.href = `./classic.html#p--${p.handle}`; } });
 $('#gifts-top').onclick = () => openIndex('gift25');
 $('#ask-top').onclick = () => { closeOverlays(true); askSarah(); };
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };

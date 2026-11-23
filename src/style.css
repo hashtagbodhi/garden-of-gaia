@@ -873,3 +873,7 @@ body.companion #info-body, body.companion #info .column-in > * { border-top: 0; 
 
 /* room around Ask Sarah in the garden's header */
 .top-links .ask-chip { margin: 0 12px; }
+
+/* ---- the garden is the herb grove: no path of places, no menu, no index. A gate, then the grove ---- */
+#places, #menu-open, #index-open { display: none !important; }
+@media (max-width: 820px) { .top-links #sound-toggle { display: inline-grid !important; order: 9; } }

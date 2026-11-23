@@ -475,7 +475,7 @@ function buildMenu() {
   form.onsubmit = (e) => { e.preventDefault(); const q = form.querySelector('input').value.trim(); if (q) { location.hash = `#search--${encodeURIComponent(q)}`; form.querySelector('input').blur(); closeMenu(); } };
   const ask = el('button', { type: 'button', className: 'mn-ask' }, el('img', { src: A('assets/img/witch-face.webp'), alt: '' }), el('span', {}, el('b', { textContent: 'Ask Sarah' }), el('small', { textContent: 'Five questions, and a ritual chosen for you' })), el('i', { ariaHidden: 'true', textContent: '→' }));
   ask.onclick = () => { closeMenu(); askSarah(); };
-  const garden = el('a', { className: 'mn-garden', href: './#gate' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
+  const garden = el('a', { className: 'mn-garden', href: './#gate' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'Meet every plant we work with' })));
   const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
   const idx = el('button', { type: 'button', className: 'mn-idx' }, el('b', { textContent: 'Shop index' }), el('small', { textContent: 'Everything, in one list' })); idx.onclick = () => { closeMenu(); openIndex('all'); };
   // Gifts: the second of the two big doors in the menu, dressed like a wrapped present
