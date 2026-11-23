@@ -1,0 +1,9 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch(); const c = await b.newContext(devices['iPhone 13']); const p = await c.newPage(); p.setDefaultTimeout(8000); const errs = []; p.on('pageerror', (e) => errs.push(String(e))); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + 'classic.html'); await p.waitForTimeout(1800); const s = p.locator('.cols-sec .sec-head'); await s.scrollIntoViewIfNeeded(); await p.evaluate(() => scrollBy(0, -170)); await p.waitForTimeout(600); await p.screenshot({ path: 'raw/_M0.jpg', type: 'jpeg', quality: 82 });
+  await p.goto(U + 'classic.html#p--blue-water-lily-tincture'); await p.waitForTimeout(1800); await p.locator('#pp-more').scrollIntoViewIfNeeded(); await p.waitForTimeout(600);
+  const g = '#pp-more .grid'; console.log(await p.evaluate((s) => { const e = document.querySelector(s); return { sw: e.scrollWidth, cw: e.clientWidth, sh: e.scrollHeight, ch: e.clientHeight, oy: getComputedStyle(e).overflowY }; }, g));
+  const box = await p.locator(g).boundingBox(); const cdp = await c.newCDPSession(p); const y = box.y + box.height / 2;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 330, y }] }); for (let i = 1; i <= 8; i++) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 330 - i * 30, y: y + i * 4 }] }); await p.waitForTimeout(16); } await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await p.waitForTimeout(800);
+  console.log('after a sideways swipe: scrollLeft', await p.evaluate((s) => document.querySelector(s).scrollLeft, g), 'scrollTop', await p.evaluate((s) => document.querySelector(s).scrollTop, g)); await p.screenshot({ path: 'raw/_M1.jpg', type: 'jpeg', quality: 82 });
+  console.log('errors', errs); await b.close(); })();
