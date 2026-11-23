@@ -196,7 +196,7 @@ for (const s of STATIONS) s.items.forEach((it, i) => { it.station = s; it.index 
 function layout(s) {
   if (s.id === 'grove') return groveLayout(s);
   const n = s.items.length;
-  if (!n) { s.camPos = V(s.cam); s.camLook = V(s.look); s.witchPos = V(s.witch); if (portrait && s.id === 'gate') { s.camPos.z += 9.5; s.camPos.y += 0.3; }   // a narrow screen steps back, so both doors of the gate are in view
+  if (!n) { s.camPos = V(s.cam); s.camLook = V(s.look); s.witchPos = V(s.witch); if (portrait && s.id === 'gate') { s.camPos.z += 9.5; s.camPos.y += 0.3; s.witchPos.z += 13; }   // and Sarah steps forward through the gate to meet you   // a narrow screen steps back, so both doors of the gate are in view
     return; }
   const per = portrait ? Math.min(3, n) : n <= 5 ? n : Math.ceil(n / (n > 10 ? 3 : 2));
   const rows = Math.ceil(n / per);
