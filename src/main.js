@@ -196,7 +196,8 @@ for (const s of STATIONS) s.items.forEach((it, i) => { it.station = s; it.index 
 function layout(s) {
   if (s.id === 'grove') return groveLayout(s);
   const n = s.items.length;
-  if (!n) { s.camPos = V(s.cam); s.camLook = V(s.look); s.witchPos = V(s.witch); return; }
+  if (!n) { s.camPos = V(s.cam); s.camLook = V(s.look); s.witchPos = V(s.witch); if (portrait && s.id === 'gate') { s.camPos.z += 9.5; s.camPos.y += 0.3; }   // a narrow screen steps back, so both doors of the gate are in view
+    return; }
   const per = portrait ? Math.min(3, n) : n <= 5 ? n : Math.ceil(n / (n > 10 ? 3 : 2));
   const rows = Math.ceil(n / per);
   s.D = s.p.clone().addScaledVector(s.f, s.dOff);
@@ -458,7 +459,7 @@ function buildWorld() {
 
   // vegetation, kept clear of displays and sight lines
   const corridors = STATIONS.map((s) => [s.D || s.p, s.camPos.clone().setY(0)]);
-  corridors.push([V([0, 0, 52]), V([0, 0, 2])]);
+  corridors.push([V([0, 0, 70]), V([0, 0, 2])]);
   const segDist = (x, z, a, b) => { const abx = b.x - a.x, abz = b.z - a.z; const t = THREE.MathUtils.clamp(((x - a.x) * abx + (z - a.z) * abz) / (abx * abx + abz * abz), 0, 1); return Math.hypot(x - (a.x + abx * t), z - (a.z + abz * t)); };
   const free = (x, z, clear, lane) => {
     // nothing grows between the walker and the bed of herbs, along its whole length
