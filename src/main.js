@@ -133,7 +133,7 @@ function groveScene(on) {
   camera.layers.mask = on ? 1 << GROVE : 0xffffffff;
   if (!backdrop) return;
   const c = backdrop.material.color; gsap.killTweensOf(c);
-  if (on) { backdrop.visible = true; gsap.to(c, { r: 1, g: 1, b: 1, duration: reduce ? 0 : 1.1, ease: 'sine.out' }); }
+  if (on) { backdrop.visible = true; c.setRGB(1, 1, 1); }
   else { c.setRGB(0, 0, 0); backdrop.visible = false; }
 }
 let seed = 20261122;
@@ -642,6 +642,9 @@ let current = null, selected = null;
 function flyTo(target, instant, dur) {
   const from = camPos.clone(), fromL = camLook.clone(), to = target.camPos, toL = target.camLook;
   gsap.killTweensOf(travel);
+  // into the grove (and back out to the gate) there is no flight: the scene simply fades up with every plant already standing
+  const cut = target.id === 'grove' || (target.id === 'gate' && flyTo.last === 'grove'); if (target.id) flyTo.last = target.id;
+  if (cut && !instant && !reduce) { travel.t = 1; camPos.copy(to); camLook.copy(toL); canvas.style.transition = 'none'; canvas.style.opacity = '0'; requestAnimationFrame(() => { shift.x = shift.tx; shift.y = shift.ty; requestAnimationFrame(() => { shift.x = shift.tx; shift.y = shift.ty; canvas.style.transition = 'opacity .7s ease'; canvas.style.opacity = '1'; }); }); return; }
   if (instant || reduce) { camPos.copy(to); camLook.copy(toL); return; }
   const dist = from.distanceTo(to), lift = dist > 14 ? Math.min(6, dist * 0.14) : 0;
   travel.t = 0;

@@ -1693,3 +1693,41 @@ html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: 
   .head-tools .view-switch .vs-opt span, .head-tools .view-switch .vs-opt { font-size: .78rem !important; }
 }
 @media (max-width: 1090px) { .find-btn, .nav-drop { display: none; } }
+
+/* ================= product photographs: large and whole, stacked; the buy column rides alongside ================= */
+.pp { overflow: visible !important; align-items: start !important; }
+.pp-gallery.pp-stack { position: static !important; display: grid !important; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0 !important; background: none !important; box-shadow: none !important; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
+.pp-shot { position: relative; margin: 0; border-radius: 26px; overflow: hidden; background: #0c1a16; box-shadow: 0 0 0 1px rgba(240, 195, 90, .35), 0 30px 60px -34px #000; }
+.pp-shot.first, .pp-shot:last-child:nth-child(even) { grid-column: 1 / -1; }
+.pp-shot img { display: block; width: 100%; height: auto; }
+.pp-shot:not(.first):not(:last-child:nth-child(even)) img { height: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.pp > .pp-buy { position: sticky; top: calc(var(--buy-top, 104px) + 18px); align-self: start; }
+@media (max-width: 900px) {
+  .pp > .pp-buy { position: static; }
+  .pp-gallery.pp-stack { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 88%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 10px; margin-inline: calc(var(--pad) * -1); padding-inline: var(--pad) !important; align-items: center; }
+  .pp-gallery.pp-stack::-webkit-scrollbar { display: none; }
+  .pp-shot { scroll-snap-align: center; grid-column: auto !important; border-radius: 20px; }
+  .pp-shot img { aspect-ratio: auto !important; height: auto !important; max-height: 70dvh; object-fit: contain !important; }
+  .pp-shot:only-child { grid-column: 1 / -1; }
+  .pp-gallery.pp-stack:has(.pp-shot:only-child) { grid-auto-columns: 100%; }
+}
+
+/* ================= carved-wood labels: maximal in material, plain to read ================= */
+/* the sale tag: a small wooden tag on a twine loop, still and upright enough to read at a glance */
+.badge { transform: rotate(-7deg) !important; animation: none !important; width: auto !important; height: auto !important; min-width: 66px; padding: 9px 12px 8px !important; display: grid !important; place-items: center; gap: 0; border-radius: 12px 12px 14px 14px !important; color: #fff3d6 !important; font-family: var(--serif) !important; font-style: italic; font-size: .95rem !important; line-height: 1 !important; text-shadow: 0 1px 0 #2a1608, 0 0 6px rgba(0, 0, 0, .5);
+  background: repeating-linear-gradient(94deg, rgba(0, 0, 0, .13) 0 1.5px, transparent 1.5px 6px, rgba(255, 220, 160, .07) 6px 7px, transparent 7px 13px), linear-gradient(180deg, #a06a32, #6f4319 60%, #54300f) !important;
+  box-shadow: inset 0 0 0 1.5px #3a2009, inset 0 2px 0 1.5px rgba(255, 214, 150, .5), inset 0 -3px 6px rgba(0, 0, 0, .35), 0 8px 16px -6px rgba(0, 0, 0, .7), 0 0 0 3px rgba(185, 246, 85, .0) !important; }
+.badge b { font-family: var(--display) !important; font-style: normal; font-size: 1.55rem !important; line-height: .95 !important; color: #d6ff8a; text-shadow: 0 1.5px 0 #2a1608, 0 0 10px rgba(185, 246, 85, .45); }
+.badge::before { content: '' !important; position: absolute; inset: auto !important; left: 50% !important; top: -13px !important; width: 2px; height: 15px; margin-left: -1px; background: #e9d9b0 !important; -webkit-clip-path: none !important; clip-path: none !important; animation: none !important; border-radius: 2px; z-index: 0 !important; }
+.badge::after { content: '' !important; position: absolute; inset: auto !important; left: 50% !important; top: 3px !important; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #1c0f05 !important; box-shadow: 0 1px 0 rgba(255, 214, 150, .5); -webkit-clip-path: none !important; clip-path: none !important; animation: none !important; z-index: 0 !important; }
+.badge b { margin-top: 6px; }
+.pp-shot .badge { top: 18px; left: 18px; min-width: 84px; padding: 12px 16px 10px !important; font-size: 1.1rem !important; } .pp-shot .badge b { font-size: 2.1rem !important; }
+@media (max-width: 760px) { .badge { min-width: 52px; padding: 7px 9px 6px !important; font-size: .8rem !important; } .badge b { font-size: 1.2rem !important; } }
+/* the round seal: a slice of wood with the words carved once around it, nothing spinning */
+.stamp { width: 132px; height: 132px; color: #fff3d6 !important; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); }
+.stamp::before { inset: 0 !important; animation: none !important; background: radial-gradient(circle, transparent 0 62%, #3a2009 62% 64%, transparent 64%), repeating-radial-gradient(circle, rgba(0, 0, 0, .14) 0 1.5px, transparent 1.5px 6px), radial-gradient(circle at 40% 35%, #b07a3c, #6f4319 70%, #4a2a0d) !important; box-shadow: inset 0 0 0 2px #2a1608, inset 0 3px 0 2px rgba(255, 214, 150, .45), 0 0 0 4px #3f6b2a, 0 0 0 5.5px #b9f655; }
+.stamp::after { content: none !important; }
+.stamp-ring { animation: none !important; }
+.stamp-ring text { font-family: var(--display) !important; font-size: 12.5px !important; letter-spacing: 2px !important; fill: #fff3d6; paint-order: stroke; stroke: #2a1608; stroke-width: 2.4px; }
+.stamp .stamp-ic { width: 50px !important; height: 50px !important; padding: 10px !important; color: #1c0f05 !important; background: radial-gradient(circle at 35% 30%, #e6ffb0, #b9f655 60%, #8fd13a) !important; box-shadow: 0 0 0 2px #2a1608, 0 0 14px rgba(185, 246, 85, .5) !important; }
+@media (max-width: 760px) { .stamp { width: 98px; height: 98px; } .stamp-ring text { font-size: 12px !important; } .stamp .stamp-ic { width: 36px !important; height: 36px !important; padding: 7px !important; } }

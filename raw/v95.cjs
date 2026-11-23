@@ -1,0 +1,12 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.setDefaultTimeout(8000); p.on('pageerror', (e) => errs.push(String(e))); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + 'classic.html#p--golden-sticky-chai-haldi-doodh-paste-golden-milk'); await p.waitForTimeout(2200); await p.screenshot({ path: 'raw/_z0.jpg', type: 'jpeg', quality: 80 });
+  await p.evaluate(() => scrollTo(0, 900)); await p.waitForTimeout(900); await p.screenshot({ path: 'raw/_z1.jpg', type: 'jpeg', quality: 80 });
+  console.log('buy box top while scrolled:', await p.evaluate(() => Math.round(document.querySelector('.pp-buy').getBoundingClientRect().top)), 'photos', await p.locator('.pp-shot').count());
+  await p.goto(U + 'classic.html#home'); await p.waitForTimeout(1800); const st = p.locator('.stamp').first(); await st.scrollIntoViewIfNeeded(); await p.waitForTimeout(500); await st.screenshot({ path: 'raw/_z2.jpg', type: 'jpeg', quality: 90 });
+  await p.goto(U + 'classic.html#shop-tea'); await p.waitForTimeout(1800); await p.locator('.card').first().screenshot({ path: 'raw/_z3.jpg', type: 'jpeg', quality: 88 });
+  await p.goto(U + '#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); if (await p.isVisible('#enter-yes')) await p.click('#enter-yes'); await p.waitForTimeout(4500);
+  await p.click('#place-actions a.btn'); await p.waitForTimeout(350); await p.screenshot({ path: 'raw/_z4.jpg', type: 'jpeg', quality: 78 }); await p.waitForTimeout(1500); await p.screenshot({ path: 'raw/_z5.jpg', type: 'jpeg', quality: 78 });
+  const c = await b.newContext(devices['iPhone 13']); const q = await c.newPage(); q.on('pageerror', (e) => errs.push('m ' + e)); await q.addInitScript(() => localStorage.setItem('gaia-21', 'true')); await q.goto(U + 'classic.html#p--golden-sticky-chai-haldi-doodh-paste-golden-milk'); await q.waitForTimeout(2000); await q.screenshot({ path: 'raw/_z6.jpg', type: 'jpeg', quality: 80 });
+  console.log('errors', errs); await b.close(); })();
