@@ -172,7 +172,7 @@ function groveLayout(s) {
       s.gXZ[k] = [x, 2.7, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(0);
     });
     s.gY0 = s.gY1 = 2.7;
-    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== 'bed') { s.gMode = 'bed'; s.gSel = null; s.gx = s.gtx = -half + 5.2; s.gy = s.gty = 2.7; }
+    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== 'bed') { s.gMode = 'bed'; s.gSel = null; s.gx = s.gtx = -half + 4.3; s.gy = s.gty = 2.7; }
     groveView(s);
   }
   s.propPos = s.D.clone().addScaledVector(s.f, -(s.gDepth + 7));
@@ -185,7 +185,7 @@ function groveView(s) {
   s.witchPos = s.D.clone().addScaledVector(s.r, -(s.gHalf + 1.6)).addScaledVector(s.f, 1.2);
 }
 const groveFocus = (s) => { if (s.gSel) return s.gSel; let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, y] = s.gXZ[k], d = (x - s.gtx) ** 2 + (y - s.gty) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
-const groveClamp = (s) => { const m = portrait ? 1.2 : 5.2; s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + m, s.gHalf - m); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0 - (portrait ? 0.4 : 0), s.gY1 + (portrait ? 0.4 : 0)); };
+const groveClamp = (s) => { const m = portrait ? 1.2 : 4.3; s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + m, s.gHalf - m); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0 - (portrait ? 0.4 : 0), s.gY1 + (portrait ? 0.4 : 0)); };
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -776,7 +776,7 @@ function renderBasket() {
   // the free-shipping vine grows toward a flower as the basket fills
   const left = FREE_SHIPPING_AT - total, pct = Math.min(100, (total / FREE_SHIPPING_AT) * 100), ship = $('#basket-ship');
   ship.replaceChildren(el('span', { className: 'vine-t', textContent: !basket.length ? `Free U.S. shipping over ${money(FREE_SHIPPING_AT)}` : left > 0 ? `${money(+left.toFixed(2))} away from free U.S. shipping` : 'Free U.S. shipping is yours' }),
-    el('div', { className: `vine-bar${left <= 0 ? ' done' : ''}` }, el('i', { style: `width:${pct}%` }), el('b', { className: 'vine-bud', style: `left:${pct}%` }), el('em', { className: 'vine-flower', textContent: '✿' })));
+    el('div', { className: `vine-bar${left <= 0 ? ' done' : ''}` }, el('i', { style: `--p:${pct}%` }), el('b', { className: 'vine-bud', style: `left:${pct}%` }), el('em', { className: 'vine-flower', textContent: '✿' })));
   $('#basket-checkout').href = `${STORE}/cart/${basket.map((l) => `${l.id}:${l.qty}`).join(',')}`;
   // a few things that would carry the basket to free shipping
   const inB = new Set(basket.map((l) => variantIndex.get(l.id).p)), price = (p) => now((p.variants.find((x) => x.available) || p.variants[0]).price, p);
@@ -865,13 +865,13 @@ function prose(p) {
   });
   return out;
 }
+let backPlant = null;   // the plant whose page a product was opened from
 function select(it, quiet) {
   closeOverlays(true);
   selected = it; qty = 1; const p = it.p;
-  if (it.station.lined) { it.station.pan = it.station.panTarget = it.index * STEP; panView(it.station); syncFocus(); hoverItem = null; }
   document.body.classList.add('reading'); $('#detail').hidden = false;
-  $('#detail-close').textContent = `Back to the ${it.station.name.replace(/^The /, '').toLowerCase()}`;
-  $('#detail-kind').textContent = it.station.label; $('#detail-pos').textContent = `${it.index + 1} of ${it.station.items.length}`;
+  $('#detail-close').textContent = backPlant && GPLANTS[backPlant] ? `Back to ${GPLANTS[backPlant].n.toLowerCase()}` : 'Back to the grove';
+  $('#detail-kind').textContent = it.station.label; $('#detail-pos').textContent = '';
   $('#detail-name').textContent = p.name; $('#detail-name').classList.toggle('long', p.name.length > 24); $('#detail-sub').textContent = p.sub; $('#detail-sub').hidden = !p.sub;
   const vs = $('#detail-variants'); vs.replaceChildren(); vs.hidden = p.variants.length < 2;
   chosen = p.variants.find((v) => v.available) || p.variants[0];
@@ -891,9 +891,8 @@ function select(it, quiet) {
   if (!narrow.matches) { shift.tx = portrait ? 0 : Math.min(620, innerWidth * 0.52) * 0.42; shift.ty = portrait ? innerHeight * 0.5 - (64 + innerHeight * 0.4) / 2 : 0; }
   paged = narrow.matches;   // phones: a full page, the garden steps aside
   document.body.classList.toggle('paged', paged);
-  if (!paged) { flyTo(closeUp(it), false, 1.5); setMood(true); }
   if (!quiet) audio.play('clink', 0.45);
-  history.replaceState(null, '', `#${p.station}--${p.handle}`);
+  history.replaceState(null, '', `#grove--p--${p.handle}`);
   $('#detail-close').focus({ preventScroll: true });
 }
 function syncDetail() {
@@ -938,10 +937,11 @@ function openPlant(k) {
     el('p', { className: 'label', textContent: `${list.length} ${list.length === 1 ? 'product' : 'products'} we make with ${pl.n.toLowerCase()}` }),
     el('ul', { className: 'plant-goods' }, ...list.map((it) => {
       const pr = it.p, v = pr.variants.find((x) => x.available) || pr.variants[0], uses = usesOf(pr.handle);
-      const see = el('a', { className: 'text-link', href: `./classic.html#p--${pr.handle}`, textContent: 'Read about it in the apothecary' });
+      const see = el('button', { type: 'button', className: 'text-link', textContent: 'View product' }), show = () => { backPlant = k; select(it); };
       const add = el('button', { className: 'pg-add', textContent: v.available ? '+ Add' : 'Sold out', disabled: !v.available });
       add.onclick = () => { addToBasket(v.id, 1); add.textContent = 'Added ✓'; setTimeout(() => { add.textContent = '+ Add'; }, 1600); };
-      return el('li', {}, el('img', { src: thumbUrl(pr), alt: '' }), el('div', {}, el('strong', { textContent: pr.name }), el('span', { textContent: [priceLabel(pr), pr.sub].filter(Boolean).join(' · ') }), uses.length ? el('em', { className: 'pg-use', textContent: `For ${uses.join(', ').toLowerCase()}` }) : '', see), add);
+      const row = el('li', { className: 'pg-row' }, el('img', { src: thumbUrl(pr), alt: '' }), el('div', {}, el('strong', { textContent: pr.name }), el('span', { textContent: [priceLabel(pr), pr.sub].filter(Boolean).join(' · ') }), uses.length ? el('em', { className: 'pg-use', textContent: `For ${uses.join(', ').toLowerCase()}` }) : '', see), add);
+      row.onclick = (e) => { if (!e.target.closest('.pg-add')) show(); }; return row;
     })),
   ] });
   if (location.hash !== `#grove--${k}`) history.replaceState(null, '', `#grove--${k}`);
@@ -1041,13 +1041,13 @@ function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
   labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: [priceLabel(it.p), plantNames(it.p, 2)].filter(Boolean).join(' · ') })); box.append(d); return { it, el: d }; });
 }
-function restShift() { if (openK) { shift.ty = portrait ? innerHeight * 0.3 : 0; shift.tx = portrait ? 0 : Math.min(250, innerWidth * 0.16); return; } shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
+function restShift() { if (!openK && current?.id === 'grove') { shift.tx = 0; shift.ty = -innerHeight * (portrait ? 0.07 : 0.12); return; } if (openK) { shift.ty = portrait ? innerHeight * 0.3 : 0; shift.tx = portrait ? 0 : Math.min(250, innerWidth * 0.16); return; } shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
   if (id && id !== 'gate') id = 'grove';   // the garden is the herb grove; there are no other clearings to visit
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
   const home = s.id === 'gate', place = $('#place');
-  place.toggleAttribute('data-home', home); document.body.classList.toggle('home', home);   // the places bar appears once you are inside the garden
+  place.toggleAttribute('data-home', home); document.body.classList.toggle('home', home); place.hidden = s.id === 'grove'; $('#grove-cap').hidden = s.id !== 'grove';   // the places bar appears once you are inside the garden
   $('#place-label').hidden = home && narrow.matches;
   $('#place-label').replaceChildren(...(home ? ['Organic herbal teas,', el('br'), 'tinctures and ritual tools'] : [s.label]));
   $('#place-title').textContent = home ? 'Reconnecting you with your roots' : s.name;
@@ -1071,8 +1071,10 @@ function go(id, instant) {
 }
 function route(instant) {
   const [id, handle] = location.hash.slice(1).split('--');
-  if (handle && id !== 'grove') { location.replace(`./classic.html#p--${handle}`); return; }   // products are read in the apothecary
   closeOverlays(true); go(id || 'gate', instant);
+  // a product: read here, beside the grove (older links named the clearing it used to stand in)
+  const ph = handle === 'p' ? location.hash.split('--')[2] : id !== 'grove' ? handle : null, pit = ph && allItems.find((x) => x.p.handle === ph);
+  if (pit) { backPlant = null; select(pit, true); return; }
   if (id === 'grove' && handle && GPLANTS[handle]) { openPlant(handle); return; }
   const it = handle && current.items.find((x) => x.p.handle === handle);
   if (it) select(it, true); else if (!instant) flyTo(current);
@@ -1143,7 +1145,7 @@ addEventListener('keydown', (e) => {
   if (!entered) return;
   if (!$('#lightbox').hidden) { if (e.key === 'Escape') $('#lightbox').hidden = true; if (e.key === 'ArrowRight') { lb.i++; showPhoto(); } if (e.key === 'ArrowLeft') { lb.i--; showPhoto(); } return; }
   if (e.key === 'Escape') { closeOverlays(); return; }
-  if (selected && !paged && (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !e.target.closest?.('input, .panel, .index')) { const L = selected.station.items, n2 = L.length; select(L[(selected.index + (e.key === 'ArrowRight' ? 1 : -1) + n2) % n2], true); e.preventDefault(); return; }
+  if (false) { const L = selected.station.items, n2 = L.length; select(L[(selected.index + (e.key === 'ArrowRight' ? 1 : -1) + n2) % n2], true); e.preventDefault(); return; }
   if (selected || !current?.items.length || e.target.closest?.('.panel, .index, .column')) return;
   const n = current.items.length;
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { kb = (kb + (e.key === 'ArrowRight' ? 1 : -1) + n) % n; hoverItem = current.items[kb]; audio.play('flutter', 0.14, 1.3); }
@@ -1163,7 +1165,7 @@ $('#menu-open').onclick = () => ($('#menu').hidden ? openMenu() : closeOverlays(
 $('#menu').addEventListener('click', (e) => { const t = e.target.closest('[data-act], a[href^="#"]'); if (!t) return; if (t.dataset.act === 'ask') { closeOverlays(true); askSarah(); } else if (t.dataset.act === 'index') openIndex(); else if (t.dataset.act?.startsWith('gift')) openIndex(t.dataset.act); else if (t.dataset.act === 'sound') $('#sound-toggle').click(); else closeOverlays(true); });
 $('#lightbox-close').onclick = () => { $('#lightbox').hidden = true; };
 $('#lightbox-prev').onclick = () => { lb.i--; showPhoto(); }; $('#lightbox-next').onclick = () => { lb.i++; showPhoto(); };
-$('#detail-close').onclick = () => closeOverlays();
+$('#detail-close').onclick = () => { const k = backPlant; backPlant = null; closeOverlays(); if (k) openPlant(k); };
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };
 $('#detail-prev').onclick = () => stepSel(-1); $('#detail-next').onclick = () => stepSel(1);
 $('#focus-open').onclick = () => (current.gLined ? openPlant(groveFocus(current)) : select(focusOf(current)));
@@ -1202,7 +1204,7 @@ $('#enter-yes').onclick = () => {
   $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle .sr').textContent = withSound ? 'Sound on' : 'Sound off';
   $('#entry').classList.add('leaving'); setTimeout(() => { $('#entry').hidden = true; }, 1000);
   $('#topbar').hidden = false; $('#hud').hidden = false;
-  gsap.killTweensOf(camPos); entered = true; current = null; route(false); askBtn ||= mountAsk(askSarah, A('assets/img/witch-face.webp'));
+  gsap.killTweensOf(camPos); entered = true; current = null; route(false);
 };
 
 /* ---------- frame ---------- */
@@ -1239,7 +1241,7 @@ function frame() {
       if (o.model) o.model.rotation.y = t * 0.5 * (k || 0) + o.ph;
     }
   }
-  if (witch) witch.visible = !witchHidden && !(portrait && selected && !paged);
+  if (witch) witch.visible = !witchHidden && current?.id !== 'grove' && !(portrait && selected && !paged);   // Sarah keeps the gate; she does not come into the grove
   camera.position.copy(camPos); camera.lookAt(camLook);
   const amt = selected ? 0.25 : 1;
   parS.lerp(par, 1 - Math.exp(-dt * 2.6));
@@ -1282,7 +1284,7 @@ function frame() {
         if (o.air) { tmp.copy(o.mesh.position); tmp.y -= o.h * 0.52; } else { tmp.copy(g.gPos[o.k]); tmp.y = 0.2; } tmp.project(camera); const x = ((tmp.x + 1) / 2) * innerWidth, y = ((1 - tmp.y) / 2) * innerHeight;
         if (tmp.z < 1 && x > -120 && x < innerWidth + 120) {
           const on = o.k === hoverPlant || o.k === openK || o.k === fk2;
-          a = y > sheetTop - 30 || (portrait && (y < headH + 26 || y > innerHeight - barH - 70)) ? 0 : portrait ? (on ? 1 : THREE.MathUtils.clamp(1.3 - Math.hypot((x - innerWidth / 2) / innerWidth, (y - innerHeight * 0.45) / innerHeight) * 1.7, 0.3, 1)) : x > edge - 40 ? 0 : on ? 1 : THREE.MathUtils.clamp(1.25 - Math.abs(x - (openK ? edge / 2 : innerWidth * 0.56)) / (innerWidth * 0.5), 0.35, 1);
+          a = y > sheetTop - 30 || (portrait && (y < headH + 26 || y > innerHeight - barH - 70)) ? 0 : portrait ? (on ? 1 : THREE.MathUtils.clamp(1.3 - Math.hypot((x - innerWidth / 2) / innerWidth, (y - innerHeight * 0.45) / innerHeight) * 1.7, 0.3, 1)) : x > edge - 40 ? 0 : on ? 1 : THREE.MathUtils.clamp(1.25 - Math.abs(x - (openK ? edge / 2 : innerWidth * 0.5)) / (innerWidth * 0.5), 0.35, 1);
           o.label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, 0)`;
           if (o.tagOn !== on) { o.tagOn = on; o.label.classList.toggle('on', on); } if ((o.k === openK) !== o.tagOpen) { o.tagOpen = o.k === openK; o.label.classList.toggle('open', o.tagOpen); }
         }

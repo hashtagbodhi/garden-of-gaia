@@ -90,7 +90,7 @@ function renderBasket() {
   $('#basket-empty').hidden = basket.length > 0; $('#basket-foot').hidden = !basket.length;
   // the free-shipping vine grows toward a flower as the basket fills
   $('#basket-ship').replaceChildren(el('span', { className: 'vine-t', textContent: !basket.length ? `Free U.S. shipping over ${money(FREE_SHIPPING_AT)}` : left > 0 ? `${money(+left.toFixed(2))} away from free U.S. shipping` : 'Free U.S. shipping is yours' }),
-    el('div', { className: `vine-bar${left <= 0 ? ' done' : ''}` }, el('i', { style: `width:${pct}%` }), el('b', { className: 'vine-bud', style: `left:${pct}%` }), el('em', { className: 'vine-flower', textContent: '✿' })));
+    el('div', { className: `vine-bar${left <= 0 ? ' done' : ''}` }, el('i', { style: `--p:${pct}%` }), el('b', { className: 'vine-bud', style: `left:${pct}%` }), el('em', { className: 'vine-flower', textContent: '✿' })));
   $('#basket-checkout').href = `${STORE}/cart/${basket.map((l) => `${l.id}:${l.qty}`).join(',')}`;
   // a few things that would carry the basket to free shipping
   const inB = new Set(basket.map((l) => variantIndex.get(l.id).p)), price = (p) => now((p.variants.find((x) => x.available) || p.variants[0]).price, p);
