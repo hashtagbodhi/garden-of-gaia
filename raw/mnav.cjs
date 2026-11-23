@@ -1,0 +1,12 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch(); const errs = []; const ctx = await b.newContext({ ...devices['iPhone 13'], viewport: { width: 390, height: 760 } }); const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); }); await p.goto('http://127.0.0.1:4175/classic.html#shop-tea'); await p.waitForTimeout(2500);
+  await p.click('#menu-btn'); await p.waitForTimeout(900); await p.screenshot({ path: 'raw/_mn0.jpg', type: 'jpeg', quality: 80 });
+  await p.evaluate(() => { document.querySelector('#mnav').scrollTop = 1e5; }); await p.waitForTimeout(500); await p.screenshot({ path: 'raw/_mn1.jpg', type: 'jpeg', quality: 80 });
+  const cut = await p.evaluate(() => { const m = document.querySelector('#mnav'), l = m.querySelector('.mn-fine').getBoundingClientRect(); return Math.round(l.bottom - innerHeight); });
+  console.log('bottom reachable:', cut <= 0, '| current marked:', await p.locator('#mnav a[aria-current="page"]').allTextContents());
+  await p.evaluate(() => { document.querySelector('#mnav').scrollTop = 0; }); await p.fill('#mn-q', 'lotus'); await p.keyboard.press('Enter'); await p.waitForTimeout(900);
+  console.log('search ->', p.url().split('#')[1], '| menu closed:', !(await p.evaluate(() => document.body.classList.contains('nav-open'))));
+  await p.click('#menu-btn'); await p.waitForTimeout(500); await p.locator('#mnav a', { hasText: 'Potions' }).click(); await p.waitForTimeout(700); console.log('link ->', p.url().split('#')[1], '| closed:', !(await p.evaluate(() => document.body.classList.contains('nav-open'))));
+  await p.click('#menu-btn'); await p.waitForTimeout(500); await p.click('.mn-ask'); await p.waitForTimeout(700); console.log('ask opens:', await p.isVisible('.cs-card'));
+  console.log('errors', errs); await b.close(); })();

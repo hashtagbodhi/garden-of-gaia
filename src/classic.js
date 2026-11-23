@@ -458,10 +458,37 @@ function route() {
 function askSarah() { openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => photo(p, 0), add: (p, v) => addToBasket(v.id, 1, p.name), open: (p) => { location.hash = `#p--${p.handle}`; } }); }
 const closeMenu = () => { document.body.classList.remove('nav-open'); $('#menu-btn').setAttribute('aria-expanded', 'false'); };
 
+/* ---------- the phone menu: the same shape as the garden's, with search, Sarah, the shelves, gifts and the story ---------- */
+function buildMenu() {
+  const first = (st) => catalog.find((x) => x.station === st && x.gallery.length), count = (st) => catalog.filter((x) => x.station === st).length;
+  const big = (href, label, sub2, img) => el('li', {}, el('a', { href }, img ? el('img', { src: img, alt: '', loading: 'lazy' }) : el('span', { className: 'mn-dot', ariaHidden: 'true', textContent: '✦' }), el('span', { className: 'mn-l', textContent: label }), sub2 ? el('small', { textContent: sub2 }) : null));
+  const small = (list) => el('ul', { className: 'mn-small' }, list.map(([t, h]) => el('li', {}, el('a', { href: h, textContent: t }))));
+  const form = el('form', { className: 'mn-search', role: 'search' }, el('label', { className: 'mn-label', htmlFor: 'mn-q', textContent: 'Search the shop' }), el('input', { id: 'mn-q', type: 'search', placeholder: 'Blue lotus, chai, sage…', autocomplete: 'off', enterKeyHint: 'search' }));
+  form.onsubmit = (e) => { e.preventDefault(); const q = form.querySelector('input').value.trim(); if (q) { location.hash = `#search--${encodeURIComponent(q)}`; form.querySelector('input').blur(); closeMenu(); } };
+  const ask = el('button', { type: 'button', className: 'mn-ask' }, el('img', { src: A('assets/img/witch-face.webp'), alt: '' }), el('span', {}, el('b', { textContent: 'Ask Sarah' }), el('small', { textContent: 'Five questions, and a ritual chosen for you' })), el('i', { ariaHidden: 'true', textContent: '→' }));
+  ask.onclick = () => { closeMenu(); askSarah(); };
+  const garden = el('a', { className: 'mn-garden', href: './' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
+  garden.onclick = () => store.set('gaia-view', 'garden');
+  const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
+  const m = el('aside', { id: 'mnav', className: 'mnav', ariaLabel: 'Menu' }, el('div', { className: 'mn-in' },
+    form, ask,
+    el('p', { className: 'mn-label', textContent: 'Shop' }),
+    el('ul', { className: 'mn-big' }, big('#shop', 'Shop all', `${catalog.length} things`, photo(typeof best[0] === 'string' ? byHandle[best[0]] : best[0], 0)), ...Object.entries(COL).filter(([k]) => first(k) && k !== 'roots').map(([k, c]) => big(`#shop-${k}`, c.short || c.name, `${count(k)}`, photo(first(k), 0))), big('#plants', 'Shop by plant', 'Meet the plants', A('assets/plants/blue-lotus.webp'))),
+    el('div', { className: 'mn-cols' },
+      el('div', {}, el('p', { className: 'mn-label', textContent: 'Gifts' }), small([['Under $25', '#gifts-25'], ['$25 to $40', '#gifts-40'], ['$40 to $75', '#gifts-75'], ['Gift cards', `#p--${CARD}`]])),
+      el('div', {}, el('p', { className: 'mn-label', textContent: 'About' }), small([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews']]))),
+    garden,
+    el('div', { className: 'mn-foot' }, sound, el('a', { href: `mailto:${EMAIL}`, textContent: 'Write to us' }), el('a', { href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Instagram' })),
+    el('p', { className: 'mn-fine', textContent: SALE.line })));
+  m.addEventListener('click', (e) => { if (e.target.closest('a[href^="#"]')) closeMenu(); });
+  document.body.append(m);
+}
+const markMenu = () => { const h = location.hash || '#home'; document.querySelectorAll('#mnav a[href^="#"]').forEach((a) => { if (a.getAttribute('href') === h) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }); };
+
 /* ---------- boot ---------- */
 runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
-$('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); };
+$('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; } };
 $('#to-garden').onclick = () => store.set('gaia-view', 'garden');
 $('#ask-top').onclick = () => { closeMenu(); askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
@@ -515,3 +542,4 @@ function flutter(pan = 0, vol = 1) {
   requestAnimationFrame(step);
 })();
 window.__ready = true;
+buildMenu();   // last, once sound and basket are ready for it to use
