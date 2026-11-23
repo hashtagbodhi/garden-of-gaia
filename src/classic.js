@@ -255,7 +255,7 @@ function hero() {
       el('p', { className: 'kicker', textContent: 'Organic herbal teas, tinctures and ritual tools' }),
       el('h1', { textContent: 'Reconnecting you with your roots' }),
       el('p', { className: 'lede', textContent: 'Small-batch herbal teas, potions and whole flowers, hand harvested from regenerative family farms in Sri Lanka. Loose leaf, farm-direct, nothing you can’t pronounce.' }),
-      el('div', { className: 'row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'btn btn-glow', href: './', textContent: 'Walk the 3D garden' })),
+      el('div', { className: 'row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'btn btn-glow', href: './#gate', textContent: 'Walk the 3D garden' })),
       el('div', { className: 'h-fav' }, el('p', { className: 'kicker', textContent: 'Most loved right now' }), el('div', { className: 'h-cards' }, fav.map((p, i) => el('a', { className: 'h-card', href: `#p--${p.handle}`, style: `--r:${(i - 1) * 5}deg` }, el('img', { src: photo(p), alt: '' }), el('span', { textContent: p.name })))))),
     stamp('FARM DIRECT ✦ SRI LANKA ✦ SMALL BATCH ✦ ', 'flower', 'h-stamp'));
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches && matchMedia('(pointer: fine)').matches) {
@@ -418,7 +418,7 @@ function footer() {
   const top = el('button', { className: 'to-top', type: 'button', textContent: 'Back to top ↑' }); top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
   const plantKeys = ['blue-lotus', 'hibiscus', 'butterfly-pea', 'moringa', 'cinnamon', 'turmeric', 'lavender', 'frankincense', 'mullein', 'calendula'].filter((k) => PLANTS[k]);
   f.replaceChildren(edge(['plant5', 'fx7', 'plant8', 'fx0', 'plant4', 'fx6', 'plant5', 'fx1', 'plant2', 'fx7', 'plant5'], 'foot-edge'),
-    el('div', { className: 'foot-top' }, el('a', { className: 'foot-logo', href: '#home', ariaLabel: 'The Garden of Gaia Apothecary, home' }), el('p', { className: 'foot-line', textContent: 'Steep slow. Stay rooted.' }), el('div', { className: 'foot-acts' }, el('a', { className: 'btn btn-glow', href: './', textContent: 'Walk the 3D garden' }), top)),
+    el('div', { className: 'foot-top' }, el('a', { className: 'foot-logo', href: '#home', ariaLabel: 'The Garden of Gaia Apothecary, home' }), el('p', { className: 'foot-line', textContent: 'Steep slow. Stay rooted.' }), el('div', { className: 'foot-acts' }, el('a', { className: 'btn btn-glow', href: './#gate', textContent: 'Walk the 3D garden' }), top)),
     el('div', { className: 'foot-grid' },
       group('Shop the apothecary', [el('ul', { className: 'f-cols' }, ORDER.map((k) => { const l = catalog.filter((p) => p.station === k); const pic = l.find((p) => p.gallery.length); return el('li', {}, el('a', { href: `#shop-${k}` }, pic ? el('img', { src: photo(pic), alt: '', loading: 'lazy' }) : null, el('span', { className: 'fc-n', textContent: COL[k].name }), el('span', { className: 'fc-c', textContent: `${l.length}` }))); })), links([['Shop all', '#shop'], ['Gifts by budget', '#gifts'], ['Gift cards', `#p--${CARD}`]])], 'f-shop'),
       group('Shop by plant', [el('div', { className: 'f-chips' }, plantKeys.map((k) => el('a', { className: 'f-chip', href: `#plant--${k}` }, icon(PLANTS[k].ic), PLANTS[k].n)), el('a', { className: 'f-chip all', href: '#plants', textContent: 'All plants →' }))], 'f-plants'),
@@ -471,7 +471,7 @@ function buildMenu() {
   form.onsubmit = (e) => { e.preventDefault(); const q = form.querySelector('input').value.trim(); if (q) { location.hash = `#search--${encodeURIComponent(q)}`; form.querySelector('input').blur(); closeMenu(); } };
   const ask = el('button', { type: 'button', className: 'mn-ask' }, el('img', { src: A('assets/img/witch-face.webp'), alt: '' }), el('span', {}, el('b', { textContent: 'Ask Sarah' }), el('small', { textContent: 'Five questions, and a ritual chosen for you' })), el('i', { ariaHidden: 'true', textContent: '→' }));
   ask.onclick = () => { closeMenu(); askSarah(); };
-  const garden = el('a', { className: 'mn-garden', href: './' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
+  const garden = el('a', { className: 'mn-garden', href: './#gate' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
   const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
   const m = el('aside', { id: 'mnav', className: 'mnav', ariaLabel: 'Menu' }, el('div', { className: 'mn-in' },
     form, ask,
@@ -492,7 +492,7 @@ const markMenu = () => { const h = location.hash || '#home'; document.querySelec
 runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; } };
-addEventListener('click', (e) => { if (e.target.closest?.('a[href="./"]')) store.set('gaia-view', 'garden'); }, true);
+addEventListener('click', (e) => { if (e.target.closest?.('a[href^="./#"]')) store.set('gaia-view', 'garden'); }, true);
 $('#ask-top').onclick = () => { closeMenu(); askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
 mountAsk(askSarah, A('assets/img/witch-face.webp'));

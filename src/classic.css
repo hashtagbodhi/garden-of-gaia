@@ -1374,3 +1374,11 @@ body.nav-open .ask-sarah, .sheet:not([hidden]) ~ .ask-sarah { display: none; }
 /* ---- product photographs are shown whole: the frame takes the photo's own height ---- */
 .pp-main { aspect-ratio: auto !important; height: auto; max-height: 82vh; object-fit: contain !important; background: none !important; }
 .card-win img { object-fit: contain !important; }
+
+/* the age check stays inside a narrow screen: the long button may wrap */
+.age { box-sizing: border-box; }
+.age-in { box-sizing: border-box; min-width: 0; max-width: calc(100vw - 32px); }
+.age-in > * { min-width: 0; max-width: 100%; }
+.age .age-row { display: grid; gap: 14px; justify-items: center; max-width: 100%; }
+.age .btn-main { white-space: normal; max-width: 100%; }
+@media (max-width: 560px) { .age-in { padding: 30px 18px; } .age h2 { font-size: 2.1rem; } }
