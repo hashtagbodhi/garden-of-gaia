@@ -1,7 +1,9 @@
 // The classic view: the same shop as the garden, as a conventional scrolling site.
 import '@fontsource-variable/eb-garamond';
 import '@fontsource-variable/eb-garamond/wght-italic.css';
-import '@fontsource-variable/instrument-sans';
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/cinzel';
 import '@fontsource/emilys-candy/latin-400.css';
 import './classic.css';
 import './sheet.css';

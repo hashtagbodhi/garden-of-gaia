@@ -17,9 +17,9 @@
   --hibiscus: #b3165c;
   --rule: rgba(29, 20, 38, .16);
   --dk: #0b1020;
-  --display: 'Emilys Candy', 'EB Garamond Variable', Georgia, serif;
+  --display: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
   --serif: 'EB Garamond Variable', 'EB Garamond', Garamond, Georgia, serif;
-  --sans: 'Instrument Sans Variable', 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --sans: 'Fraunces Variable', 'Fraunces', 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
   --gut: max(16px, env(safe-area-inset-left, 0px));
   --gutR: max(16px, env(safe-area-inset-right, 0px));
   --wrap: 1320px;

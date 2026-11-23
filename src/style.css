@@ -10,7 +10,7 @@
   --glow: #b9f655;           /* leaf green accent, from the brand's own palette */
   --rose: #ff8ccb;
   --serif: 'EB Garamond Variable', 'EB Garamond', Garamond, 'Times New Roman', serif;
-  --sans: 'Instrument Sans Variable', 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --sans: 'Fraunces Variable', 'Fraunces', 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
   /* type scale, perfect fourth from an 18px reading size */
   --t-label: .72rem;
   --t-small: .84rem;
@@ -666,7 +666,7 @@ html, body { touch-action: pan-x pan-y; }
 .plant-uses { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 16px 0 0; }
 .plant-uses .label { width: 100%; margin: 0 0 2px; }
 .plant-uses b { padding: 5px 13px; border-radius: 999px; font-weight: 500; font-size: .8rem; color: var(--glow); box-shadow: inset 0 0 0 1px rgba(185, 246, 85, .5); }
-.plant-goods .pg-use { display: block; font-family: var(--serif, 'EB Garamond Variable', serif); font-style: italic; font-size: .98rem; color: var(--ink-2); }
+.plant-goods .pg-use { display: block; font-family: var(--serif, 'EB Garamond Variable', 'EB Garamond', serif); font-style: italic; font-size: .98rem; color: var(--ink-2); }
 .plant-credit { margin-top: 20px; font-size: .7rem; color: var(--ink-3); }
 @media (max-width: 640px) { .plant-head { grid-template-columns: 112px minmax(0, 1fr); gap: 16px; } .plant-head h2 { font-size: 1.9rem; } .plant-head .lede { grid-column: 1 / -1; } }
 

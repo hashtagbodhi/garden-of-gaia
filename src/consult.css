@@ -2,7 +2,7 @@
 .consult {
   --c-ink: #f6f0e2; --c-ink2: rgba(246, 240, 226, .76); --c-ink3: rgba(246, 240, 226, .52);
   --c-gold: #f0c35a; --c-gold2: #f7dc97; --c-leaf: #b9f655; --c-line: rgba(240, 195, 90, .36); --c-plum: #1b1233; --c-deep: #0b0d1f;
-  --c-serif: 'EB Garamond Variable', Georgia, serif; --c-sans: 'Instrument Sans Variable', system-ui, sans-serif; --c-hand: 'Emilys Candy', var(--c-serif);
+  --c-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --c-sans: 'Fraunces Variable', 'Fraunces', 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --c-hand: 'Emilys Candy', var(--c-serif);
   position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: clamp(14px, 4vh, 44px) clamp(12px, 4vw, 56px);
   background: rgba(3, 5, 14, .7); backdrop-filter: blur(9px) saturate(.8); -webkit-backdrop-filter: blur(9px) saturate(.8);
   color: var(--c-ink); font-family: var(--c-sans); opacity: 0; transition: opacity .28s ease;
@@ -127,8 +127,8 @@ html.consult-on, html.consult-on body { overflow: hidden; }
 .ask-sarah .as-face::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid rgba(240, 195, 90, .7); animation: ask-ring 3.2s ease-out infinite; }
 .ask-sarah .as-face::before { content: '✦'; position: absolute; z-index: 1; right: -4px; top: -4px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: .6rem; background: #b9f655; color: #0b1020; }
 .ask-sarah .as-t { display: grid; line-height: 1.1; }
-.ask-sarah .as-t b { font-family: 'Emilys Candy', 'EB Garamond Variable', serif; font-weight: 400; font-size: 1.22rem; color: #f7dc97; }
-.ask-sarah .as-t small { font-family: 'EB Garamond Variable', Georgia, serif; font-style: italic; font-size: .92rem; color: rgba(246, 240, 226, .74); }
+.ask-sarah .as-t b { font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif; font-weight: 400; font-size: 1.22rem; color: #f7dc97; }
+.ask-sarah .as-t small { font-family: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; font-style: italic; font-size: .92rem; color: rgba(246, 240, 226, .74); }
 @keyframes ask-ring { 0% { transform: scale(.94); opacity: .9; } 70%, 100% { transform: scale(1.32); opacity: 0; } }
 @keyframes ask-in { from { opacity: 0; transform: translateY(24px) scale(.9); } }
 html.consult-on .ask-sarah { display: none; }
@@ -278,3 +278,13 @@ html.consult-on .ask-sarah { display: none; }
   /* wide screens have Ask Sarah in the header, so the floating portrait does not need to sit over the page */
   .ask-sarah { display: none; }
 }
+
+/* ---- Ask Sarah: lettering, not signage ---- */
+.consult { --c-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --c-hand: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', Georgia, serif; }
+.cs-go, .cs-begin { font-family: var(--c-hand) !important; font-size: 1.18rem !important; font-weight: 400 !important; letter-spacing: .01em !important; text-transform: none !important; }
+.cs-begin { font-size: 1.3rem !important; }
+.cs-add, .cs-see { font-family: var(--c-serif) !important; font-style: italic; font-size: 1.02rem !important; font-weight: 500; letter-spacing: 0 !important; text-transform: none !important; min-height: 38px; }
+.cs-again { font-family: var(--c-serif); font-style: italic; }
+.cs-s, .cs-price, .cs-know, .cs-fine, .cs-for span { font-family: var(--c-sans); }
+.cs-for span { font-family: 'Cinzel Variable', 'Cinzel', serif; font-weight: 600; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; }
+.cs-close span { font-family: var(--c-serif); font-style: italic; font-size: 1rem; letter-spacing: 0; }

@@ -1,0 +1,11 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); localStorage.setItem('gaia-view', JSON.stringify('garden')); });
+  await p.goto('http://127.0.0.1:4175/#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 });
+  if (await p.isVisible('#enter-yes')) await p.click('#enter-yes'); await p.waitForTimeout(3500);
+  await p.evaluate(() => { location.hash = '#grove'; }); await p.waitForTimeout(16000); await p.screenshot({ path: 'raw/_wk0.jpg', type: 'jpeg', quality: 82 });
+  await p.mouse.move(800, 450); await p.mouse.wheel(0, 900); await p.waitForTimeout(2500); await p.screenshot({ path: 'raw/_wk1.jpg', type: 'jpeg', quality: 82 });
+  await p.mouse.move(900, 420); await p.mouse.down(); for (let i = 1; i <= 14; i++) await p.mouse.move(900 - i * 40, 420); await p.mouse.up(); await p.waitForTimeout(2500); await p.screenshot({ path: 'raw/_wk2.jpg', type: 'jpeg', quality: 82 });
+  await p.mouse.wheel(0, -4000); await p.waitForTimeout(2500); await p.mouse.click(760, 430); await p.waitForTimeout(1800); console.log('click opens plant page:', await p.isVisible('#info'), await p.textContent('#info-title').catch(() => ''));
+  console.log('errors', errs); await b.close(); })();

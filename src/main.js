@@ -1,6 +1,8 @@
 import '@fontsource-variable/eb-garamond';
 import '@fontsource-variable/eb-garamond/wght-italic.css';
-import '@fontsource-variable/instrument-sans';
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/cinzel';
 import '@fontsource/emilys-candy/latin-400.css';
 import './style.css';
 import './sheet.css';
@@ -46,6 +48,7 @@ import { openConsult, usesOf, mountAsk } from './consult.js';
 import plantPhotos from './plants.json';
 import plantModels from './models.json';
 import { PLANT_USES } from './plantdata.js';
+import plantArt from './plantart.json';
 import { runTicker } from './ticker.js';
 
 const $ = (s) => document.querySelector(s);
@@ -143,12 +146,12 @@ const STAND = {
 const GPLANTS = ingredientData.plants, GCOUNT = {};
 for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
 const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
-const GBED = GKEYS.filter((k) => plantPhotos[k] || plantModels[k]);
-const groveOrbs = [], GDIST = 9.4;
+const GBED = GKEYS.filter((k) => plantArt[k] || plantPhotos[k] || plantModels[k]).sort((a, b) => (plantArt[b] ? 1 : 0) - (plantArt[a] ? 1 : 0));
+const groveOrbs = [];
 const s0 = (o, g) => tmp.copy(o.base).setY(0.06).addScaledVector(g.r, 0.62).addScaledVector(g.f, 0.5);   // a scanned plant sits on the soil beside its stake
 const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
 function groveLayout(s) {
-  const n = GBED.length; s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait; s.gFree = portrait; s.gPos = {}; s.gXZ = {};
+  const n = GBED.length; s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait; s.gFree = true; s.gPos = {}; s.gXZ = {};
   if (portrait) {
     // phones: round photographs hanging in the night air; swipe in any direction to move among them
     const cols = 9, rows = Math.ceil(n / cols), sx = 2.3, sy = 2.25, half = ((cols - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = 3;
@@ -158,33 +161,31 @@ function groveLayout(s) {
       const y = 1.9 + (rows - 1 - row) * sy + (((h >> 3) % 7) - 3) * 0.09, z = -(((h >> 6) % 9) / 8) * 2.2;
       s.gXZ[k] = [x, y, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(y);
     });
-    s.gY0 = 1.9; s.gY1 = 1.9 + (rows - 1) * sy;
+    s.gY0 = 1.9; s.gY1 = 1.9 + (rows - 1) * sy; s.gDist = 9.4;
     if (s.gx == null || Math.abs(s.gx) > half) { s.gx = s.gtx = -half + 2.3; s.gy = s.gty = s.gY1 - sy * 0.6; }
     groveView(s);
   } else {
-    // wide screens: a planted bed seen whole. Each plant is a photograph on a stake in the soil, the rows rising towards the back
-    const cols = 9, rows = Math.ceil(n / cols), sx = 2.55, sz = 3.3, half = ((cols - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = (rows - 1) * sz;
+    // wide screens: a walk along the bed. Four to six plants stand in view at a time, large; drag or scroll to walk on
+    const sx = 3.5, half = ((n - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = 3; s.gDist = 11.5;
     GBED.forEach((k, i) => {
-      const row = Math.floor(i / cols), m = Math.min(cols, n - row * cols), col = i % cols, h = khash(k);
-      const x = (col - (m - 1) / 2) * sx + (row % 2 ? sx * 0.5 : 0) + ((h % 7) - 3) * 0.05, z = -row * sz + (((h >> 6) % 7) - 3) * 0.07;
-      s.gXZ[k] = [x, row, 0.3 + row * 0.62 + ((h >> 3) % 4) * 0.05]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(0);
+      const h = khash(k), x = (i - (n - 1) / 2) * sx + ((h % 7) - 3) * 0.06, z = (i % 2 ? -1.9 : 0) + (((h >> 6) % 7) - 3) * 0.1;
+      s.gXZ[k] = [x, 2.7, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(0);
     });
-    const fit = (half + 2.4) / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
-    s.camPos = s.D.clone().addScaledVector(s.f, fit * 0.8).setY(5.0);
-    s.camLook = s.D.clone().addScaledVector(s.f, -s.gDepth * 0.4).setY(2.0);
-    s.witchPos = s.D.clone().addScaledVector(s.r, -(half + 3.4)).addScaledVector(s.f, 1.6);
+    s.gY0 = s.gY1 = 2.7;
+    if (s.gx == null || Math.abs(s.gx) > half) { s.gx = s.gtx = -half + 5.2; s.gy = s.gty = 2.7; }
+    groveView(s);
   }
   s.propPos = s.D.clone().addScaledVector(s.f, -(s.gDepth + 7));
   if (built) placeGrove(s);
 }
 function groveView(s) {
   const base = s.D.clone().addScaledVector(s.r, s.gx);
-  s.camPos = base.clone().addScaledVector(s.f, GDIST).setY(s.gy + 0.35);
-  s.camLook = base.clone().setY(s.gy + 0.15);
-  s.witchPos = s.D.clone().addScaledVector(s.r, -(s.gHalf + 1.2)).addScaledVector(s.f, 1.2);
+  s.camPos = base.clone().addScaledVector(s.f, s.gDist).setY(s.gy + (portrait ? 0.35 : 0.9));
+  s.camLook = base.clone().setY(s.gy + (portrait ? 0.15 : -0.5));
+  s.witchPos = s.D.clone().addScaledVector(s.r, -(s.gHalf + 1.6)).addScaledVector(s.f, 1.2);
 }
 const groveFocus = (s) => { if (s.gSel) return s.gSel; let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, y] = s.gXZ[k], d = (x - s.gtx) ** 2 + (y - s.gty) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
-const groveClamp = (s) => { s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + 1.2, s.gHalf - 1.2); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0 - 0.4, s.gY1 + 0.4); };
+const groveClamp = (s) => { const m = portrait ? 1.2 : 5.2; s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + m, s.gHalf - m); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0 - (portrait ? 0.4 : 0), s.gY1 + (portrait ? 0.4 : 0)); };
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -380,7 +381,7 @@ function plateTexture(k) {
     x.textAlign = 'center'; x.fillStyle = '#f6efdc';
     let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 40 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
     x.fillText(pl.n, W / 2, ty + 50);
-    x.font = '600 20px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
+    x.font = '600 20px "Fraunces Variable", "Fraunces", Georgia, serif'; x.fillStyle = '#b9f655';
     x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, W / 2, ty + 88);
     t.needsUpdate = true;
   };
@@ -406,7 +407,7 @@ function bubbleTexture(k) {
     x.textAlign = 'center'; x.fillStyle = '#f6efdc'; x.shadowColor = 'rgba(0,0,0,.95)'; x.shadowBlur = 10;
     let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 16 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
     x.fillText(pl.n, cx, 422);
-    x.font = '600 19px "Instrument Sans Variable", "Instrument Sans", Arial, sans-serif'; x.fillStyle = '#b9f655';
+    x.font = '600 19px "Fraunces Variable", "Fraunces", Georgia, serif'; x.fillStyle = '#b9f655';
     x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, cx, 456); x.shadowBlur = 0;
     t.needsUpdate = true;
   };
@@ -414,18 +415,40 @@ function bubbleTexture(k) {
   if (photo) { const img = new Image(); img.decoding = 'async'; img.onload = () => { t.userData.img = img; draw(img); }; img.src = A(`assets/plants/${k}.webp`); }
   return { t, ratio: H / W };
 }
+// a small plaque at the foot of a painted plant
+function plaqueTexture(k) {
+  const pl = GPLANTS[k], W = 512, H = 150, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const draw = () => {
+    x.clearRect(0, 0, W, H); x.textAlign = 'center'; x.shadowColor = 'rgba(0,0,0,.95)'; x.shadowBlur = 12;
+    let fs = 60; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 20 && fs > 26) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
+    x.fillStyle = '#f6efdc'; x.fillText(pl.n, W / 2, 68);
+    x.font = '600 24px "Cinzel Variable", "Cinzel", Georgia, serif'; x.fillStyle = '#b9f655'; x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'PRODUCT' : 'PRODUCTS'}`, W / 2, 116); x.shadowBlur = 0;
+    t.needsUpdate = true;
+  };
+  draw(); document.fonts.ready.then(draw);
+  return t;
+}
 function buildGrove(s) {
-  const stakeMat = new THREE.MeshBasicMaterial({ color: 0x2b1f15, fog: true }), md = sprites['stand-mound'], air = portrait;
+  const stakeMat = new THREE.MeshBasicMaterial({ color: 0x2b1f15, fog: true }), md = sprites['stand-mound'], air = portrait, loader = new THREE.TextureLoader();
   for (const k of GBED) {
-    const { t, ratio } = air ? bubbleTexture(k) : plateTexture(k), w = air ? 1.62 + Math.min(GCOUNT[k], 9) * 0.035 : plantPhotos[k] ? 1.5 : 1.3;
-    const mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial(air ? { map: t, transparent: true, depthWrite: false, fog: true, color: 0xe8e6e0 } : { map: t, alphaTest: 0.5, fog: true, color: 0xe6e2da }));
+    const art = !air && plantArt[k], h0 = khash(k); let mesh, w, h, label = null;
+    if (art) {
+      // the plant itself, painted for this garden, standing in the bed
+      const t = loader.load(A(`assets/plantart/${k}.webp`)); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      h = 3.9 + (h0 % 5) * 0.12; w = h * art.w / art.h;
+      mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: t, alphaTest: 0.35, fog: true, color: 0xf2f2f2 }));
+      label = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: plaqueTexture(k), transparent: true, depthWrite: false, fog: true })); label.scale.set(2.2, 2.2 * 150 / 512, 1); label.userData.plant = k; label.renderOrder = 3;
+    } else {
+      const b = bubbleTexture(k); w = (air ? 1.62 : 2.3) + Math.min(GCOUNT[k], 9) * 0.035; h = w * b.ratio;
+      mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: b.t, transparent: true, depthWrite: false, fog: true, color: 0xe8e6e0 }));
+    }
     mesh.userData.plant = k; mesh.renderOrder = 2;
     const stake = new THREE.Mesh(unit, stakeMat);
     const mound = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex['stand-mound'], alphaTest: 0.5, fog: true, color: 0xb8c0b4 })); mound.scale.set(1.1, 1.1 * md.h / md.w, 1);
-    stake.visible = mound.visible = !air;
-    scene.add(stake, mound, mesh); upright.push(mesh, stake, mound);
-    const h = khash(k);
-    groveOrbs.push({ k, mesh, stake, mound, air, w, h: w * ratio, ph: (h % 628) / 100, sp: 0.16 + ((h >> 4) % 10) * 0.012, hover: 0, model: null });
+    stake.visible = mound.visible = !air && !art;
+    scene.add(stake, mound, mesh); upright.push(mesh, stake, mound); if (label) { scene.add(label); upright.push(label); }
+    groveOrbs.push({ k, mesh, stake, mound, label, air, art: !!art, w, h, ph: (h0 % 628) / 100, sp: 0.16 + ((h0 >> 4) % 10) * 0.012, hover: 0, model: null });
   }
   placeGrove(s);
 }
@@ -446,7 +469,7 @@ async function loadGroveModels(s) {
       dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004e4942, true); glb.set(raw, 28 + jl);
       loader.parse(glb.buffer, base, (g) => {
       const root = g.scene, box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
-      const sc = (o.air ? (plantPhotos[o.k] ? 0.3 : 0.52) * o.w : 0.85) / Math.max(size.x, size.y, size.z);
+      const sc = ((plantPhotos[o.k] ? 0.3 : 0.52) * o.w) / Math.max(size.x, size.y, size.z);
       root.traverse((m) => { if (m.isMesh) { const map = m.material.map; if (map) map.colorSpace = THREE.SRGBColorSpace; m.material = new THREE.MeshBasicMaterial({ map, alphaTest: 0.4, side: THREE.DoubleSide, fog: true, color: 0xdcdcdc }); } });
       root.position.set(-c.x * sc, -box.min.y * sc, -c.z * sc); root.scale.setScalar(sc);
       const grp = new THREE.Group(); grp.add(root); scene.add(grp); o.model = grp;
@@ -460,9 +483,10 @@ function placeGrove(s) {
   for (const o of groveOrbs) {
     const p = s.gPos[o.k]; if (!p) continue;
     if (o.air) { o.base = p.clone(); o.mesh.position.copy(p); continue; }
-    const lift = plantPhotos[o.k] ? s.gXZ[o.k][2] : 1.5 + s.gXZ[o.k][1] * 0.62;   // a bare name tag stands above its 3D plant
-    o.base = p.clone().setY(lift + o.h / 2); o.mesh.position.copy(o.base);
-    o.stake.scale.set(0.06, lift + 0.1, 1); o.stake.position.copy(p).setY((lift + 0.1) / 2).addScaledVector(s.f, -0.04);
+    if (o.art) { o.base = p.clone().setY(o.h / 2 - 0.12); o.mesh.position.copy(o.base); o.label.position.copy(p).setY(0.42).addScaledVector(s.f, 1.0); continue; }
+    const lift = 1.25 + (khash(o.k) % 4) * 0.12;   // no painting yet: its photograph in a round frame, on a stake
+    o.base = p.clone().setY(lift + o.h * 0.62); o.mesh.position.copy(o.base);
+    o.stake.scale.set(0.07, o.base.y - o.h * 0.12, 1); o.stake.position.copy(p).setY((o.base.y - o.h * 0.12) / 2).addScaledVector(s.f, -0.04);
     o.mound.position.copy(p).setY(0.16).addScaledVector(s.f, 0.06);
   }
   if (s.mesh) s.mesh.position.copy(s.propPos || s.p).setY(s.propH / 2 - 0.15);
@@ -1128,8 +1152,8 @@ canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clie
 canvas.addEventListener('pointermove', (e) => {
   if (down && entered && current?.gFree && $('#info').hidden && travel.t >= 0.999) {
     // a finger among the circles: the cloud follows it, any way you move
-    const perPx = (2 * GDIST * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight, s = current, dx = e.clientX - down.last, dy = e.clientY - (down.lastY ?? down.y);
-    s.gtx -= dx * perPx * 1.1; s.gty += dy * perPx * 1.1; s.gSel = null; groveClamp(s);
+    const perPx = (2 * current.gDist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight, s = current, dx = e.clientX - down.last, dy = e.clientY - (down.lastY ?? down.y);
+    s.gtx -= dx * perPx * 1.1; if (portrait) s.gty += dy * perPx * 1.1; s.gSel = null; groveClamp(s); canvas.style.cursor = 'grabbing';
     down.vx = dx; down.vy = dy; down.last = e.clientX; down.lastY = e.clientY; syncFocus(); return;
   }
   if (down && entered && current?.lined && current.items.length && !selected) {
@@ -1153,7 +1177,7 @@ function resolveHover(now) {
 canvas.addEventListener('pointerup', (e) => {
   if (!down || !entered) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), downWas = down; down = null;
   if (current?.lined && current.items.length && !selected) { current.panTarget = focusOf(current).index * STEP; syncFocus(); }
-  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * GDIST * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight; current.gtx -= (downWas.vx || 0) * perPx * 7; current.gty += (downWas.vy || 0) * perPx * 7; groveClamp(current); syncFocus(); }
+  if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * current.gDist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight; current.gtx -= (downWas.vx || 0) * perPx * 7; if (portrait) current.gty += (downWas.vy || 0) * perPx * 7; groveClamp(current); canvas.style.cursor = ''; syncFocus(); }
   if (moved > 8) return;
   const hit = pick(e);
   if (!hit) { if (selected) closeOverlays(); return; }
@@ -1256,9 +1280,9 @@ function frame() {
         const sc = (1 + o.hover * 0.14) * (1 + Math.sin(a * 2.1) * 0.015 * k); o.mesh.scale.set(o.w * sc, o.h * sc, 1);
         if (o.model) { const inside = !plantPhotos[o.k]; o.model.position.copy(o.mesh.position).addScaledVector(g.r, inside ? 0 : o.w * 0.4).addScaledVector(g.f, 0.35); o.model.position.y += (inside ? o.h * 0.12 : -o.h * 0.14) - (o.mh || 0.4) / 2; }
       } else {
-        // rooted in the soil: the marker only lifts a little when you reach for it
-        o.mesh.position.y = o.base.y + o.hover * 0.1; const sc = 1 + o.hover * 0.1; o.mesh.scale.set(o.w * sc, o.h * sc, 1);
-        if (o.model) o.model.position.copy(o.base).setY(0.08).addScaledVector(g.r, plantPhotos[o.k] ? 0.7 : 0).addScaledVector(g.f, 0.55);
+        // rooted in the soil: a plant leans in a little when you reach for it
+        const sc = 1 + o.hover * 0.06; o.mesh.scale.set(o.w * sc, o.h * sc, 1); o.mesh.position.y = o.base.y + (o.art ? o.h * (sc - 1) / 2 : o.hover * 0.1);
+        if (o.model) { const inside = !plantPhotos[o.k] && !o.art; o.model.visible = inside; if (inside) { o.model.position.copy(o.mesh.position).addScaledVector(g.f, 0.35); o.model.position.y += o.h * 0.12 - (o.mh || 0.4) / 2; } }
       }
       if (o.model) o.model.rotation.y = t * 0.5 * (k || 0) + o.ph;
     }
@@ -1352,3 +1376,7 @@ new ResizeObserver(() => document.documentElement.style.setProperty('--bar-h', `
 // the header tells the page how tall it is, so nothing that opens beneath it (a way back, a title) can hide under the logo
 const headH = () => { const m = document.querySelector('.top .mark'); if (m && m.offsetParent) document.documentElement.style.setProperty('--head-h', `${Math.ceil(m.getBoundingClientRect().bottom + 12)}px`); };
 new ResizeObserver(headH).observe($('#topbar')); addEventListener('resize', headH); document.fonts?.ready.then(headH); new MutationObserver(headH).observe($('#topbar'), { attributes: true, attributeFilter: ['hidden'] }); headH();
+
+// in the grove the wheel (or a sideways swipe on a trackpad) walks along the bed
+canvas.addEventListener('wheel', (e) => { const s = current; if (!entered || s?.id !== 'grove' || !s.gFree || portrait || !$('#info').hidden || travel.t < 0.999) return; e.preventDefault(); s.gtx += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.012; s.gSel = null; groveClamp(s); }, { passive: false });
+addEventListener('keydown', (e) => { const s = current; if (!entered || s?.id !== 'grove' || !s.gFree || portrait || !$('#info').hidden || !$('#menu').hidden || e.target.closest?.('input, textarea')) return; if (e.key === 'ArrowRight') { s.gtx += 3.5; groveClamp(s); } if (e.key === 'ArrowLeft') { s.gtx -= 3.5; groveClamp(s); } });

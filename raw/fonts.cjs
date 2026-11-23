@@ -1,0 +1,13 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.on('pageerror', (e) => errs.push(String(e))); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  const shot = (n) => p.screenshot({ path: `raw/_f-${n}.jpg`, type: 'jpeg', quality: 80 });
+  await p.goto('http://127.0.0.1:4175/classic.html#shop-tea'); await p.waitForTimeout(2500); await p.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; scrollTo(0, document.querySelector('.grid').getBoundingClientRect().top + scrollY - 220); }); await p.waitForTimeout(1500); await shot('shop');
+  await p.evaluate(() => { location.hash = '#p--blue-water-lily-tincture'; }); await p.waitForTimeout(1500); await p.evaluate(() => scrollTo(0, 60)); await p.waitForTimeout(800); await shot('prod');
+  await p.locator('.pp .btn-main, .pp button.btn').first().click(); await p.waitForTimeout(400); await p.click('#basket-open'); await p.waitForTimeout(800); await shot('basket'); await p.click('#basket-close');
+  await p.click('#ask-top'); await p.waitForTimeout(600); await p.click('.cs-body .cs-go'); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Deeper sleep' }).click(); await p.waitForTimeout(300); await shot('ask1');
+  await p.evaluate(() => document.querySelector('.cs-body .cs-go').click()); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Surprise me' }).click(); await p.evaluate(() => document.querySelector('.cs-body .cs-go').click()); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Whenever' }).click(); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('.cs-body .cs-go').click()); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'No limit' }).click(); await p.waitForTimeout(1500); await p.evaluate(() => { document.querySelector('.cs-in').scrollTop = 330; }); await p.waitForTimeout(500); await shot('ask6'); await p.keyboard.press('Escape');
+  await p.evaluate(() => localStorage.setItem('gaia-view', JSON.stringify('garden'))); await p.goto('http://127.0.0.1:4175/#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 });
+  if (await p.isVisible('#enter-yes')) await p.click('#enter-yes'); await p.waitForTimeout(3500); await p.evaluate(() => { location.hash = '#tea--sweet-dreamz-sleep-support-loose-leaf-tea-blend'; }); await p.waitForTimeout(9000); await shot('gdetail');
+  console.log('errors', errs); await b.close(); })();
