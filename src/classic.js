@@ -445,6 +445,8 @@ function route() {
   else if (INFO.some((i) => i.id === a) || a === 'reviews') page = infoPage(a);
   else page = home();
   $('#main').replaceChildren(...page.filter(Boolean));
+  // phones: one hand of cards on the home page is enough; every other hand is left out
+  document.querySelectorAll('#main .collage').forEach((c, i) => c.classList.toggle('m-off', i > 0 || !['', '#home'].includes(location.hash)));
   document.querySelectorAll('#main .sec, #main .page-head, #main .story-band').forEach((sec, k) => sec.prepend(el('div', { className: 'sec-flies', ariaHidden: 'true' }, Array.from({ length: 12 }, (_, i) => { const f = el('i'); f.style.cssText = `left:${(i * 41 + k * 17) % 100}%;top:${(i * 59 + k * 23) % 96}%;animation-delay:-${((i * 1.7 + k) % 8).toFixed(1)}s;animation-duration:${6 + ((i + k) % 5)}s`; return f; }))));
   const ph = $('#main .page-head');
   if (a === 'shop' || a === 'search') dress(ph, b ? catalog.filter((p) => `${p.name} ${p.sub}`.toLowerCase().includes((b || '').toLowerCase())) : best, b ? 'Found' : 'Apothecary');
