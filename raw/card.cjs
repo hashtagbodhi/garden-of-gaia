@@ -1,0 +1,6 @@
+const { chromium, devices } = require('playwright');
+(async () => { const b = await chromium.launch(); const ctx = await b.newContext({ ...devices['iPhone 13'] }); const p = await ctx.newPage();
+  await p.addInitScript(() => { localStorage.setItem('gaia-21', 'true'); }); await p.goto('http://127.0.0.1:4175/classic.html#shop-altar'); await p.waitForTimeout(2500);
+  console.log(await p.evaluate(() => [...document.querySelectorAll('.card')].slice(0, 4).map((c) => { const r = (e) => { const x = e.getBoundingClientRect(); return [Math.round(x.left), Math.round(x.right), Math.round(x.width)]; }; const cs = getComputedStyle(c); return JSON.stringify({ card: r(c), art: r(c.querySelector('.card-art')), win: r(c.querySelector('.card-win')), tilt: cs.transform, artW: c.querySelector('.card-art').offsetWidth, cardW: c.offsetWidth, winOff: [c.querySelector('.card-win').offsetLeft, c.querySelector('.card-win').offsetWidth], artCS: getComputedStyle(c.querySelector('.card-art')).margin + ' / ' + getComputedStyle(c.querySelector('.card-art')).width }); }).join('\n')));
+  await p.evaluate(() => document.querySelector('.card').scrollIntoView({ block: 'start' })); await p.evaluate(() => scrollBy(0, -160)); await p.waitForTimeout(1200);
+  await p.screenshot({ path: 'raw/_card.jpg', type: 'jpeg', quality: 82 }); await b.close(); })();
