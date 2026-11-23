@@ -89,7 +89,7 @@ function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); renderer.setSize(w, h, false); composer.setSize(w, h);
   portrait = w / h < 0.8;
-  camera.aspect = w / h; camera.fov = portrait ? 64 : 50; camera.updateProjectionMatrix();
+  camera.aspect = w / h; camera.fov = portrait ? 64 : 50; camera.updateProjectionMatrix(); fitBackdrop();
   STATIONS.forEach(layout);
   if (built && current) { if (openK) closeOverlays(); flyTo(selected ? closeUp(selected) : current, true); syncFocus(); restShift(); }
 }
@@ -102,12 +102,40 @@ const bitmaps = typeof createImageBitmap === 'function';
 const loader = bitmaps ? new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none' }) : new THREE.TextureLoader();
 const asTex = (img) => { const t = bitmaps ? new THREE.Texture(img) : img; if (bitmaps) { t.flipY = false; t.needsUpdate = true; } t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
 const tex = {};
-let loaded = 0; const toLoad = Object.keys(sprites).length + 2;
+let loaded = 0; const toLoad = Object.keys(sprites).length + 3;
 const tick = () => { loaded++; const b = $('#enter-yes'); if (b.disabled) b.textContent = `Gathering the garden… ${Math.min(99, Math.round((loaded / toLoad) * 100))}%`; };
 const loadTex = (name, url = A(`${IMG}/${name}.webp`)) => new Promise((res) => {
   loader.load(url, (img) => { const t = asTex(img); tex[name] = t; tick(); res(t); }, undefined, () => { tick(); res(null); });
 });
 
+// ---- the herb grove's scene: one painting of a moonlit glade behind the bed of plants, in place of the built scenery ----
+let backdrop = null; const GROVE = 1;   // layer 1: what is seen in the grove (the painting and the plants)
+function buildBackdrop() {
+  const t = tex['grove-bg']; if (!t) return;
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter;
+  backdrop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: t, depthTest: false, depthWrite: false, fog: false, color: 0x000000 }));
+  backdrop.renderOrder = -999; backdrop.frustumCulled = false; backdrop.layers.set(GROVE); backdrop.visible = false;
+  scene.add(camera); camera.add(backdrop); fitBackdrop();
+}
+function fitBackdrop() {
+  if (!backdrop) return;
+  const d = 60, vh = 2 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), vw = vh * camera.aspect, img = 16 / 9;
+  // the painting always covers the view, with room to slide sideways as you walk and to sit a little high or low
+  const h = Math.max(vh * 1.34, (vw * 1.22) / img), w = h * img;
+  backdrop.scale.set(w, h, 1); backdrop.userData = { d, slack: (w - vw) / 2, vh, h };
+}
+function placeBackdrop(g) {
+  if (!backdrop?.visible) return; const u = backdrop.userData;
+  const along = THREE.MathUtils.clamp(g.gx / Math.max(1, g.gHalf), -1, 1);   // where along the bed you are, -1 to 1
+  backdrop.position.set(-along * u.slack * 0.9, u.h * (portrait ? 0.02 : 0.065), -u.d);
+}
+function groveScene(on) {
+  camera.layers.mask = on ? 1 << GROVE : 0xffffffff;
+  if (!backdrop) return;
+  const c = backdrop.material.color; gsap.killTweensOf(c);
+  if (on) { backdrop.visible = true; gsap.to(c, { r: 1, g: 1, b: 1, duration: reduce ? 0 : 1.1, ease: 'sine.out' }); }
+  else { c.setRGB(0, 0, 0); backdrop.visible = false; }
+}
 let seed = 20261122;
 const rnd = () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 const rr = (a, b) => a + rnd() * (b - a);
@@ -399,7 +427,7 @@ function buildGrove(s) {
       const b = bubbleTexture(k); w = (air ? 1.62 : 2.3) + Math.min(GCOUNT[k], 9) * 0.035; h = w * b.ratio;
       mesh = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: b.t, transparent: true, depthWrite: false, fog: true, color: 0xe8e6e0 }));
     }
-    mesh.userData.plant = k; mesh.renderOrder = 2;
+    mesh.userData.plant = k; mesh.renderOrder = 2; mesh.layers.enable(GROVE);
     const stake = new THREE.Mesh(unit, stakeMat);
     const mound = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ map: tex['stand-mound'], alphaTest: 0.5, fog: true, color: 0xb8c0b4 })); mound.scale.set(1.1, 1.1 * md.h / md.w, 1);
     stake.visible = mound.visible = !air && !art;
@@ -1041,7 +1069,7 @@ function go(id, instant) {
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
   const home = s.id === 'gate', place = $('#place');
-  place.toggleAttribute('data-home', home); document.body.classList.toggle('home', home); place.hidden = s.id === 'grove'; $('#grove-cap').hidden = s.id !== 'grove'; document.body.classList.toggle('in-grove', s.id === 'grove');   // the places bar appears once you are inside the garden
+  place.toggleAttribute('data-home', home); document.body.classList.toggle('home', home); place.hidden = s.id === 'grove'; $('#grove-cap').hidden = s.id !== 'grove'; document.body.classList.toggle('in-grove', s.id === 'grove'); groveScene(s.id === 'grove');   // the places bar appears once you are inside the garden
   $('#place-label').hidden = home && narrow.matches;
   $('#place-label').replaceChildren(...(home ? ['Organic herbal teas, ', el('br'), 'tinctures and ritual tools'] : [s.label]));
   $('#place-title').textContent = home ? 'Reconnecting you with your roots' : s.name;
@@ -1086,7 +1114,7 @@ function opaqueAt(mesh, uv) {
 }
 function pick(e) {
   pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-  ray.setFromCamera(pointer, camera);
+  ray.setFromCamera(pointer, camera); ray.layers.mask = camera.layers.mask;
   for (const h of ray.intersectObjects([...goods, ...groveOrbs.map((o) => o.mesh), ...props], false)) {
     const u = h.object.userData;
     if (u.plant) return { plant: u.plant };
@@ -1225,6 +1253,7 @@ function frame() {
     const s = current, e = Math.min(1, dt * 7); s.gx += (s.gtx - s.gx) * e; s.gy += (s.gty - s.gy) * e; groveView(s);
     if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); }
   }
+  if (current?.id === 'grove') placeBackdrop(current);
   if (groveOrbs.length) {
     const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null, g = byId.grove;
     for (const o of groveOrbs) {
@@ -1329,8 +1358,8 @@ function frame() {
 
 /* ---------- boot ---------- */
 resize();
-Promise.all(Object.keys(sprites).concat(['sky', 'ground']).map((n) => loadTex(n))).then(() => {
-  buildWorld();
+Promise.all(Object.keys(sprites).concat(['sky', 'ground', 'grove-bg']).map((n) => loadTex(n))).then(() => {
+  buildWorld(); buildBackdrop();
   renderBasket();
   moveWitch(byId.gate, true);
   camPos.set(0, 7, 64); camLook.copy(byId.gate.camLook);
