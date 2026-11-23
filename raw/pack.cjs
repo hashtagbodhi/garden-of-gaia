@@ -2,7 +2,7 @@
 // the classic site as a second full page, and every built script, stylesheet and asset beside them.
 const fs = require('fs');
 const out = 'artifact'; fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out);
-const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Cinzel:wght@400..900&display=swap">';
+const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Emilys+Candy&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Cinzel:wght@400..900&display=swap">';
 const files = [];
 const copy = (rel) => { fs.mkdirSync(require('path').dirname(`${out}/${rel}`), { recursive: true }); fs.copyFileSync(`dist/${rel}`, `${out}/${rel}`); files.push(rel); };
 

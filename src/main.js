@@ -3,11 +3,9 @@ import '@fontsource-variable/eb-garamond/wght-italic.css';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/fraunces/full-italic.css';
 import '@fontsource-variable/cinzel';
-import '@fontsource/dm-serif-display/400.css';
-import '@fontsource/dm-serif-display/400-italic.css';
+import '@fontsource/emilys-candy/latin-400.css';
 import './style.css';
 import './sheet.css';
-import './riviera.css';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -406,7 +404,7 @@ function bubbleTexture(k) {
     x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.lineWidth = 2.5; x.strokeStyle = 'rgba(235,245,255,.6)'; x.stroke();
     x.beginPath(); x.arc(cx, cy, R - 7, Math.PI * 1.08, Math.PI * 1.42); x.lineWidth = 3; x.lineCap = 'round'; x.strokeStyle = 'rgba(255,255,255,.55)'; x.stroke();
     x.textAlign = 'center'; x.fillStyle = '#f6efdc'; x.shadowColor = 'rgba(0,0,0,.95)'; x.shadowBlur = 10;
-    let fs = 40; x.font = `${fs}px "DM Serif Display", Georgia, serif`; while (x.measureText(pl.n).width > W - 16 && fs > 20) { fs -= 2; x.font = `${fs}px "DM Serif Display", Georgia, serif`; }
+    let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 16 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
     x.fillText(pl.n, cx, 422);
     x.font = '600 19px "Fraunces Variable", "Fraunces", Georgia, serif'; x.fillStyle = '#b9f655';
     x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, cx, 456); x.shadowBlur = 0;
