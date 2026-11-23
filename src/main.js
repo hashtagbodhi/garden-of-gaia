@@ -91,7 +91,7 @@ function resize() {
   portrait = w / h < 0.8;
   camera.aspect = w / h; camera.fov = portrait ? 64 : 50; camera.updateProjectionMatrix();
   STATIONS.forEach(layout);
-  if (built && current) flyTo(selected ? closeUp(selected) : current, true);
+  if (built && current) { if (openK) closeOverlays(); flyTo(selected ? closeUp(selected) : current, true); syncFocus(); restShift(); }
 }
 addEventListener('resize', resize);
 
@@ -162,7 +162,7 @@ function groveLayout(s) {
       s.gXZ[k] = [x, y, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(y);
     });
     s.gY0 = 1.9; s.gY1 = 1.9 + (rows - 1) * sy; s.gDist = 9.4;
-    if (s.gx == null || Math.abs(s.gx) > half) { s.gx = s.gtx = -half + 2.3; s.gy = s.gty = s.gY1 - sy * 0.6; }
+    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== 'air') { s.gMode = 'air'; s.gSel = null; s.gx = s.gtx = -half + 2.3; s.gy = s.gty = s.gY1 - sy * 0.6; }
     groveView(s);
   } else {
     // wide screens: a walk along the bed. Four to six plants stand in view at a time, large; drag or scroll to walk on
@@ -172,7 +172,7 @@ function groveLayout(s) {
       s.gXZ[k] = [x, 2.7, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(0);
     });
     s.gY0 = s.gY1 = 2.7;
-    if (s.gx == null || Math.abs(s.gx) > half) { s.gx = s.gtx = -half + 5.2; s.gy = s.gty = 2.7; }
+    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== 'bed') { s.gMode = 'bed'; s.gSel = null; s.gx = s.gtx = -half + 5.2; s.gy = s.gty = 2.7; }
     groveView(s);
   }
   s.propPos = s.D.clone().addScaledVector(s.f, -(s.gDepth + 7));
@@ -422,6 +422,8 @@ function buildGrove(s) {
 function placeGrove(s) {
   for (const o of groveOrbs) {
     const p = s.gPos[o.k]; if (!p) continue;
+    // the window can change shape after the grove is built (a phone turned, a preview frame that grows): size each plant for the shape it has now
+    if (o.art) { const a = plantArt[o.k], h0 = khash(o.k); o.air = portrait; o.h = o.air ? 2.2 + (h0 % 5) * 0.06 : 3.9 + (h0 % 5) * 0.12; o.w = o.h * a.w / a.h; if (o.air && o.w > 1.95) { o.w = 1.95; o.h = o.w * a.h / a.w; } o.mesh.scale.set(o.w, o.h, 1); }
     if (o.air) { o.base = p.clone(); o.mesh.position.copy(p); continue; }
     if (o.art) { o.base = p.clone().setY(o.h / 2 - 0.12); o.mesh.position.copy(o.base); continue; }
     const lift = 1.25 + (khash(o.k) % 4) * 0.12;   // no painting yet: its photograph in a round frame, on a stake
