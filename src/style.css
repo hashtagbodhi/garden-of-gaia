@@ -902,3 +902,8 @@ body.in-grove .veil { background: linear-gradient(180deg, rgba(5, 12, 21, .78) 0
   body.home .place .row { flex-direction: row !important; justify-content: center; align-items: center !important; margin-top: 8px; }
   body.home .veil { background: linear-gradient(180deg, rgba(5, 12, 21, .72) 0, rgba(5, 12, 21, 0) 20%), linear-gradient(0deg, rgba(5, 12, 21, .94) 0, rgba(5, 12, 21, .7) 20%, rgba(5, 12, 21, 0) 42%); }
 }
+
+/* ---- the gate says one thing, in two lines, and offers one button ---- */
+body.home .place #place-label, body.home .place #place-line, body.home .place #place-says { display: none !important; }
+body.home .place h2 { max-width: 9.5em !important; text-wrap: balance; margin-inline: auto; }
+@media (min-width: 821px) { body.home .place { gap: 18px; } body.home .place h2 { font-size: clamp(3rem, 4.8vw, 4.8rem) !important; line-height: 1; } }
