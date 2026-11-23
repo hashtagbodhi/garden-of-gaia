@@ -277,10 +277,12 @@ function plantTile(k) {
   return a;
 }
 function giftsBand() {
-  return el('section', { className: 'sec tone-marigold gifts-band scal' }, sun('g-sun'), deco('bfly5', 'g-d0 fl'), deco('fx8', 'g-d1'), sectionHead('Give a gift that keeps on giving', 'Gifts by budget', 'Thoughtful finds at every price, or let them choose with a gift card.', null, false, 'Gifts'),
-    el('div', { className: 'gift-tiles' }, ...[['25', 'Under $25'], ['40', '$25 to $40'], ['75', '$40 to $75']].map(([k, t]) => el('a', { className: 'gift-tile', href: `#gifts-${k}` }, el('span', { className: 'gt-pics' }, giftList(k).filter((p) => p.gallery.length).slice(0, 3).map((p) => el('img', { src: photo(p), alt: '', loading: 'lazy' }))), el('span', { className: 'gt-n', textContent: t }), el('span', { className: 'gt-s', textContent: `${giftList(k).length} ideas` }))),
-    ),
-    el('a', { className: 'gift-solo', href: `#p--${CARD}` }, el('img', { src: A(`assets/cut/${CARD}.webp`), alt: 'Garden of Gaia gift card' }), el('span', { className: 'gs-k', textContent: 'Or let them choose' }), el('span', { className: 'gs-t', textContent: 'The gift card' }), el('span', { className: 'gs-s', textContent: `${cardRange(byHandle[CARD])}, sent by email` })));
+  // one clear question (how much do you want to spend?) and four equal answers; the gift card is simply the fourth
+  const tile = (href, pics, name, sub, cls = '') => el('a', { className: `gift-tile ${cls}`, href }, el('span', { className: 'gt-pics' }, pics), el('span', { className: 'gt-n', textContent: name }), el('span', { className: 'gt-s' }, sub, el('i', { ariaHidden: 'true', textContent: ' →' })));
+  return el('section', { className: 'sec tone-marigold gifts-band clean scal' }, sectionHead('Give a gift that keeps on giving', 'Gifts by budget', 'Pick a budget and we will show what fits. Not sure? Send a gift card.', null, false, 'Gifts'),
+    el('div', { className: 'gift-tiles' },
+      ...[['25', 'Under $25'], ['40', '$25 to $40'], ['75', '$40 to $75']].map(([k, t]) => tile(`#gifts-${k}`, giftList(k).filter((p) => p.gallery.length).slice(0, 3).map((p) => el('img', { src: photo(p), alt: '', loading: 'lazy' })), t, `${giftList(k).length} ideas`)),
+      tile(`#p--${CARD}`, [el('img', { src: A(`assets/cut/${CARD}.webp`), alt: '', loading: 'lazy' })], 'Gift card', `${cardRange(byHandle[CARD])}, by email`, 'gt-card')));
 }
 function giftList(k) {
   const [lo, hi] = { 25: [0, 25], 40: [25, 40], 75: [40, 75] }[k];
