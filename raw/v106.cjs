@@ -1,0 +1,11 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.setDefaultTimeout(8000); p.on('pageerror', (e) => errs.push(String(e))); await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + '#grove'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); await p.waitForTimeout(3000); await p.screenshot({ path: 'raw/_T0.jpg', type: 'jpeg', quality: 70 });
+  await p.mouse.click(660, 470); await p.waitForTimeout(1800); await p.screenshot({ path: 'raw/_T1.jpg', type: 'jpeg', quality: 70 });
+  await p.locator('.plant-goods .pg-row strong').first().click(); await p.waitForTimeout(1600); await p.screenshot({ path: 'raw/_T2.jpg', type: 'jpeg', quality: 70 });
+  await p.evaluate(() => document.querySelector('#basket-open').click()); await p.waitForTimeout(1200); await p.screenshot({ path: 'raw/_T3.jpg', type: 'jpeg', quality: 70 });
+  const c = await b.newContext(devices['iPhone 13']); const q = await c.newPage(); q.on('pageerror', (e) => errs.push('m ' + e)); await q.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await q.goto(U + 'classic.html'); await q.waitForTimeout(1500); await q.screenshot({ path: 'raw/_T4.jpg', type: 'jpeg', quality: 70 }); await q.tap('#menu-btn'); await q.waitForTimeout(800); await q.screenshot({ path: 'raw/_T5.jpg', type: 'jpeg', quality: 70 });
+  await q.tap('#menu-btn'); await q.waitForTimeout(400); await q.click('#ask-top').catch(async () => { await q.evaluate(() => document.querySelector('.ask-sarah, #ask-top')?.click()); }); await q.waitForTimeout(1200); await q.screenshot({ path: 'raw/_T6.jpg', type: 'jpeg', quality: 70 });
+  console.log('errors', errs); await b.close(); })();

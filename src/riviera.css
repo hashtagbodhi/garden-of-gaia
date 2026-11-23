@@ -1,0 +1,179 @@
+/* ================= RIVIERA: the whole site in the colours of a painted Mediterranean garden =================
+   cobalt sea, periwinkle sky, cypress and lawn greens, terracotta, poppy, blush, butter, linen; blue-and-white checks.
+   Loaded last in both views. Layout, flow and behaviour are untouched: only colour, type and decoration change here. */
+:root:root:root {
+  --r-navy: #1b2a52; --r-ink2: rgba(27, 42, 82, .78); --r-ink3: rgba(27, 42, 82, .56); --r-rule: rgba(27, 42, 82, .16);
+  --r-linen: #f4ecda; --r-paper: #fbf6ea; --r-sky: #9db4e4; --r-sky-pale: #dfe7f6; --r-sea: #1f3f92; --r-cobalt: #23408f;
+  --r-cypress: #2b5a2d; --r-lawn: #5c9a3c; --r-sage: #a9bf95; --r-terra: #d9653f; --r-poppy: #e2553a; --r-poppy-dk: #c8462b; --r-blush: #f2a7a0; --r-butter: #f2cf6b;
+  --r-display: 'DM Serif Display', 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
+  /* a fine gouache grain over every flat field */
+  --r-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .16 0 0 0 0 .32 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --r-checks: repeating-conic-gradient(var(--r-cobalt) 0 25%, #fbf6ea 0 50%) 0 0 / 28px 28px;
+  color-scheme: light;
+  /* the shop's own tokens */
+  --night: var(--r-linen); --deep: var(--r-linen); --cream: var(--r-paper); --paper: #fffaf0; --ink: var(--r-navy); --ink-2: var(--r-ink2); --ink-3: var(--r-ink3); --rule: var(--r-rule);
+  --leaf: var(--r-poppy); --moss: var(--r-cypress); --marigold: var(--r-butter); --plum: var(--r-sea); --lotus: var(--r-cobalt); --hibiscus: var(--r-terra); --dk: #fffaf0;
+  --glow: var(--r-poppy-dk); --rose: var(--r-blush); --display: var(--r-display);
+  /* the basket and Ask Sarah */
+  --s-bg: var(--r-paper); --s-ink: var(--r-navy); --s-ink2: var(--r-ink2); --s-ink3: var(--r-ink3); --s-rule: var(--r-rule); --s-leaf: var(--r-poppy); --s-display: var(--r-display);
+  --c-ink: var(--r-navy); --c-ink2: var(--r-ink2); --c-ink3: var(--r-ink3); --c-gold: var(--r-cobalt); --c-gold2: var(--r-cobalt); --c-leaf: var(--r-poppy-dk); --c-line: rgba(35, 64, 143, .3); --c-plum: var(--r-paper); --c-deep: var(--r-linen); --c-hand: var(--r-display);
+}
+html, body { background-color: var(--r-linen) !important; color: var(--r-navy); }
+body { background-image: var(--r-grain) !important; }
+::selection { background: var(--r-blush); color: var(--r-navy); }
+
+/* ---------- type: DM Serif Display for names and titles, EB Garamond for reading ---------- */
+html body h1, html body h2, html body h3, html body .card-name, html body .pp-name, html body .gt-n, html body .mn-big .mn-l, html body .sidx-head h2, html body .cs-q { font-family: var(--r-display) !important; font-weight: 400 !important; letter-spacing: -.005em; }
+html body h1, html body h2 { line-height: 1.02 !important; }
+html body .kicker, html body .label, html body .sidx-label, html body .mn-label, html body .fs-k, html body .cs-kick, html body .cs-step { color: var(--r-poppy-dk) !important; }
+
+/* ---------- night decoration is retired: fireflies, moons, suns, glowing plants, the faint night sky ---------- */
+html body .sec-flies, html body .flies, html body .moons, html body .sun, html body .deco, html body .edge, html body .h-rays, html body .h-moons, html body .h-mush, html body .h-orchid, html body .h-willow, html body .h-bells, html body .h-banyan, html body .h-fern, html body .h-grass, html body .h-grass2, html body .h-hib, html body .h-gate, html body .h-shade, html body .fl, html body .bigword, html body .big-q { display: none !important; }
+html body .sec::after, html body .page-head::after, html body .story-band::after, html body .pp::after, html body .page-head::before { content: none !important; display: none !important; }
+
+/* ---------- fields of colour: each section is a flat painted field with the grain over it ---------- */
+html body .tone-night, html body .tone-cream, html body .tone-marigold, html body .tone-plum, html body .tone-lotus, html body .tone-hibiscus, html body .tone-moss { --fg: var(--r-navy) !important; --soft: var(--r-ink2) !important; --line: var(--r-rule) !important; color: var(--r-navy); background-image: var(--r-grain) !important; }
+html body .tone-night { --bg: var(--r-linen); background-color: var(--r-linen) !important; --pop: var(--r-poppy-dk); }
+html body .tone-cream { --bg: var(--r-paper); background-color: var(--r-paper) !important; --pop: var(--r-poppy-dk); }
+html body .tone-plum { --bg: var(--r-sky-pale); background-color: var(--r-sky-pale) !important; --pop: var(--r-cobalt); }
+html body .tone-lotus { --bg: #e6eef9; background-color: #e6eef9 !important; --pop: var(--r-cobalt); }
+html body .tone-moss { --bg: #e6eed6; background-color: #e6eed6 !important; --pop: var(--r-cypress); }
+html body .tone-hibiscus { --bg: #f9e3dc; background-color: #f9e3dc !important; --pop: var(--r-terra); }
+html body .tone-marigold { --bg: #f8edc9; background-color: #f8edc9 !important; --pop: var(--r-terra); }
+html body .sec h2, html body .sec h3, html body .sec .sh-text h2 { color: var(--r-navy) !important; text-shadow: none !important; }
+
+/* ---------- the header: linen with a cobalt-and-white checked hem ---------- */
+html body .head, html body .top { background-color: rgba(251, 246, 234, .96) !important; background-image: var(--r-grain) !important; box-shadow: 0 1px 0 var(--r-rule) !important; }
+html body .head::after, html body .top::after { content: ''; position: absolute; left: 0; right: 0; bottom: -7px; height: 7px; background: var(--r-checks); background-size: 14px 14px; pointer-events: none; }
+html body .head, html body .top { position: relative; }
+html body .head { position: sticky !important; }
+html body .nav a, html body .nav .nav-top, html body .nav .nav-index { color: var(--r-navy) !important; }
+html body .nav a:hover, html body .nav .nav-top:hover { color: var(--r-poppy-dk) !important; }
+html body .nav .nav-gifts { color: var(--r-terra) !important; background: #fbe6df !important; box-shadow: inset 0 0 0 1.5px var(--r-terra) !important; }
+html body .logo, html body .foot-logo { background-color: var(--r-cypress) !important; }
+html body .mark::before { background: var(--r-cypress) !important; }
+html body .find-btn, html body .snd, html body .menu-btn, html body .menu-ic { color: var(--r-navy) !important; background: #fffaf0 !important; box-shadow: inset 0 0 0 1.5px var(--r-rule) !important; }
+html body .find-btn.is-open { box-shadow: inset 0 0 0 1.5px var(--r-poppy) !important; color: var(--r-poppy-dk) !important; }
+html body .ask-chip { background: var(--r-sky-pale) !important; color: var(--r-navy) !important; box-shadow: inset 0 0 0 1.5px var(--r-cobalt) !important; }
+html body .view-switch { background: #fffaf0 !important; box-shadow: inset 0 0 0 1.5px var(--r-rule) !important; }
+html body .view-switch .vs-opt { color: var(--r-ink3) !important; text-shadow: none !important; }
+html body .view-switch .vs-opt.on { color: var(--r-sea) !important; text-shadow: none !important; }
+html body .view-switch .vs-opt.on::before { background: var(--r-poppy) !important; box-shadow: none !important; }
+html body .view-switch a.vs-opt:hover { color: var(--r-navy) !important; }
+
+/* ---------- the offer ribbon: a striped awning, terracotta and cream ---------- */
+html body .tkbar, html body .ticker { background: repeating-linear-gradient(90deg, var(--r-terra) 0 34px, #f7e3d3 34px 68px) !important; box-shadow: inset 0 -2px 0 rgba(27, 42, 82, .12) !important; border: 0 !important; }
+html body .tkbar *, html body .ticker * { text-shadow: none !important; }
+html body .tkbar [class*="tk-"], html body .ticker span { color: var(--r-navy) !important; }
+html body .tkbar .tk-t, html body .tkbar .tk-c .tk-t, html body .tkbar .tk-offer, html body .tkbar [class*="tk-"] > b, html body .tkbar [class*="tk-"] > span { background: #fffaf0 !important; color: var(--r-navy) !important; box-shadow: 0 0 0 1.5px var(--r-navy) !important; border-radius: 999px; }
+
+/* ---------- buttons: poppy for what sells, cobalt outline for the rest ---------- */
+html body .btn-main, html body .basket-pill, html body .pg-add, html body .card-add, html body #detail-add, html body .cs-add, html body .cs-begin, html body .cs-go { background: var(--r-poppy) !important; color: #fffaf0 !important; box-shadow: 0 6px 16px -8px rgba(200, 70, 43, .7) !important; text-shadow: none !important; }
+html body .btn-main:hover, html body .basket-pill:hover { background: var(--r-poppy-dk) !important; }
+html body .basket-pill .bk-n, html body .basket-pill b, html body .basket-pill .count, html body .basket-pill span[class*="n"] { background: #fffaf0 !important; color: var(--r-poppy-dk) !important; }
+html body .btn:not(.btn-main), html body .text-link.btn, html body .sidx-back, html body .more-reviews { color: var(--r-sea) !important; background: #fffaf0 !important; box-shadow: inset 0 0 0 1.5px var(--r-sea) !important; text-shadow: none !important; }
+html body .btn:not(.btn-main):hover { background: var(--r-sky-pale) !important; }
+html body .btn::after { color: inherit !important; }
+html body .chip, html body .plant-uses b, html body .pu, html body .puses span, html body .card-plants, html body .pp-promises li { color: var(--r-navy) !important; }
+html body .chip { background: #fffaf0 !important; box-shadow: inset 0 0 0 1px var(--r-rule) !important; }
+
+/* ---------- cards: paper on the field, a cobalt hairline, a soft painted shadow ---------- */
+html body .card, html body .plant, html body .ing, html body .quote, html body .pa-card, html body .fa-card, html body .duo-card, html body .gift-tile, html body .promise, html body .fg, html body .door, html body .col, html body .st-card, html body .tc, html body .cg-p, html body .info-body ol li, html body .plant-goods li, html body .index-list button, html body .sidx-list a, html body .mn-big li a {
+  background: #fffaf0 !important; color: var(--r-navy) !important; box-shadow: 0 0 0 1px rgba(35, 64, 143, .18), 0 14px 30px -22px rgba(27, 42, 82, .45) !important; text-shadow: none !important; }
+html body .card *, html body .plant *, html body .quote *, html body .gift-tile *, html body .promise *, html body .fg *, html body .door *, html body .col *, html body .st-card *, html body .plant-goods li *, html body .sidx-list a * { text-shadow: none !important; }
+html body .card-win, html body .card-art { background: var(--r-sky-pale) !important; }
+html body .card-price, html body .pp-price, html body .pr { color: var(--r-navy) !important; }
+html body .card-price s, html body .pp-price s { color: var(--r-ink3) !important; }
+html body .card-no { background: #fffaf0 !important; color: var(--r-navy) !important; box-shadow: 0 0 0 1px var(--r-rule) !important; }
+html body .card-col, html body .gt-s, html body .pn, html body .plant .pn { color: var(--r-poppy-dk) !important; }
+html body .promise .ti, html body .door > :first-child, html body .ing .ti, html body .plant .ti { color: var(--r-cypress) !important; box-shadow: inset 0 0 0 1.5px var(--r-cypress) !important; background: #eef3e4 !important; }
+
+/* ---------- page banners and the hero: a painted Riviera view in flat colour (sky, sea line, hills, lawn) ---------- */
+html body .page-head, html body .page-head.dressed, html body .hero, html body .hero-scene {
+  background-color: var(--r-sky) !important;
+  background-image:
+    var(--r-grain),
+    radial-gradient(120% 60% at 18% 112%, var(--r-lawn) 0 46%, transparent 46.4%),
+    radial-gradient(90% 55% at 92% 108%, #4f8a33 0 44%, transparent 44.4%),
+    radial-gradient(70% 38% at 60% 102%, #6aa646 0 50%, transparent 50.4%),
+    linear-gradient(180deg, #b7c8ec 0, #9db4e4 52%, var(--r-sea) 52%, #2a4fa6 62%, #9db4e4 62.1%) !important;
+  background-size: auto !important; background-position: 0 0 !important; color: var(--r-navy) !important; }
+html body .page-head h1, html body .page-head .lede, html body .page-head .kicker, html body .page-head p, html body .page-head .alt-link, html body .page-head .label, html body .hero-copy h1, html body .hero-copy p, html body .hero-copy .kicker, html body .plant-head h1, html body .plant-head p, html body .plant-head .plant-bot, html body .plant-head .label { text-shadow: 0 1px 0 rgba(255, 250, 240, .5) !important; color: var(--r-navy) !important; }
+html body .page-head .kicker, html body .hero-copy .kicker, html body .plant-head .label { color: #fffaf0 !important; background: var(--r-sea); padding: 3px 12px 4px; border-radius: 999px; justify-self: start; display: inline-block; text-shadow: none !important; width: max-content; }
+html body .page-head .chip, html body .plant-head .chip, html body .plant-uses b, html body .page-head .btn:not(.btn-main) { background: #fffaf0 !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html body .ph-rib, html body .ribbon { filter: none !important; }
+html body .hero-copy h1 { color: var(--r-navy) !important; }
+html body .h-sky { display: none !important; }
+html body .hero-scene .h-sarah { display: block !important; filter: drop-shadow(0 18px 24px rgba(27, 42, 82, .3)) saturate(1.05) brightness(1.06) !important; }
+
+/* ---------- the word ribbons: a band of cobalt-and-white and one of terracotta ---------- */
+html body .ribbon { background: var(--r-sea) !important; color: #fffaf0 !important; box-shadow: none !important; border: 0 !important; }
+html body .ribbon.r2 { background: var(--r-terra) !important; }
+html body .ribbon span, html body .ribbon i { color: #fffaf0 !important; text-shadow: none !important; }
+
+/* ---------- footer: a cypress lawn under a checked tablecloth hem ---------- */
+html body footer, html body .foot { position: relative; background-color: var(--r-cypress) !important; background-image: var(--r-grain) !important; color: #fffaf0 !important; }
+html body footer::before, html body .foot::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 28px; background: var(--r-checks); }
+html body footer .foot-top, html body footer .foot-top *, html body footer .foot-fine, html body footer .foot-fine * { color: #fffaf0 !important; text-shadow: none !important; }
+html body footer .foot-top { padding-top: 56px !important; }
+html body footer .foot-fine { border-top-color: rgba(255, 250, 240, .3) !important; }
+html body footer .fso { color: #fffaf0 !important; background: rgba(255, 250, 240, .12) !important; box-shadow: inset 0 0 0 1px rgba(255, 250, 240, .5) !important; }
+html body footer .fso:hover { background: var(--r-poppy) !important; }
+html body footer .fg h3, html body footer .fg a, html body footer .fg summary { color: var(--r-navy) !important; }
+
+/* ---------- overlays: index, menu, basket, Ask Sarah, product jump bar ---------- */
+html body .sidx, html body #mnav, html body .mnav, html body .sheet, html body #basket, html body .pp-tabs, html body .pp-bar, html body .nav-panel::before { background-color: var(--r-paper) !important; background-image: var(--r-grain) !important; color: var(--r-navy) !important; }
+html body .sidx *, html body #mnav *, html body .sheet * { text-shadow: none !important; }
+html body .sidx-head h2, html body .sidx-list .n, html body .mn-big .mn-l, html body .sheet h2, html body .sheet h3 { color: var(--r-navy) !important; }
+html body .sidx-list h3, html body .sidx-filter button[aria-selected="true"] { color: var(--r-poppy-dk) !important; }
+html body .pp-tabs button { color: var(--r-navy) !important; } html body .pp-tabs button:hover { color: #fffaf0 !important; background: var(--r-sea) !important; }
+html body .consult .cs-card { background: var(--r-paper) !important; background-image: var(--r-grain) !important; color: var(--r-navy) !important; box-shadow: 0 0 0 1.5px var(--r-cobalt), 0 40px 90px rgba(27, 42, 82, .35) !important; }
+html body .consult .cs-side { background: linear-gradient(180deg, #b7c8ec, var(--r-sky) 55%, var(--r-lawn) 55%) !important; }
+html body .consult .cs-side::before { display: none !important; }
+html body .consult { background: rgba(27, 42, 82, .35) !important; }
+html body .mn-gift::before { background: var(--r-terra) !important; background-image: var(--r-grain) !important; }
+html body .mn-gift { background: var(--r-checks) !important; padding: 5px !important; box-shadow: none !important; }
+html body .mg-t b, html body .mg-t small, html body .mg-t em, html body .mg-chips a { color: #fffaf0 !important; text-shadow: none !important; }
+html body .mg-rays { display: none !important; }
+html body .mn-ask { background: var(--r-sky-pale) !important; box-shadow: inset 0 0 0 1.5px var(--r-cobalt) !important; }
+html body .mn-ask b { color: var(--r-sea) !important; } html body .mn-ask small { color: var(--r-ink2) !important; }
+html body .mn-ask i { background: var(--r-poppy) !important; color: #fffaf0 !important; }
+
+/* ---------- the shipping vine sits on paper now ---------- */
+html body .vine-t { color: var(--r-navy) !important; text-shadow: none !important; }
+html body .vine-bar::before { filter: grayscale(.8) brightness(1.15) !important; opacity: .55 !important; }
+
+/* the basket and Ask Sarah set their own colours on their own boxes: answer them there */
+html body .sheet, html body #basket, html body .consult {
+  --s-bg: var(--r-paper); --s-ink: var(--r-navy); --s-ink2: var(--r-ink2); --s-ink3: var(--r-ink3); --s-rule: var(--r-rule); --s-leaf: var(--r-poppy); --s-display: var(--r-display);
+  --c-ink: var(--r-navy); --c-ink2: var(--r-ink2); --c-ink3: var(--r-ink3); --c-gold: var(--r-cobalt); --c-gold2: var(--r-cobalt); --c-leaf: var(--r-poppy-dk); --c-line: rgba(35, 64, 143, .3); --c-plum: var(--r-paper); --c-deep: var(--r-linen); --c-hand: var(--r-display); }
+
+/* ---------- banner: the sea sits low, under the words; hills at the foot ---------- */
+html body .page-head, html body .page-head.dressed, html body .hero, html body .hero-scene {
+  background-image:
+    var(--r-grain),
+    radial-gradient(120% 34% at 18% 118%, var(--r-lawn) 0 60%, transparent 60.4%),
+    radial-gradient(90% 30% at 92% 114%, #4f8a33 0 58%, transparent 58.4%),
+    linear-gradient(180deg, #c3d1ef 0, #a9bde8 70%, var(--r-sea) 70%, #2a4fa6 76%, #a9bde8 76.1%) !important; }
+html body img[src*="bfly"], html body .fl, html body .h-b0, html body .h-b1, html body .h-b2 { display: none !important; }
+html body .foot-logo { background-color: #fbf6ea !important; }
+html body .gift-tile .gt-n { color: var(--r-navy) !important; }
+html body .gift-tile .gt-s, html body .gift-tile .gt-s i { color: var(--r-poppy-dk) !important; }
+html body footer .fg, html body footer .fg * { color: var(--r-navy) !important; }
+html body footer .fg a:hover { color: var(--r-poppy-dk) !important; }
+html body footer .foot-top .foot-line { font-family: var(--r-display) !important; }
+
+/* ---------- garden: the header floats over the painting; plant names read on the lawn ---------- */
+html body .top { background: linear-gradient(180deg, rgba(251, 246, 234, .96) 0, rgba(251, 246, 234, .82) 62%, rgba(251, 246, 234, 0) 100%) !important; box-shadow: none !important; }
+html body .top::after { content: none !important; }
+html body .gtag b { color: #fffaf0 !important; text-shadow: 0 1px 0 rgba(27, 42, 82, .9), 0 0 8px rgba(27, 42, 82, .85), 0 0 18px rgba(27, 42, 82, .6) !important; }
+html body .gtag i { color: #fffaf0 !important; text-shadow: 0 1px 6px rgba(27, 42, 82, .95), 0 0 12px rgba(27, 42, 82, .7) !important; }
+html body .gtag.on b { color: #ffe4cf !important; }
+html body .gtag u { background: var(--r-poppy) !important; color: #fffaf0 !important; box-shadow: 0 4px 12px rgba(27, 42, 82, .3) !important; }
+html body .veil, html body.in-grove .veil { background: linear-gradient(0deg, rgba(27, 42, 82, .22) 0, rgba(27, 42, 82, 0) 16%) !important; }
+/* ---------- Ask Sarah: readable on paper ---------- */
+html body .consult .cs-q, html body .consult h2, html body .consult .cs-sub, html body .consult .cs-say, html body .consult label, html body .consult .cs-l { color: var(--r-navy) !important; text-shadow: none !important; }
+html body .consult .cs-top { background: linear-gradient(var(--r-paper) 62%, rgba(251, 246, 234, 0)) !important; }
+html body .consult .cs-say { background: #fffaf0 !important; box-shadow: inset 0 0 0 1.5px var(--r-cobalt) !important; }
+html body .consult .cs-close { color: var(--r-navy) !important; background: #fffaf0 !important; }
+html body .consult button[aria-pressed="true"], html body .consult [aria-checked="true"] { background: var(--r-sky-pale) !important; box-shadow: inset 0 0 0 2px var(--r-cobalt) !important; color: var(--r-navy) !important; }
