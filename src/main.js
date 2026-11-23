@@ -49,9 +49,6 @@ import plantPhotos from './plants.json';
 import { PLANT_USES } from './plantdata.js';
 import plantArt from './plantart.json';
 import { runTicker } from './ticker.js';
-import { mountRiviera } from './riviera-garden.js';
-import './riviera-garden.css';
-import rivArt from './riv.json';
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
@@ -177,7 +174,7 @@ const STAND = {
 const GPLANTS = ingredientData.plants, GCOUNT = {};
 for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
 const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
-const GBED = GKEYS.filter((k) => rivArt[k]);   // the drawn garden: only plants with their new painting
+const GBED = GKEYS.filter((k) => plantArt[k] || plantPhotos[k]).sort((a, b) => (plantArt[b] ? 1 : 0) - (plantArt[a] ? 1 : 0));
 const groveOrbs = [];
 const s0 = (o, g) => tmp.copy(o.base).setY(0.06).addScaledVector(g.r, 0.62).addScaledVector(g.f, 0.5);   // a scanned plant sits on the soil beside its stake
 const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
@@ -1373,7 +1370,7 @@ Promise.all(['grove-bg'].map((n) => loadTex(n))).then(() => {
   const b = $('#enter-yes'); b.disabled = false; b.textContent = 'I am 21 or older, enter the garden';
   // age already confirmed (here or in the apothecary): straight in, to the plants
   setTimeout(() => b.click(), 0);   // there is no opening screen: age is confirmed in the apothecary, which is the only way in
-  mountRiviera({ A, names: Object.fromEntries(GKEYS.map((k) => [k, GPLANTS[k].n])), counts: GCOUNT, onOpen: (k) => openPlant(k), onBackground: () => { if (openK || !$('#info').hidden) closeOverlays(); }, sound: (n, i) => audio.play(n, i) });
+  requestAnimationFrame(frame);
   window.__ready = true; window.__dbg = { STATIONS, camPos, camLook, get selected() { return selected; } };
 });
 
