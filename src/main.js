@@ -45,6 +45,7 @@ import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY } from 
 import { openConsult, usesOf, mountAsk } from './consult.js';
 import plantPhotos from './plants.json';
 import plantModels from './models.json';
+import { PLANT_USES } from './plantdata.js';
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
@@ -951,20 +952,6 @@ function openInfo(i) {
   $('#info-close').focus({ preventScroll: true });
 }
 function plantProducts(k) { return allItems.filter((it) => (ingredientData.products[it.p.handle] || []).includes(k)); }
-const PLANT_USES = {
-  'blue-lotus': ['Calm', 'Dreamy sleep', 'Meditation'], 'white-lotus': ['Clarity', 'Stillness'], hibiscus: ['Heart', 'Hydration', 'Cycle'], 'butterfly-pea': ['Focus', 'Antioxidants'], lavender: ['Calm', 'Sleep', 'Skin'],
-  chamomile: ['Calm', 'Digestion', 'Sleep'], calendula: ['Skin', 'Soothing'], rose: ['Heart', 'Skin', 'Mood'], saffron: ['Radiance', 'Mood'], 'ylang-ylang': ['Mood', 'Sensuality'], geranium: ['Balance', 'Skin'],
-  damiana: ['Mood', 'Relaxation'], mullein: ['Lungs', 'Breath'], moringa: ['Energy', 'Nourishment'], soursop: ['Resilience', 'Evening calm'], nettle: ['Minerals', 'Seasonal ease'], skullcap: ['Nerves', 'Sleep'],
-  'lemon-balm': ['Calm', 'Bright mood'], peppermint: ['Digestion', 'Clarity'], mugwort: ['Dreams', 'Cycle'], 'wild-dagga': ['Uplift', 'Ease'], 'white-sage': ['Cleansing', 'Ritual'], 'black-sage': ['Clearing', 'Rest'],
-  sage: ['Cleansing', 'Clarity'], rosemary: ['Memory', 'Scalp'], eucalyptus: ['Breath', 'Freshness'], lemongrass: ['Freshness', 'Digestion'], 'black-tea': ['Energy', 'Focus'], valerian: ['Deep sleep', 'Nerves'],
-  dandelion: ['Liver', 'Digestion'], 'milk-thistle': ['Liver', 'Protection'], marshmallow: ['Throat', 'Soothing'], turmeric: ['Inflammation', 'Digestion'], ginger: ['Digestion', 'Warmth', 'Immunity'],
-  cinnamon: ['Warmth', 'Digestion'], cardamom: ['Digestion', 'Breath'], clove: ['Warmth', 'Immunity'], 'star-anise': ['Immunity', 'Digestion'], fennel: ['Digestion', 'Bloating'], allspice: ['Warmth', 'Digestion'],
-  'black-pepper': ['Absorption', 'Warmth'], 'black-seed': ['Immunity', 'Scalp'], annatto: ['Colour', 'Antioxidants'], elderberry: ['Immunity', 'Seasonal wellness'], orange: ['Brightness', 'Vitamin C'], lemon: ['Brightness', 'Digestion'],
-  lime: ['Freshness', 'Hydration'], reishi: ['Resilience', 'Calm'], cacao: ['Skin', 'Massage'], 'cacao-bean': ['Heart', 'Mood', 'Ceremony'], frankincense: ['Prayer', 'Skin', 'Calm'], 'dragons-blood': ['Protection', 'Ritual'],
-  benzoin: ['Grounding', 'Sweet smoke'], oud: ['Grounding', 'Devotion'], sandalwood: ['Meditation', 'Skin'], spruce: ['Grounding', 'Breath'], birch: ['Muscles', 'Freshness'], 'palo-santo': ['Uplift', 'Blessing'],
-  lilac: ['Softness', 'Scent'], vanilla: ['Comfort', 'Warmth'], 'almond-oil': ['Skin', 'Hair'], tallow: ['Skin barrier', 'Deep moisture'], beeswax: ['Protection', 'Skin'], magnesium: ['Muscles', 'Sleep'],
-  'witch-hazel': ['Toning', 'Skin'], 'oat-straw': ['Nerves', 'Minerals'], acv: ['Digestion', 'Extraction'],
-};
 function openPlant(k) {
   const pl = GPLANTS[k]; if (!pl) return;
   const list = plantProducts(k), ph = plantPhotos[k], md = plantModels[k];
