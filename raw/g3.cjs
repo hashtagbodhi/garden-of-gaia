@@ -1,0 +1,15 @@
+const { chromium } = require('playwright');
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const p = await b.newPage({ viewport: { width: 1440, height: 810 } }); p.on('pageerror', (e) => errs.push(String(e))); p.on('response', (r) => { if (r.status() >= 400) errs.push(r.status() + ' ' + r.url().slice(-60)); });
+  await p.addInitScript(() => { localStorage.setItem('gaia-view', JSON.stringify('garden')); });
+  await p.goto('http://127.0.0.1:4175/#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); await p.waitForTimeout(1500);
+  await p.screenshot({ path: 'raw/_g3-entry.jpg', type: 'jpeg', quality: 82 });
+  await p.click('#enter-yes'); await p.waitForTimeout(3500); await p.evaluate(() => { location.hash = '#tea'; }); await p.waitForTimeout(8000); await p.screenshot({ path: 'raw/_g3-tea.jpg', type: 'jpeg', quality: 82 });
+  await p.evaluate(() => { location.hash = '#tea--sweet-dreamz-sleep-support-loose-leaf-tea-blend'; }); await p.waitForTimeout(4000); await p.screenshot({ path: 'raw/_g3-detail.jpg', type: 'jpeg', quality: 82 });
+  await p.evaluate(() => { location.hash = '#tea'; }); await p.waitForTimeout(1500);
+  await p.click('#ask-top'); await p.waitForTimeout(600); await p.click('.cs-body .cs-go'); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Womb and cycle' }).click(); await p.evaluate(() => document.querySelector('.cs-body .cs-go').click()); await p.waitForTimeout(400);
+  await p.locator('.cs-opt', { hasText: 'Surprise me' }).click(); await p.evaluate(() => document.querySelector('.cs-body .cs-go').click()); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'Whenever' }).click(); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('.cs-body .cs-go').click()); await p.waitForTimeout(400); await p.locator('.cs-opt', { hasText: 'No limit' }).click(); await p.waitForTimeout(2500);
+  console.log('result images loaded:', await p.evaluate(() => [...document.querySelectorAll('.cs-img img')].map((i) => i.naturalWidth > 0)));
+  await p.screenshot({ path: 'raw/_g3-ask.jpg', type: 'jpeg', quality: 82 });
+  console.log('errors', errs); await b.close(); })();

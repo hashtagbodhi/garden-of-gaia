@@ -1176,7 +1176,7 @@ addEventListener('keydown', (e) => {
 /* ---------- DOM wiring ---------- */
 for (const s of STATIONS) { const i = el('i'); i.style.backgroundImage = `url(${A(`assets/img-s/${s.id === 'gate' ? 'witch-face' : s.icon}.webp`)})`; if (s.id === 'gate') i.style.backgroundSize = 'cover'; const a = el('a', { href: `#${s.id}` }, i, el('span', { textContent: s.name })); a.dataset.id = s.id; $('#places-list').append(a); }
 let askBtn = null;
-const askSarah = () => openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => A(p.img), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
+const askSarah = () => openConsult({ catalog, now, figure: A('assets/img/witch-sip.webp'), img: (p) => (p.gallery?.[0] ? A(p.gallery[0]) : A(`assets/card/${p.handle}.webp`)), add: (p, v) => addToBasket(v.id, 1), open: (p) => { closeOverlays(true); location.hash = `#${p.station}--${p.handle}`; } });
 $('#gifts-top').onclick = () => openIndex('gift25');
 $('#ask-top').onclick = () => { closeOverlays(true); askSarah(); };
 const step = (d) => { closeOverlays(true); location.hash = `#${STATIONS[(STATIONS.indexOf(current) + d + STATIONS.length) % STATIONS.length].id}`; };

@@ -771,3 +771,20 @@ body.pop-on::after { content: ''; position: fixed; inset: 0; z-index: 38; backgr
   #menu .back, #index .back { display: flex; align-items: center; min-height: 44px; color: var(--ink) !important; font-size: .95rem; font-weight: 500; }
   #menu .back::before, #index .back::before { display: inline-grid; place-items: center; width: 30px; height: 30px; margin-right: 10px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .7); color: #f7dc97; }
 }
+
+/* ---- the offer runs as the ribbon across the very top on every screen ---- */
+.sale-line { display: block !important; position: absolute; top: 0; left: 0; right: 0; max-width: none; padding: 0; z-index: 2; opacity: 1 !important; visibility: visible !important; }
+.sale-line .sl-text { display: none; }
+.sale-line .sl-bar { display: block; overflow: hidden; }
+@media (min-width: 821px) {
+  .top { padding-top: calc(var(--pad) * .7 + 42px) !important; }
+  .column-in { padding-top: calc(var(--head-h, 150px) + 14px); }
+  .menu-in, .index-in { padding-top: calc(var(--head-h, 150px) + 24px); }
+  .index-head { top: calc(var(--head-h, 150px) + 24px); }
+}
+/* ---- the opening screen: the logo in leaf green, glowing ---- */
+.entry-logo { position: relative; display: inline-block; filter: drop-shadow(0 0 16px rgba(185, 246, 85, .7)) drop-shadow(0 0 46px rgba(185, 246, 85, .4)) drop-shadow(0 2px 24px rgba(5, 12, 21, .8)); animation: logo-glow-g 5s ease-in-out infinite; }
+.entry-logo img { opacity: 0; filter: none !important; animation: none !important; }
+.entry-logo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #d6ff8a, #b9f655 55%, #8fd13a); -webkit-mask: url(../assets/img/logo.webp) center / contain no-repeat; mask: url(../assets/img/logo.webp) center / contain no-repeat; }
+@keyframes logo-glow-g { 50% { filter: drop-shadow(0 0 26px rgba(185, 246, 85, .95)) drop-shadow(0 0 70px rgba(185, 246, 85, .55)) drop-shadow(0 2px 24px rgba(5, 12, 21, .8)); } }
+@media (prefers-reduced-motion: reduce) { .entry-logo { animation: none; } }
