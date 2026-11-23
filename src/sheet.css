@@ -208,3 +208,12 @@
 .basket-pill, .view-switch .vs-opt { font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif !important; font-weight: 400 !important; font-size: 1rem !important; letter-spacing: .01em !important; }
 .basket-pill .count, .basket-pill #basket-count { font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif; font-weight: 700; }
 .view-switch .vs-opt { font-size: .92rem !important; }
+
+/* ---- eyebrows and small labels: written, not shouted. Sentence case, in Garamond italic ---- */
+.label, .kicker, .cs-kick, .cs-group, .mn-label, .plant-count, .pu-l, .card-col, .card-no, .sheet-n, .focus .label, .places .count, .f-label,
+.prose h3, .index-list h3, .says cite, .cs-say cite, .mark small, .cs-for span {
+  font-family: 'EB Garamond Variable', 'EB Garamond', Georgia, serif !important; font-style: italic !important; font-weight: 500 !important;
+  text-transform: none !important; letter-spacing: .015em !important; font-variation-settings: normal; }
+.label, .kicker, .cs-kick, .cs-group, .mn-label, .focus .label, .pu-l, .prose h3, .index-list h3, .plant-count, .says cite, .cs-say cite { font-size: 1.02rem !important; line-height: 1.25; }
+.cs-for span, .card-col, .f-label { font-size: .86rem !important; }
+.label::first-letter, .kicker::first-letter, .cs-kick::first-letter, .cs-group::first-letter, .mn-label::first-letter, .pu-l::first-letter, .prose h3::first-letter, .index-list h3::first-letter { text-transform: uppercase; }

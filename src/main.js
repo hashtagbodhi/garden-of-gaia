@@ -46,7 +46,6 @@ const ICON = { plant: TI['plant-2'], cup: TI.cup, lotus: TI.flower, leaf: TI.lea
 import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY } from './content.js';
 import { openConsult, usesOf, mountAsk } from './consult.js';
 import plantPhotos from './plants.json';
-import plantModels from './models.json';
 import { PLANT_USES } from './plantdata.js';
 import plantArt from './plantart.json';
 import { runTicker } from './ticker.js';
@@ -146,7 +145,7 @@ const STAND = {
 const GPLANTS = ingredientData.plants, GCOUNT = {};
 for (const ks of Object.values(ingredientData.products)) for (const k of ks) GCOUNT[k] = (GCOUNT[k] || 0) + 1;
 const GKEYS = Object.keys(GPLANTS).filter((k) => GCOUNT[k]).sort((a, b) => GCOUNT[b] - GCOUNT[a] || GPLANTS[a].n.localeCompare(GPLANTS[b].n));
-const GBED = GKEYS.filter((k) => plantArt[k] || plantPhotos[k] || plantModels[k]).sort((a, b) => (plantArt[b] ? 1 : 0) - (plantArt[a] ? 1 : 0));
+const GBED = GKEYS.filter((k) => plantArt[k] || plantPhotos[k]).sort((a, b) => (plantArt[b] ? 1 : 0) - (plantArt[a] ? 1 : 0));
 const groveOrbs = [];
 const s0 = (o, g) => tmp.copy(o.base).setY(0.06).addScaledVector(g.r, 0.62).addScaledVector(g.f, 0.5);   // a scanned plant sits on the soil beside its stake
 const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
@@ -370,34 +369,14 @@ function placeItems(s) {
 const credit = (k) => (plantPhotos[k]?.by || '').replace(/^\(c\)\s*/, '').replace(/, some rights reserved \((.*?)\)/, ', $1').replace(/^no rights reserved.*/, 'public domain (CC0)');
 function roundRect2(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
 // a garden marker: the real photograph of the plant, its name written beneath
-function plateTexture(k) {
-  const pl = GPLANTS[k], photo = !!plantPhotos[k], W = 384, H = photo ? 580 : 150, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  const draw = (img) => {
-    x.clearRect(0, 0, W, H);
-    roundRect2(x, 2, 2, W - 4, H - 4, 26); x.fillStyle = '#15102a'; x.fill(); x.lineWidth = 3; x.strokeStyle = '#d9b256'; x.stroke();
-    const ty = photo ? 462 : 12;
-    if (photo) { x.save(); roundRect2(x, 14, 14, W - 28, 440, 16); x.clip(); x.fillStyle = '#0c1a14'; x.fillRect(14, 14, W - 28, 440); if (img) { const sc = Math.max((W - 28) / img.width, 440 / img.height), iw = img.width * sc, ih = img.height * sc; x.drawImage(img, 14 + (W - 28 - iw) / 2, 14 + (440 - ih) / 2, iw, ih); } x.restore(); }
-    x.textAlign = 'center'; x.fillStyle = '#f6efdc';
-    let fs = 40; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 40 && fs > 20) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
-    x.fillText(pl.n, W / 2, ty + 50);
-    x.font = '600 20px "Fraunces Variable", "Fraunces", Georgia, serif'; x.fillStyle = '#b9f655';
-    x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, W / 2, ty + 88);
-    t.needsUpdate = true;
-  };
-  draw(null); document.fonts.ready.then(() => draw(t.userData.img || null));
-  if (photo) { const img = new Image(); img.decoding = 'async'; img.onload = () => { t.userData.img = img; draw(img); }; img.src = A(`assets/plants/${k}.webp`); }
-  return { t, ratio: H / W };
-}
-// a drop of air holding the real photograph: thin rim, a soft highlight, the name written beneath
 function bubbleTexture(k) {
-  const pl = GPLANTS[k], photo = !!plantPhotos[k], W = 384, H = 500, R = 172, cx = W / 2, cy = 190, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
+  const pl = GPLANTS[k], art = !!plantArt[k], photo = !art && !!plantPhotos[k], W = 384, H = 500, R = 172, cx = W / 2, cy = 190, c = el('canvas', { width: W, height: H }), x = c.getContext('2d');
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const draw = (img) => {
     x.clearRect(0, 0, W, H);
     x.save(); x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.clip();
-    x.fillStyle = photo ? '#0d1f1a' : 'rgba(60,110,90,.16)'; x.fillRect(0, 0, W, 384);
-    if (img) { const sc = Math.max((R * 2) / img.width, (R * 2) / img.height), iw = img.width * sc, ih = img.height * sc; x.drawImage(img, cx - iw / 2, cy - ih / 2, iw, ih); }
+    x.fillStyle = photo || art ? '#0d1f1a' : 'rgba(60,110,90,.16)'; x.fillRect(0, 0, W, 384);
+    if (img) { const sc = art ? Math.min((R * 1.72) / img.width, (R * 1.72) / img.height) : Math.max((R * 2) / img.width, (R * 2) / img.height), iw = img.width * sc, ih = img.height * sc; x.drawImage(img, cx - iw / 2, cy - ih / 2, iw, ih); }
     // the roundness of a bubble: darker towards the edge, a pale reflection up and to the left
     const sh = x.createRadialGradient(cx - 30, cy - 40, R * 0.45, cx, cy, R); sh.addColorStop(0, 'rgba(4,10,20,0)'); sh.addColorStop(0.82, 'rgba(4,10,20,.12)'); sh.addColorStop(1, 'rgba(4,10,20,.62)'); x.fillStyle = sh; x.fillRect(0, 0, W, 384);
     const hl = x.createRadialGradient(cx - 74, cy - 92, 2, cx - 74, cy - 92, 78); hl.addColorStop(0, 'rgba(255,255,255,.42)'); hl.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = hl; x.fillRect(0, 0, W, 384);
@@ -412,7 +391,7 @@ function bubbleTexture(k) {
     t.needsUpdate = true;
   };
   draw(null); document.fonts.ready.then(() => draw(t.userData.img || null));
-  if (photo) { const img = new Image(); img.decoding = 'async'; img.onload = () => { t.userData.img = img; draw(img); }; img.src = A(`assets/plants/${k}.webp`); }
+  if (photo || art) { const img = new Image(); img.decoding = 'async'; img.onload = () => { t.userData.img = img; draw(img); }; img.src = A(`assets/${photo ? 'plants' : 'plantart'}/${k}.webp`); }
   return { t, ratio: H / W };
 }
 // a small plaque at the foot of a painted plant
@@ -423,7 +402,7 @@ function plaqueTexture(k) {
     x.clearRect(0, 0, W, H); x.textAlign = 'center'; x.shadowColor = 'rgba(0,0,0,.95)'; x.shadowBlur = 12;
     let fs = 60; x.font = `${fs}px "Emilys Candy", Georgia, serif`; while (x.measureText(pl.n).width > W - 20 && fs > 26) { fs -= 2; x.font = `${fs}px "Emilys Candy", Georgia, serif`; }
     x.fillStyle = '#f6efdc'; x.fillText(pl.n, W / 2, 68);
-    x.font = '600 24px "Cinzel Variable", "Cinzel", Georgia, serif'; x.fillStyle = '#b9f655'; x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'PRODUCT' : 'PRODUCTS'}`, W / 2, 116); x.shadowBlur = 0;
+    x.font = 'italic 600 38px "EB Garamond Variable", "EB Garamond", Georgia, serif'; x.fillStyle = '#b9f655'; x.fillText(`${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`, W / 2, 114); x.shadowBlur = 0;
     t.needsUpdate = true;
   };
   draw(); document.fonts.ready.then(draw);
@@ -451,33 +430,6 @@ function buildGrove(s) {
     groveOrbs.push({ k, mesh, stake, mound, label, air, art: !!art, w, h, ph: (h0 % 628) / 100, sp: 0.16 + ((h0 >> 4) % 10) * 0.012, hover: 0, model: null });
   }
   placeGrove(s);
-}
-// scanned 3D plants, fetched only once someone walks into the grove
-let groveModels = false;
-async function loadGroveModels(s) {
-  if (groveModels) return; groveModels = true;
-  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'); const loader = new GLTFLoader();
-  for (const o of groveOrbs) {
-    if (!plantModels[o.k]) continue;
-    const base = A(`assets/models/${o.k}/`);
-    fetch(`${base}model.json`).then((r) => r.json()).then(({ gltf, bin }) => {
-      // rebuild a binary glTF in memory: header, JSON chunk, BIN chunk
-      const pad = (n) => (4 - (n % 4)) % 4, js = new TextEncoder().encode(JSON.stringify(gltf)), raw = Uint8Array.from(atob(bin), (c) => c.charCodeAt(0));
-      const jl = js.length + pad(js.length), bl = raw.length + pad(raw.length), glb = new Uint8Array(12 + 8 + jl + 8 + bl), dv = new DataView(glb.buffer);
-      dv.setUint32(0, 0x46546c67, true); dv.setUint32(4, 2, true); dv.setUint32(8, glb.length, true);
-      dv.setUint32(12, jl, true); dv.setUint32(16, 0x4e4f534a, true); glb.fill(0x20, 20, 20 + jl); glb.set(js, 20);
-      dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004e4942, true); glb.set(raw, 28 + jl);
-      loader.parse(glb.buffer, base, (g) => {
-      const root = g.scene, box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
-      const sc = ((plantPhotos[o.k] ? 0.3 : 0.52) * o.w) / Math.max(size.x, size.y, size.z);
-      root.traverse((m) => { if (m.isMesh) { const map = m.material.map; if (map) map.colorSpace = THREE.SRGBColorSpace; m.material = new THREE.MeshBasicMaterial({ map, alphaTest: 0.4, side: THREE.DoubleSide, fog: true, color: 0xdcdcdc }); } });
-      root.position.set(-c.x * sc, -box.min.y * sc, -c.z * sc); root.scale.setScalar(sc);
-      const grp = new THREE.Group(); grp.add(root); scene.add(grp); o.model = grp;
-      o.mh = size.y * sc;
-      placeGrove(s);
-      });
-    }).catch(() => { /* the photograph stands on its own */ });
-  }
 }
 function placeGrove(s) {
   for (const o of groveOrbs) {
@@ -979,10 +931,10 @@ function openInfo(i) {
 function plantProducts(k) { return allItems.filter((it) => (ingredientData.products[it.p.handle] || []).includes(k)); }
 function openPlant(k) {
   const pl = GPLANTS[k]; if (!pl) return;
-  const list = plantProducts(k), ph = plantPhotos[k], md = plantModels[k];
+  const list = plantProducts(k), ph = plantPhotos[k], art = plantArt[k];
   openInfo({ id: 'plant', back: 'Back to the grove', build: () => [
-    el('div', { className: `plant-head${ph ? '' : ' no-photo'}` },
-      ph ? el('figure', { className: 'plant-photo' }, el('img', { src: A(`assets/plants/${k}.webp`), alt: pl.n }), el('figcaption', {}, 'Photo: ', el('a', { href: ph.src, target: '_blank', rel: 'noopener', textContent: credit(k) }))) : '',
+    el('div', { className: `plant-head${ph || art ? '' : ' no-photo'}` },
+      ph ? el('figure', { className: 'plant-photo' }, el('img', { src: A(`assets/plants/${k}.webp`), alt: pl.n }), el('figcaption', {}, 'Photo: ', el('a', { href: ph.src, target: '_blank', rel: 'noopener', textContent: credit(k) }))) : art ? el('figure', { className: 'plant-photo painted' }, el('img', { src: A(`assets/plantart/${k}.webp`), alt: pl.n })) : '',
       el('div', {},
         el('p', { className: 'label', textContent: 'Meet the plant' }),
         el('h2', { id: 'info-title', textContent: pl.n }),
@@ -998,7 +950,6 @@ function openPlant(k) {
       add.onclick = () => { addToBasket(v.id, 1); add.textContent = 'Added ✓'; setTimeout(() => { add.textContent = '+ Add'; }, 1600); };
       return el('li', {}, el('img', { src: thumbUrl(pr), alt: '' }), el('div', {}, el('strong', { textContent: pr.name }), el('span', { textContent: [priceLabel(pr), pr.sub].filter(Boolean).join(' · ') }), uses.length ? el('em', { className: 'pg-use', textContent: `For ${uses.join(', ').toLowerCase()}` }) : '', see), add);
     })),
-    md ? el('p', { className: 'plant-credit', textContent: `3D model: “${md.name}” by ${md.by.join(' & ')}, Poly Haven (CC0).` }) : '',
   ] });
   if (location.hash !== `#grove--${k}`) history.replaceState(null, '', `#grove--${k}`);
 }
@@ -1269,7 +1220,6 @@ function frame() {
   }
   if (groveOrbs.length) {
     const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null, g = byId.grove;
-    if (near && !groveModels && travel.t >= 0.999) loadGroveModels(g);
     for (const o of groveOrbs) {
       if (!o.base) continue;
       const want = o.k === hoverPlant || o.k === fk ? 1 : 0; o.hover += (want - o.hover) * Math.min(1, dt * 8);

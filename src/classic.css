@@ -1364,3 +1364,9 @@ body.nav-open .ask-sarah, .sheet:not([hidden]) ~ .ask-sarah { display: none; }
 .crumbs .cr-back:hover { background: rgba(240, 195, 90, .14); }
 .crumbs b { font-weight: 500; color: var(--ink); }
 @media (max-width: 760px) { .crumbs .cr-trail { display: none; } .crumbs { padding-top: 12px; } }
+
+/* ---- the logo is always leaf green ---- */
+.age-logo { display: block; width: 210px; height: 140px; margin: 0 auto; background: var(--leaf); -webkit-mask: url(../assets/img/logo.webp) center / contain no-repeat; mask: url(../assets/img/logo.webp) center / contain no-repeat; }
+/* painted plants, where there is no photograph */
+.pface.painted { background: radial-gradient(circle at 50% 60%, #17362c, #0a1719); }
+.pface.painted img { object-fit: contain; padding: 9px; box-sizing: border-box; }

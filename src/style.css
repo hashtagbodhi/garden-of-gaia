@@ -788,3 +788,10 @@ body.pop-on::after { content: ''; position: fixed; inset: 0; z-index: 38; backgr
 .entry-logo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #d6ff8a, #b9f655 55%, #8fd13a); -webkit-mask: url(../assets/img/logo.webp) center / contain no-repeat; mask: url(../assets/img/logo.webp) center / contain no-repeat; }
 @keyframes logo-glow-g { 50% { filter: drop-shadow(0 0 26px rgba(185, 246, 85, .95)) drop-shadow(0 0 70px rgba(185, 246, 85, .55)) drop-shadow(0 2px 24px rgba(5, 12, 21, .8)); } }
 @media (prefers-reduced-motion: reduce) { .entry-logo { animation: none; } }
+
+/* ---- the logo is always leaf green ---- */
+.mark { position: relative; filter: drop-shadow(0 1px 10px rgba(5, 12, 21, .8)); }
+.mark img { opacity: 0; filter: none !important; }
+.mark::before { content: ''; position: absolute; inset: 0; background: #b9f655; -webkit-mask: url(../assets/img/logo.webp) center / contain no-repeat; mask: url(../assets/img/logo.webp) center / contain no-repeat; }
+/* a painted plant in the plant panel, where there is no photograph */
+.plant-photo.painted img { object-fit: contain; background: radial-gradient(80% 70% at 50% 60%, #17362c, #0a1719); padding: 14px; box-sizing: border-box; }

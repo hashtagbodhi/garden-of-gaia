@@ -14,7 +14,7 @@ import { STATIONS, INFO, STORE, FREE_SHIPPING_AT, SALE, FAQ, RECIPROCITY, EMAIL,
 import { openConsult, mountAsk, usesOf } from './consult.js';
 import { runTicker } from './ticker.js';
 import plantPhotos from './plants.json';
-import plantModels from './models.json';
+import plantArt from './plantart.json';
 import { PLANT_USES, USE_GROUPS, groupsOf, photoCredit } from './plantdata.js';
 
 const ICONS = import.meta.glob('./icons/*.svg', { query: '?raw', import: 'default', eager: true });
@@ -267,6 +267,7 @@ function hero() {
 // the plant's own face: its photograph in a round frame, or its mark when we have no photograph yet
 const plantFace = (k, cls = '') => (plantPhotos[k]
   ? el('span', { className: `pface ${cls}` }, el('img', { src: A(`assets/plants/${k}.webp`), alt: '', loading: 'lazy', decoding: 'async' }))
+  : plantArt[k] ? el('span', { className: `pface painted ${cls}` }, el('img', { src: A(`assets/plantart/${k}.webp`), alt: '', loading: 'lazy', decoding: 'async' }))
   : el('span', { className: `pface no ${cls}` }, icon(PLANTS[k].ic)));
 function plantTile(k) {
   const x = PLANTS[k], n = productsWith(k).length, u = PLANT_USES[k] || [];
@@ -377,7 +378,7 @@ function plantsPage() {
     el('section', { className: 'sec tone-cream plants-all' }, el('div', { className: 'plant-tools' }, search, el('div', { className: 'pf-chips', role: 'group', ariaLabel: 'What it is for' }, chips), el('div', { className: 'pf-row' }, count, ask)), grid2, none)];
 }
 function plantPage(k) {
-  const x = PLANTS[k], list = productsWith(k), ph = plantPhotos[k], md = plantModels[k], u = PLANT_USES[k] || [], gs = groupsOf(k);
+  const x = PLANTS[k], list = productsWith(k), ph = plantPhotos[k], u = PLANT_USES[k] || [], gs = groupsOf(k);
   // other plants people reach for, for the same reasons
   const kin = Object.keys(PLANTS).filter((o) => o !== k && productsWith(o).length && groupsOf(o).some((g) => gs.includes(g))).sort((a, b) => (plantPhotos[b] ? 1 : 0) - (plantPhotos[a] ? 1 : 0) || groupsOf(b).filter((g) => gs.includes(g)).length - groupsOf(a).filter((g) => gs.includes(g)).length).slice(0, 4);
   const goods = el('ul', { className: 'plant-goods' }, list.map((pr) => {
@@ -393,7 +394,7 @@ function plantPage(k) {
         u.length ? el('div', { className: 'plant-uses' }, el('span', { className: 'pu-l', textContent: 'Traditionally used for' }), u.map((t) => el('b', { textContent: t }))) : null,
         el('a', { className: 'btn', href: '#plant-goods', textContent: `See ${list.length} ${list.length === 1 ? 'product' : 'products'} ↓`, onclick: (e) => { e.preventDefault(); document.querySelector('.plant-goods')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }))),
     el('section', { className: 'sec tone-cream plant-shop' }, sectionHead(`${list.length} ${list.length === 1 ? 'product' : 'products'}`, `Made with ${x.n.toLowerCase()}`, null, null, list.filter((z) => z.gallery.length)), goods,
-      md ? el('p', { className: 'plant-credit', textContent: `In the 3D garden this plant appears as a scanned model: “${md.name}” by ${md.by.join(' & ')}, Poly Haven (CC0).` }) : null),
+      null),
     kin.length ? el('section', { className: 'sec tone-moss plant-kin' }, sectionHead('Keep wandering', 'Plants for the same reasons', null, ['All plants', '#plants']), el('div', { className: 'plant-grid' }, kin.map(plantTile))) : null].filter(Boolean);
 }
 function giftsPage(k) {
@@ -471,7 +472,6 @@ function buildMenu() {
   const ask = el('button', { type: 'button', className: 'mn-ask' }, el('img', { src: A('assets/img/witch-face.webp'), alt: '' }), el('span', {}, el('b', { textContent: 'Ask Sarah' }), el('small', { textContent: 'Five questions, and a ritual chosen for you' })), el('i', { ariaHidden: 'true', textContent: '→' }));
   ask.onclick = () => { closeMenu(); askSarah(); };
   const garden = el('a', { className: 'mn-garden', href: './' }, el('span', { className: 'mn-orb', ariaHidden: 'true' }), el('span', {}, el('b', { textContent: 'Walk the 3D garden' }), el('small', { textContent: 'The same shop, as a night garden' })));
-  garden.onclick = () => store.set('gaia-view', 'garden');
   const sound = el('button', { type: 'button', className: 'mn-sound' }); const paint = () => { sound.textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; }; sound.onclick = () => { toggleSound(); paint(); }; paint();
   const m = el('aside', { id: 'mnav', className: 'mnav', ariaLabel: 'Menu' }, el('div', { className: 'mn-in' },
     form, ask,
@@ -492,7 +492,7 @@ const markMenu = () => { const h = location.hash || '#home'; document.querySelec
 runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct from Sri Lanka', 'Made in-house in small batches', `Free U.S. shipping over $${FREE_SHIPPING_AT}`].filter(Boolean), reduce);
 $('#basket-open').onclick = openBasket; $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; } };
-$('#to-garden').onclick = () => store.set('gaia-view', 'garden');
+addEventListener('click', (e) => { if (e.target.closest?.('a[href="./"]')) store.set('gaia-view', 'garden'); }, true);
 $('#ask-top').onclick = () => { closeMenu(); askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
 mountAsk(askSarah, A('assets/img/witch-face.webp'));

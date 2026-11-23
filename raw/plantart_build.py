@@ -7,7 +7,9 @@ OUT = os.path.join(ROOT, 'public', 'assets', 'plantart'); os.makedirs(OUT, exist
 meta = {}
 for f in sorted(glob.glob(os.path.join(ROOT, 'raw', 'plantart', '*.png'))):
     k = os.path.basename(f)[:-4]
-    im = Image.open(f).convert('RGBA'); a = np.array(im)[..., 3]
+    im = Image.open(f).convert('RGBA'); px = np.array(im)
+    # trim the soft glow some renders carry around the plant, so the cut-out has a clean edge in the garden
+    al = px[..., 3].astype(float); px[..., 3] = np.clip((al - 96) * 255 / 150, 0, 255).astype('uint8'); im = Image.fromarray(px); a = px[..., 3]
     ys, xs = np.where(a > 24); pad = 8
     im = im.crop((max(0, xs.min() - pad), max(0, ys.min() - pad), min(im.width, xs.max() + pad + 1), min(im.height, ys.max() + pad + 1)))
     im.thumbnail((1000, 1000), Image.LANCZOS)
