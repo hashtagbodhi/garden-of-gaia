@@ -473,6 +473,8 @@ function buildWorld() {
   corridors.push([V([0, 0, 52]), V([0, 0, 2])]);
   const segDist = (x, z, a, b) => { const abx = b.x - a.x, abz = b.z - a.z; const t = THREE.MathUtils.clamp(((x - a.x) * abx + (z - a.z) * abz) / (abx * abx + abz * abz), 0, 1); return Math.hypot(x - (a.x + abx * t), z - (a.z + abz * t)); };
   const free = (x, z, clear, lane) => {
+    // nothing grows between the walker and the bed of herbs, along its whole length
+    { const g = byId.grove, lx = (x - g.D.x) * g.r.x + (z - g.D.z) * g.r.z, lz = (x - g.D.x) * g.f.x + (z - g.D.z) * g.f.z; if (Math.abs(lx) < 125 && lz > -11 && lz < 24) return false; }
     for (const s of STATIONS) {
       const c = s.D || s.p; if (Math.hypot(x - c.x, z - c.z) < (s.half ? s.half + 1.5 : 3) + clear) return false;
       if (s.flat && Math.hypot(x - s.p.x, z - s.p.z) < s.propH / 2 + 0.5) return false;
