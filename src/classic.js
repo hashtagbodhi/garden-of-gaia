@@ -539,7 +539,7 @@ function buildMenu() {
   const m = el('aside', { id: 'mnav', className: 'mnav', ariaLabel: 'Menu' }, el('div', { className: 'mn-in' },
     ask, gifts, form,
     el('p', { className: 'mn-label', textContent: 'Shop' }),
-    el('ul', { className: 'mn-big' }, big('#shop', 'Shop all', `${catalog.length} things`, photo(typeof best[0] === 'string' ? byHandle[best[0]] : best[0], 0)), ...Object.entries(COL).filter(([k]) => first(k) && k !== 'roots').map(([k, c]) => big(`#shop-${k}`, c.short || c.name, `${count(k)}`, photo(first(k), 0))), big('#plants', 'Shop by plant', 'Meet the plants', A('assets/plants/blue-lotus.webp'))),
+    el('ul', { className: 'mn-big' }, big('#shop', 'Shop apothecary', `All ${catalog.length}, A to Z`, photo(typeof best[0] === 'string' ? byHandle[best[0]] : best[0], 0)), ...Object.entries(COL).filter(([k]) => first(k) && k !== 'roots').map(([k, c]) => big(`#shop-${k}`, c.short || c.name, `${count(k)}`, photo(first(k), 0))), big('#plants', 'Shop by plant', 'Meet the plants', A('assets/plants/blue-lotus.webp'))),
     el('div', { className: 'mn-cols' },
       el('div', {}, el('p', { className: 'mn-label', textContent: 'Find it fast' }), idx),
       el('div', {}, el('p', { className: 'mn-label', textContent: 'About' }), small([...INFO.map((i) => [i.title, `#${i.id}`]), ['Kind words', '#reviews'], ['Questions', '#faq']]))),
@@ -547,6 +547,8 @@ function buildMenu() {
     el('div', { className: 'mn-foot' }, sound, el('a', { href: `mailto:${EMAIL}`, textContent: 'Write to us' }), el('a', { href: INSTAGRAM, target: '_blank', rel: 'noopener', textContent: 'Instagram' })),
     el('p', { className: 'mn-fine', textContent: SALE.line })));
   m.addEventListener('click', (e) => { if (e.target.closest('a[href^="#"]')) closeMenu(); });
+  // the first door opens the shop index: every product in one searchable list
+  m.querySelector('.mn-big a[href="#shop"]').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); closeMenu(); openIndex('all'); });
   document.body.append(m);
 }
 const markMenu = () => { const h = location.hash || '#home'; document.querySelectorAll('#mnav a[href^="#"]').forEach((a) => { if (a.getAttribute('href') === h) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }); };
