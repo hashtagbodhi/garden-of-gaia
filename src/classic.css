@@ -1558,3 +1558,7 @@ body.locked .head { background: rgba(6, 9, 20, .97) !important; }
 .age h2 { text-wrap: balance; }
 .age-in > p { margin: 0; max-width: 26ch; text-wrap: balance; line-height: 1.35; }
 .age .btn-main { white-space: nowrap; padding-inline: 30px; }
+/* the phone menu ends at Shop by plant */
+#mnav .mn-cols, #mnav .mn-garden, #mnav .mn-foot, #mnav .mn-fine { display: none !important; }
+#mnav .mn-in { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: none !important; }

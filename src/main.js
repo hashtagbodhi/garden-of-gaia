@@ -725,6 +725,8 @@ const audio = {
   place() {},
   set(on) { this.on = on; if (this.master) { const t = this.ctx.currentTime; this.master.gain.cancelScheduledValues(t); this.master.gain.linearRampToValueAtTime(on ? this.level : 0, t + 0.6); this.master2?.gain.cancelScheduledValues(t); this.master2?.gain.linearRampToValueAtTime(on ? this.level : 0, t + 0.6); } if (this.ctx?.state === 'suspended') this.ctx.resume(); },
 };
+// the garden is silent: every sound is switched off, and the controls for it are gone
+audio.start = async () => {}; audio.play = () => {}; audio.place = () => {}; audio.set = () => {}; audio.on = false;
 
 /* ---------- basket ---------- */
 const variantIndex = new Map();

@@ -574,9 +574,9 @@ $('#age-yes').onclick = () => { store.set('gaia-21', true); $('#age').hidden = t
 $('#age-no').onclick = () => { $('#age-denied').hidden = false; $('#age-yes').hidden = true; $('#age-no').hidden = true; };
 
 /* ---------- butterflies, with the soft sound of their wings ---------- */
-let actx = null, soundOn = store.get('gaia-csound', true);
+let actx = null, soundOn = false;   // the site is silent
 const syncSound = () => { $('#sound-btn').setAttribute('aria-pressed', String(soundOn)); $('#sound-btn').classList.toggle('off', !soundOn); $('#nav-sound').textContent = `Garden sounds: ${soundOn ? 'on' : 'off'}`; };
-const toggleSound = () => { soundOn = !soundOn; store.set('gaia-csound', soundOn); syncSound(); unlock(); if (soundOn) flutter(0); };
+const toggleSound = () => {};
 $('#sound-btn').onclick = toggleSound; $('#nav-sound').onclick = toggleSound; syncSound();
 function unlock() { if (actx) { if (actx.state === 'suspended') actx.resume(); return; } try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
 addEventListener('pointerdown', unlock, { once: true }); addEventListener('keydown', unlock, { once: true });

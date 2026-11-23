@@ -907,3 +907,4 @@ body.in-grove .veil { background: linear-gradient(180deg, rgba(5, 12, 21, .78) 0
 body.home .place #place-label, body.home .place #place-line, body.home .place #place-says { display: none !important; }
 body.home .place h2 { max-width: 9.5em !important; text-wrap: balance; margin-inline: auto; }
 @media (min-width: 821px) { body.home .place { gap: 18px; } body.home .place h2 { font-size: clamp(3rem, 4.8vw, 4.8rem) !important; line-height: 1; } }
+html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: none !important; }
