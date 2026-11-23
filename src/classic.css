@@ -1787,3 +1787,12 @@ html body .top-links #sound-toggle, html body .head-tools #sound-btn { display: 
 footer .promises { background: none !important; padding: 0 !important; margin: 22px 0 0 !important; max-width: none; }
 footer .promises .pr-sun, footer .promises .sec-flies { display: none !important; }
 footer .promises { margin-bottom: 22px !important; }
+
+/* footer: one gap everywhere, and a small row of ways to reach the shop */
+footer .foot-grid { padding: 16px 0 0 !important; gap: 16px !important; }
+footer .promises { margin: 16px 0 0 !important; gap: 16px !important; }
+footer .promise h3 { text-wrap: balance; }
+.foot-social { display: flex; justify-content: center; gap: 14px; padding: 26px 0 22px; }
+.fso { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; color: #f6efdc; background: rgba(246, 239, 220, .06); box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .28); transition: color .2s, background .2s, transform .25s; }
+.fso svg { width: 22px; height: 22px; }
+.fso:hover { color: #120d24; background: var(--leaf); transform: translateY(-2px); }

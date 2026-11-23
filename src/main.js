@@ -1204,6 +1204,8 @@ $('#gifts-open').onclick = () => openIndex('gift25');
 $('#menu-open').onclick = () => ($('#menu').hidden ? openMenu() : closeOverlays()); $('#menu-close').onclick = () => closeOverlays();
 $('#menu').addEventListener('click', (e) => { const t = e.target.closest('[data-act], a[href^="#"]'); if (!t) return; if (t.dataset.act === 'ask') { closeOverlays(true); askSarah(); } else if (t.dataset.act === 'index') openIndex(); else if (t.dataset.act?.startsWith('gift')) openIndex(t.dataset.act); else if (t.dataset.act === 'sound') $('#sound-toggle').click(); else closeOverlays(true); });
 $('#lightbox-close').onclick = () => { $('#lightbox').hidden = true; };
+// a click anywhere on the open photograph (not just the button) goes back; the arrows still turn the page
+$('#lightbox').addEventListener('click', (e) => { if (!e.target.closest('#lightbox-prev, #lightbox-next')) $('#lightbox').hidden = true; });
 $('#lightbox-prev').onclick = () => { lb.i--; showPhoto(); }; $('#lightbox-next').onclick = () => { lb.i++; showPhoto(); };
 $('#detail-close').onclick = () => { const k = backPlant; backPlant = null; closeOverlays(); if (k) openPlant(k); };
 const stepSel = (d) => { const L = selected.station.items; select(L[(selected.index + d + L.length) % L.length], true); };

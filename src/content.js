@@ -2,6 +2,7 @@
 export const STORE = 'https://gardenofgaiaapothecary.com';
 export const EMAIL = 'thegardenofgaiaapothecary@gmail.com';
 export const INSTAGRAM = 'https://instagram.com/thegardenofgaiaapothecary';
+export const FACEBOOK = '';   // paste the shop's Facebook page address here and its icon appears in the footer
 export const TIKTOK = '';   // paste the shop's TikTok address here and its icon appears in the footer
 export const FREE_SHIPPING_AT = 65;
 // Current promotion on the live store. Clear both strings when it ends.

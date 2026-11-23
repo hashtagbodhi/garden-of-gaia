@@ -932,3 +932,14 @@ body.home .place { gap: 4px !important; }
 #entry { display: none !important; }
 /* no signboard in the grove */
 html body .grove-cap { display: none !important; }
+
+/* ---- the products made with a plant: neat cards, the picture large on top ---- */
+#info .plant-goods { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
+#info .plant-goods li { position: relative; display: grid !important; grid-template-columns: 1fr !important; grid-template-rows: auto 1fr auto; gap: 10px !important; align-items: start; padding: 12px 12px 14px !important; border-radius: 18px; }
+#info .plant-goods img { width: 100% !important; height: auto !important; aspect-ratio: 1; object-fit: contain; padding: 10px; box-sizing: border-box; border-radius: 12px; background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, .1), rgba(255, 255, 255, .02)); filter: none; }
+#info .plant-goods li > div { gap: 3px; align-content: start; }
+#info .plant-goods strong { font-size: 1.15rem; }
+#info .plant-goods .pg-use { font-size: .92rem; line-height: 1.25; }
+#info .plant-goods .text-link { margin-top: 4px; }
+#info .plant-goods .pg-add { justify-self: stretch; width: 100%; text-align: center; }
+#lightbox { cursor: zoom-out; } #lightbox button { cursor: pointer; }
