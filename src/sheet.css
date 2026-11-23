@@ -246,7 +246,7 @@
 @media (min-width: 641px) { .vine-bar { height: 50px; margin-top: 16px; } .vine-bud { width: 54px; height: 49px; margin-top: -48px; } .vine-flower { width: 40px; height: 54px; } .vine-bar.done .vine-flower { width: 96px; height: 82px; right: -60px; } }
 
 /* ---- the site is silent: no sound controls anywhere ---- */
-html body .snd, html body #sound-toggle, html body #sound-btn, .nav-sound, .mn-sound { display: none !important; }
+html body .snd, html body #sound-btn, .nav-sound, .mn-sound { display: none !important; }
 
 /* ================= Garden / Shop: two words in the brand lettering, in a thin outline; where you are glows gold ================= */
 html body .view-switch { display: inline-flex !important; align-items: center; gap: 20px !important; height: auto !important; padding: 9px 20px 10px !important; border-radius: 999px !important; background: rgba(8, 12, 26, .35) !important; box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .22) !important; }

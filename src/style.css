@@ -943,3 +943,6 @@ html body .grove-cap { display: none !important; }
 #info .plant-goods .text-link { margin-top: 4px; }
 #info .plant-goods .pg-add { justify-self: stretch; width: 100%; text-align: center; }
 #lightbox { cursor: zoom-out; } #lightbox button { cursor: pointer; }
+
+/* the garden's sound button is back (sounds are small answers to what you do; there is no music) */
+html body .top-links #sound-toggle { display: inline-grid !important; order: 2; }

@@ -690,80 +690,69 @@ function moveWitch(s, instant) {
 /* ---------- audio ---------- */
 // Sound, kept minimal: no background tone or music. A rare quiet bell, small signs of life, and a small
 // chime when something goes in the basket. No music track, no nature recordings.
-const audio = {
-  ctx: null, master: null, on: true, level: coarse ? 0.5 : 0.7,
-  async start(on) {
-    this.on = on;
-    try {
-      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* older browsers */ }
-      const c = (this.ctx = new (window.AudioContext || window.webkitAudioContext)());
-      c.resume?.();
-      const wake = () => { if (c.state !== 'running') c.resume?.(); };
-      ['touchend', 'pointerup', 'keydown'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
-      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
-      this.master = c.createGain(); this.master.gain.value = 0;
-      const soft = c.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 1800; soft.Q.value = 0.3;
-      this.master.connect(soft).connect(c.destination);
-      this.master2 = c.createGain(); this.master2.gain.value = 0; this.master2.connect(c.destination);
-      this.master2.gain.linearRampToValueAtTime(on ? this.level : 0, c.currentTime + 4);
-      this.master.gain.linearRampToValueAtTime(on ? this.level : 0, c.currentTime + 4);
-      // a bell now and then, never on a beat
-      const notes = [587.33, 659.25, 739.99, 880, 987.77];
-      const ring = () => { if (this.on && document.visibilityState === 'visible') this.bell(notes[(Math.random() * notes.length) | 0], 0.022, 4.5); setTimeout(ring, 9000 + Math.random() * 14000); };
-      setTimeout(ring, 6000);
-      this.nature();
-    } catch (e) { /* the garden still works in silence */ }
-  },
-  bell(f, vol, dur) {
-    const c = this.ctx; if (!c) return; const t = c.currentTime;
-    [[1, vol], [2.01, vol * 0.22]].forEach(([m, v]) => { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = f * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + dur / m); o.connect(g).connect(this.master); o.start(t); o.stop(t + dur / m + 0.05); });
-  },
-  // Little signs of life, far apart: a bird now and then, a leaf stirring, and very rarely a cat or an owl.
-  nature() {
-    const c = this.ctx;
-    // its own path: brighter than the tone (birds live up high) but still soft, and quiet overall
-    this.wild = c.createGain(); this.wild.gain.value = 1;
-    const air = c.createBiquadFilter(); air.type = 'lowpass'; air.frequency.value = 7500; air.Q.value = 0.4;
-    const roomL = c.createDelay(1), fb = c.createGain(), wet = c.createGain();   // a touch of space so nothing sounds right in your ear
-    roomL.delayTime.value = 0.19; fb.gain.value = 0.28; wet.gain.value = 0.22;
-    this.wild.connect(air); air.connect(this.master2);
-    air.connect(roomL); roomL.connect(fb).connect(roomL); roomL.connect(wet).connect(this.master2);
-    const pan = (v) => { const p = c.createStereoPanner ? c.createStereoPanner() : c.createGain(); if (p.pan) p.pan.value = v; p.connect(this.wild); return p; };
-    const live = () => this.on && document.visibilityState === 'visible';
-    const every = (min, max, fn, first) => { const run = () => { if (live()) fn(); setTimeout(run, min + Math.random() * (max - min)); }; setTimeout(run, first ?? min); };
-    // a bird: two to four short whistled notes with a quick upward or downward slide
-    const bird = () => {
-      const out = pan(Math.random() * 1.6 - 0.8), base = 2300 + Math.random() * 2200, n = 2 + ((Math.random() * 3) | 0), up = Math.random() < 0.5;
-      let t = c.currentTime + 0.05;
-      for (let i = 0; i < n; i++) {
-        const o = c.createOscillator(), g = c.createGain(), d = 0.06 + Math.random() * 0.08, f = base * (1 + (Math.random() - 0.5) * 0.18);
-        o.type = 'sine'; o.frequency.setValueAtTime(up ? f * 0.82 : f * 1.18, t); o.frequency.exponentialRampToValueAtTime(up ? f * 1.16 : f * 0.84, t + d);
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.016, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-        o.connect(g).connect(out); o.start(t); o.stop(t + d + 0.02); t += d + 0.04 + Math.random() * 0.09;
-      }
-    };
-    // a leaf or two stirring
-    const noise = c.createBuffer(1, c.sampleRate, c.sampleRate), nd = noise.getChannelData(0);
-    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-    const rustle = () => {
-      const t = c.currentTime, src = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain(), d = 0.5 + Math.random() * 0.7;
-      src.buffer = noise; bp.type = 'bandpass'; bp.frequency.value = 2600 + Math.random() * 2400; bp.Q.value = 0.9;
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.012, t + d * 0.35); g.gain.linearRampToValueAtTime(0, t + d);
-      src.connect(bp).connect(g).connect(pan(Math.random() * 1.4 - 0.7)); src.start(t, Math.random() * 0.4); src.stop(t + d + 0.05);
-    };
-    const sample = (name, vol) => { const b = this.buf?.[name]; if (!b) return; const src = c.createBufferSource(), g = c.createGain(); src.buffer = b; g.gain.value = vol; src.connect(g).connect(pan(Math.random() * 1.2 - 0.6)); src.start(); };
-    this.buf = {};
-    ['meow', 'owl'].forEach(async (n) => { try { const r = await fetch(A(`assets/sfx/${n}.mp3`)); this.buf[n] = await c.decodeAudioData(await r.arrayBuffer()); } catch (e) { /* fine without it */ } });
-    every(5000, 12000, bird, 3000);
-    every(14000, 26000, rustle, 8000);
-    every(55000, 110000, () => sample(Math.random() < 0.5 ? 'meow' : 'owl', 0.09), 40000);
-  },
-  play(n) { if (n === 'chime') { this.bell(880, 0.05, 1.6); setTimeout(() => this.bell(1318.5, 0.035, 1.8), 110); } },   // every other effect is silent now
-  place() {},
-  set(on) { this.on = on; if (this.master) { const t = this.ctx.currentTime; this.master.gain.cancelScheduledValues(t); this.master.gain.linearRampToValueAtTime(on ? this.level : 0, t + 0.6); this.master2?.gain.cancelScheduledValues(t); this.master2?.gain.linearRampToValueAtTime(on ? this.level : 0, t + 0.6); } if (this.ctx?.state === 'suspended') this.ctx.resume(); },
+// ---- the garden's sound kit: no music and no ambience, only small answers to what you do ----
+// Everything is made from two materials that suit the shop: a kalimba-like wooden pluck and a breath of leaves.
+// The plants along the bed are tuned to a D major pentatonic, so walking past them plays a quiet scale.
+const sfx = { ctx: null, out: null, last: {} };
+const PENTA = [293.66, 329.63, 369.99, 440, 493.88];   // D E F# A B
+const noteAt = (i) => PENTA[((i % 5) + 5) % 5] * 2 ** Math.floor(i / 5);
+function sfxCtx() {
+  if (sfx.ctx) return sfx.ctx;
+  try {
+    const c = (sfx.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    const soft = c.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 4200; soft.Q.value = 0.4;
+    const dry = c.createGain(), room = c.createDelay(1), fb = c.createGain(), wet = c.createGain(), master = c.createGain();
+    room.delayTime.value = 0.13; fb.gain.value = 0.32; wet.gain.value = 0.2; master.gain.value = coarse ? 0.85 : 1;
+    dry.connect(soft); soft.connect(master); soft.connect(room); room.connect(fb).connect(room); room.connect(wet).connect(master); master.connect(c.destination);
+    sfx.out = dry;
+    const n = c.createBuffer(1, c.sampleRate * 0.6, c.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; sfx.noise = n;
+  } catch (e) { sfx.ctx = null; }
+  return sfx.ctx;
+}
+// a wooden pluck: a body tone, a quiet octave, and a tiny click of the tine
+function pluck(f, vol, at = 0, len = 0.9) {
+  const c = sfx.ctx, t = c.currentTime + at;
+  [[1, 'sine', vol], [2, 'triangle', vol * 0.28], [4.2, 'sine', vol * 0.08]].forEach(([m, type, v], i) => {
+    const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f * m;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + len / (1 + i * 1.6));
+    o.connect(g).connect(sfx.out); o.start(t); o.stop(t + len + 0.05);
+  });
+}
+// a breath of leaves: filtered noise that swells and settles
+function leaves(vol, len, from = 1800, to = 4200, at = 0) {
+  const c = sfx.ctx, t = c.currentTime + at, src = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = sfx.noise; bp.type = 'bandpass'; bp.Q.value = 0.8; bp.frequency.setValueAtTime(from, t); bp.frequency.exponentialRampToValueAtTime(to, t + len);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + len * 0.4); g.gain.linearRampToValueAtTime(0, t + len);
+  src.connect(bp).connect(g).connect(sfx.out); src.start(t, Math.random() * 0.2); src.stop(t + len + 0.05);
+}
+// a seed dropping into a wooden bowl
+function tok(vol, at = 0) {
+  const c = sfx.ctx, t = c.currentTime + at, o = c.createOscillator(), g = c.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(320, t); o.frequency.exponentialRampToValueAtTime(140, t + 0.09);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  o.connect(g).connect(sfx.out); o.start(t); o.stop(t + 0.2);
+}
+const KIT = {
+  hover: (i) => pluck(noteAt(i + 10), 0.018, 0, 0.5),                            // a fingertip on a high tine
+  step: (i) => pluck(noteAt(i), 0.05, 0, 1.1),                                    // walking the bed: one note per plant
+  bloom: (i) => { const r = i ?? 0; [0, 2, 4, 7].forEach((d, j) => pluck(noteAt(r + d + 5), 0.05 - j * 0.006, j * 0.075, 1.4)); leaves(0.022, 0.5, 1400, 3800); },   // a plant opens
+  close: (i) => { const r = i ?? 0; pluck(noteAt(r + 9), 0.03, 0, 0.7); pluck(noteAt(r + 5), 0.026, 0.09, 0.9); leaves(0.012, 0.3, 3600, 1600); },
+  page: () => { leaves(0.02, 0.28, 900, 3200); pluck(noteAt(3), 0.03, 0.05, 0.8); },   // a product page turns open
+  add: () => { tok(0.12); pluck(noteAt(12), 0.05, 0.07, 1.2); pluck(noteAt(14), 0.04, 0.16, 1.4); },   // into the basket
+  photo: () => leaves(0.016, 0.22, 2200, 4800),
 };
-// the garden is silent: every sound is switched off, and the controls for it are gone
-audio.start = async () => {}; audio.play = () => {}; audio.place = () => {}; audio.set = () => {}; audio.on = false;
+let sfxOn = (() => { try { return localStorage.getItem('gaia-sfx') !== 'off'; } catch (e) { return true; } })();
+const audio = { on: sfxOn, start() {}, place() {},
+  play(name, arg) {
+    if (!sfxOn || !KIT[name] || document.visibilityState !== 'visible') return;
+    const now = performance.now(); if (now - (sfx.last[name] || 0) < (name === 'hover' ? 140 : name === 'step' ? 60 : 40)) return; sfx.last[name] = now;
+    const c = sfxCtx(); if (!c) return; if (c.state !== 'running') c.resume?.();
+    try { KIT[name](typeof arg === 'number' ? arg : undefined); } catch (e) { /* silence is fine */ }
+  },
+  set(on) { sfxOn = this.on = on; try { localStorage.setItem('gaia-sfx', on ? 'on' : 'off'); } catch (e) { /* private mode */ } if (on) this.play('bloom', 0); },
+};
+// browsers start sound only after a touch or a click: wake it on the first one
+['pointerdown', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, () => { if (sfxOn) { const c = sfxCtx(); if (c && c.state !== 'running') c.resume?.(); } }, { passive: true }));
 
 /* ---------- basket ---------- */
 const variantIndex = new Map();
@@ -776,7 +765,7 @@ function addToBasket(id, qty) {
   if (line) line.qty += qty; else basket.push({ id: String(id), qty });
   saveBasket();
   const c = $('#basket-count'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
-  audio.play('chime', 0.55);
+  audio.play('add');
 }
 const about = (p) => p.lede || p.sections.flatMap((x) => x.blocks).find((b) => b.k === 'p')?.t || '';
 function nameBtn(p) {
@@ -921,7 +910,7 @@ function select(it, quiet) {
   if (!narrow.matches) { shift.tx = portrait ? 0 : Math.min(620, innerWidth * 0.52) * 0.42; shift.ty = portrait ? innerHeight * 0.5 - (64 + innerHeight * 0.4) / 2 : 0; }
   paged = narrow.matches;   // phones: a full page, the garden steps aside
   document.body.classList.toggle('paged', paged);
-  if (!quiet) audio.play('clink', 0.45);
+  if (!quiet) audio.play('page');
   history.replaceState(null, '', `#grove--p--${p.handle}`);
   $('#detail-close').focus({ preventScroll: true });
 }
@@ -936,6 +925,7 @@ function syncDetail() {
 function closeOverlays(keep) {
   ['#detail', '#info', '#basket', '#index', '#menu', '#lightbox'].forEach((s) => { $(s).hidden = true; });
   if (!keep && location.hash.startsWith('#grove--')) history.replaceState(null, '', '#grove');
+  if (openK && $('#detail').hidden) audio.play('close', GBED.indexOf(openK));
   document.body.classList.remove('reading', 'pop-on', 'companion'); openK = null; restShift();
   const wasPaged = paged; paged = false; document.body.classList.remove('paged');
   if (selected && current?.lined) hoverItem = focusOf(current);
@@ -946,7 +936,7 @@ function openInfo(i) {
   closeOverlays(true); $('#info').hidden = false; document.body.classList.add('reading');
   paged = narrow.matches; document.body.classList.toggle('paged', paged);   // phones: a full page, like a product
   $('#info-close').textContent = i.back || 'Back to the roots'; $('#info-close').removeAttribute('aria-label');
-  if (i.build) $('#info-body').replaceChildren(...i.build()); else $('#info-body').innerHTML = i.html; $('#info .column-in').scrollTop = 0; audio.play('flutter', 0.4);
+  if (i.build) $('#info-body').replaceChildren(...i.build()); else $('#info-body').innerHTML = i.html; $('#info .column-in').scrollTop = 0;
   $('#info-close').focus({ preventScroll: true });
 }
 function plantProducts(k) { return allItems.filter((it) => (ingredientData.products[it.p.handle] || []).includes(k)); }
@@ -975,6 +965,7 @@ function openPlant(k) {
     })),
   ] });
   if (location.hash !== `#grove--${k}`) history.replaceState(null, '', `#grove--${k}`);
+  audio.play('bloom', GBED.indexOf(k));
   if (side) {
     $('#info-close').setAttribute('aria-label', 'Close');
     const g = current; openK = k; paged = false; document.body.classList.remove('reading', 'paged'); document.body.classList.add('companion');
@@ -1022,7 +1013,7 @@ function openIndex(filter = 'all') {
 }
 /* ---------- photos ---------- */
 let lb = { p: null, i: 0 };
-function openLightbox(p, i) { lb = { p, i }; $('#lightbox').hidden = false; showPhoto(); $('#lightbox-close').focus({ preventScroll: true }); }
+function openLightbox(p, i) { audio.play('photo'); lb = { p, i }; $('#lightbox').hidden = false; showPhoto(); $('#lightbox-close').focus({ preventScroll: true }); }
 function showPhoto() {
   const n = lb.p.gallery.length; lb.i = (lb.i + n) % n;
   $('#lightbox-img').src = A(lb.p.gallery[lb.i]); $('#lightbox-img').alt = `${lb.p.title}, photo ${lb.i + 1}`;
@@ -1046,7 +1037,6 @@ function syncFocus() {
   if (current?.gLined) {
     $('#focus').hidden = false; document.body.classList.add('lined', 'grove-air');
     const k = groveFocus(current), pl = GPLANTS[k];
-    if (k !== lastFocus && lastFocus && entered) audio.play('flutter', 0.14, 1.3);
     lastFocus = k;
     $('#focus-count').textContent = 'Swipe any way to wander · tap a plant to meet it';
     $('#focus-name').textContent = pl.n; $('#focus-price').textContent = [pl.b, `${GCOUNT[k]} ${GCOUNT[k] === 1 ? 'product' : 'products'}`].filter(Boolean).join(' · ');
@@ -1062,7 +1052,6 @@ function syncFocus() {
   const it = focusOf(s); hoverItem = selected ? null : it;
   $('#focus-prev').disabled = it.index === 0; $('#focus-next').disabled = it.index === s.items.length - 1;
   if (it === lastFocus) return;
-  if (lastFocus && entered) audio.play('flutter', 0.14, 1.3);
   lastFocus = it;
   $('#focus-count').textContent = `${s.label} · ${it.index + 1} of ${s.items.length}`;
   $('#focus-name').textContent = it.p.name; $('#focus-price').textContent = [priceLabel(it.p), plantNames(it.p) || it.p.sub].filter(Boolean).join(' · ');
@@ -1098,7 +1087,7 @@ function go(id, instant) {
   if (!selected) restShift();
   if (changed) { buildLabels(s); wantCuts(s.items, true); }
   lastFocus = null; syncFocus();
-  if (changed) { travel.t = instant ? 1 : 0; flyTo(s, instant); moveWitch(s, instant); if (entered && !instant) audio.play('whoosh', 0.4); }
+  if (changed) { travel.t = instant ? 1 : 0; flyTo(s, instant); moveWitch(s, instant); }
 }
 function route(instant) {
   const [id, handle] = location.hash.slice(1).split('--');
@@ -1157,6 +1146,7 @@ function resolveHover(now) {
   if (!hoverEvt || now - lastHover < 70 || travel.t < 0.999) return;
   lastHover = now; const hit = pick(hoverEvt); hoverEvt = null; kb = -1;
   if (!current?.lined) hoverItem = hit?.item && hit.item !== selected ? hit.item : null;
+  if (hit?.plant && hit.plant !== hoverPlant) audio.play('hover', GBED.indexOf(hit.plant));
   hoverPlant = hit?.plant || null;
   const cur = hit ? 'pointer' : ''; if (canvas.style.cursor !== cur) canvas.style.cursor = cur;
 }
@@ -1188,7 +1178,7 @@ addEventListener('keydown', (e) => {
   if (false) { const L = selected.station.items, n2 = L.length; select(L[(selected.index + (e.key === 'ArrowRight' ? 1 : -1) + n2) % n2], true); e.preventDefault(); return; }
   if (selected || !current?.items.length || e.target.closest?.('.panel, .index, .column')) return;
   const n = current.items.length;
-  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { kb = (kb + (e.key === 'ArrowRight' ? 1 : -1) + n) % n; hoverItem = current.items[kb]; audio.play('flutter', 0.14, 1.3); }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { kb = (kb + (e.key === 'ArrowRight' ? 1 : -1) + n) % n; hoverItem = current.items[kb]; }
   if (e.key === 'Enter' && kb >= 0 && e.target === document.body) select(current.items[kb]);
 });
 
@@ -1232,7 +1222,8 @@ runTicker($('#sl-track'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct f
 const searchIndex = (v) => { const q = v.trim().toLowerCase(); $('#index-list').querySelectorAll('button').forEach((b) => { b.hidden = !!q && !b.textContent.toLowerCase().includes(q); }); $('#index-list').querySelectorAll('h3').forEach((h) => { let n = h.nextElementSibling, any = false; while (n && n.tagName !== 'H3') { if (!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; }); };
 $('#index-search').oninput = (e) => searchIndex(e.target.value);
 $('#menu-search-form').onsubmit = (e) => { e.preventDefault(); const q = $('#menu-search').value; openIndex('all'); $('#index-search').value = q; searchIndex(q); };
-$('#sound-toggle').onclick = (e) => { const on = !audio.on; audio.set(on); e.currentTarget.setAttribute('aria-pressed', String(on)); e.currentTarget.querySelector('.sr').textContent = on ? 'Sound on' : 'Sound off'; $('#menu-sound').textContent = on ? 'Turn sound off' : 'Turn sound on'; };
+$('#sound-toggle').setAttribute('aria-pressed', String(sfxOn)); $('#sound-toggle .sr').textContent = sfxOn ? 'Sound on' : 'Sound off'; $('#sound-toggle').classList.toggle('off', !sfxOn);
+$('#sound-toggle').onclick = (e) => { e.currentTarget.classList.toggle('off', audio.on); const on = !audio.on; audio.set(on); e.currentTarget.setAttribute('aria-pressed', String(on)); e.currentTarget.querySelector('.sr').textContent = on ? 'Sound on' : 'Sound off'; $('#menu-sound').textContent = on ? 'Turn sound off' : 'Turn sound on'; };
 $('#info-body').addEventListener('click', (e) => { if (e.target.closest('a[href^="#"]')) closeOverlays(true); });
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
@@ -1242,8 +1233,6 @@ $('#enter-no').onclick = () => { $('#entry-ask').hidden = true; $('#entry-denied
 $('#enter-yes').onclick = () => {
   const withSound = $('#entry-sound').checked;
   try { localStorage.setItem('gaia-21', 'true'); } catch (e) { /* private mode */ }
-  audio.start(withSound);
-  $('#sound-toggle').setAttribute('aria-pressed', String(withSound)); $('#sound-toggle .sr').textContent = withSound ? 'Sound on' : 'Sound off';
   $('#entry').hidden = true;
   $('#topbar').hidden = false; $('#hud').hidden = false;
   gsap.killTweensOf(camPos); entered = true; current = null; route(false);
@@ -1264,7 +1253,11 @@ function frame() {
     const s = current, e = Math.min(1, dt * 7); s.gx += (s.gtx - s.gx) * e; s.gy += (s.gty - s.gy) * e; groveView(s);
     if (travel.t >= 0.999) { camPos.lerp(s.camPos, Math.min(1, dt * 10)); camLook.lerp(s.camLook, Math.min(1, dt * 10)); }
   }
-  if (current?.id === 'grove') placeBackdrop(current);
+  if (current?.id === 'grove') {
+    placeBackdrop(current);
+    const g = current, n = GBED.length, sx = (2 * (g.gHalf - 1.5)) / Math.max(1, n - 1), i = THREE.MathUtils.clamp(Math.round((g.gx + (g.gHalf - 1.5)) / sx), 0, n - 1);
+    if (g.stepAt == null) g.stepAt = i; else if (i !== g.stepAt) { g.stepAt = i; if (travel.t >= 0.999 && !openK) audio.play('step', i); }
+  }
   if (groveOrbs.length) {
     const near = current?.id === 'grove', fk = near && current.gLined ? groveFocus(current) : null, g = byId.grove;
     for (const o of groveOrbs) {
