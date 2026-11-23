@@ -1,0 +1,14 @@
+const { chromium, devices } = require('playwright'); const U = 'http://127.0.0.1:4175/';
+(async () => { const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const errs = [];
+  const c = await b.newContext(devices['iPhone 13']); const p = await c.newPage(); p.setDefaultTimeout(8000); p.on('pageerror', (e) => errs.push(String(e)));
+  await p.addInitScript(() => localStorage.setItem('gaia-21', 'true'));
+  await p.goto(U + '#gate'); await p.waitForFunction('window.__ready', null, { timeout: 90000 }); if (await p.isVisible('#enter-yes')) await p.tap('#enter-yes'); await p.waitForTimeout(4000);
+  await p.evaluate(() => { location.hash = '#grove'; }); await p.waitForTimeout(13000); await p.screenshot({ path: 'raw/_p0.jpg', type: 'jpeg', quality: 80 });
+  const cdp = await c.newCDPSession(p); const drag = async (x0, y0, x1, y1) => { await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0 }] }); for (let i = 1; i <= 8; i++) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + (x1 - x0) * i / 8, y: y0 + (y1 - y0) * i / 8 }] }); await p.waitForTimeout(16); } await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); };
+  await drag(320, 450, 60, 430); await p.waitForTimeout(2200); await p.screenshot({ path: 'raw/_p1.jpg', type: 'jpeg', quality: 80 });
+  await drag(320, 450, 60, 470); await p.waitForTimeout(2200); await p.screenshot({ path: 'raw/_p2.jpg', type: 'jpeg', quality: 80 });
+  await p.touchscreen.tap(300, 532); await p.waitForTimeout(2200); const r = await p.evaluate(() => { const i = document.querySelector('#info'); const b = i.getBoundingClientRect(); return { open: !i.hidden, top: Math.round(b.top), h: Math.round(b.height), vh: innerHeight, paged: document.body.classList.contains('paged'), back: document.querySelector('#info-close').textContent, title: document.querySelector('#info-title')?.textContent }; }); console.log(JSON.stringify(r)); await p.screenshot({ path: 'raw/_p3.jpg', type: 'jpeg', quality: 80 });
+  await p.locator('.plant-goods .pg-row strong').first().click(); await p.waitForTimeout(2000); console.log('product', await p.isVisible('#detail'), await p.textContent('#detail-close'));
+  await p.click('#detail-close'); await p.waitForTimeout(1500); console.log('back to plant', await p.isVisible('#info'));
+  await p.click('#info-close'); await p.waitForTimeout(1800); console.log('back to grove', await p.isHidden('#info')); await p.screenshot({ path: 'raw/_p4.jpg', type: 'jpeg', quality: 80 });
+  console.log('errors', errs); await b.close(); })();

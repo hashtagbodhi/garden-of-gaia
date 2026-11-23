@@ -152,27 +152,15 @@ const s0 = (o, g) => tmp.copy(o.base).setY(0.06).addScaledVector(g.r, 0.62).addS
 const khash = (k) => Math.abs(k.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
 function groveLayout(s) {
   const n = GBED.length; s.D = s.p.clone().addScaledVector(s.f, 4); s.gLined = portrait; s.gFree = true; s.gPos = {}; s.gXZ = {};
-  if (portrait) {
-    // phones: the painted plants drifting in the night air; swipe in any direction to move among them
-    const cols = 9, rows = Math.ceil(n / cols), sx = 2.45, sy = 3.05, half = ((cols - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = 3;
+  {
+    // one long bed to walk along. Wide screens see four or five plants at a time; a phone sees one or two, large, and swipes on
+    const sx = portrait ? 2.9 : 3.5, half = ((n - 1) / 2) * sx, edge = portrait ? 0.4 : 4.3, mode = portrait ? 'bed-p' : 'bed'; s.gHalf = half + 1.5; s.gDepth = 3; s.gDist = portrait ? 8.2 : 11.5;
     GBED.forEach((k, i) => {
-      const row = Math.floor(i / cols), m = Math.min(cols, n - row * cols), col = i % cols, h = khash(k);
-      const x = (col - (m - 1) / 2) * sx + (row % 2 ? sx * 0.3 : -sx * 0.15) + ((h % 7) - 3) * 0.07;
-      const y = 1.9 + (rows - 1 - row) * sy + (((h >> 3) % 7) - 3) * 0.09, z = -(((h >> 6) % 9) / 8) * 0.9;
-      s.gXZ[k] = [x, y, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(y);
-    });
-    s.gY0 = 1.9; s.gY1 = 1.9 + (rows - 1) * sy; s.gDist = 9.4;
-    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== 'air') { s.gMode = 'air'; s.gSel = null; s.gx = s.gtx = -half + 2.3; s.gy = s.gty = s.gY1 - sy * 0.6; }
-    groveView(s);
-  } else {
-    // wide screens: a walk along the bed. Four to six plants stand in view at a time, large; drag or scroll to walk on
-    const sx = 3.5, half = ((n - 1) / 2) * sx; s.gHalf = half + 1.5; s.gDepth = 3; s.gDist = 11.5;
-    GBED.forEach((k, i) => {
-      const h = khash(k), x = (i - (n - 1) / 2) * sx + ((h % 7) - 3) * 0.06, z = (i % 2 ? -1.9 : 0) + (((h >> 6) % 7) - 3) * 0.1;
+      const h = khash(k), x = (i - (n - 1) / 2) * sx + ((h % 7) - 3) * 0.06, z = (i % 2 ? (portrait ? -0.9 : -1.9) : 0) + (((h >> 6) % 7) - 3) * 0.1;
       s.gXZ[k] = [x, 2.7, 0]; s.gPos[k] = s.D.clone().addScaledVector(s.r, x).addScaledVector(s.f, z).setY(0);
     });
     s.gY0 = s.gY1 = 2.7;
-    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== 'bed') { s.gMode = 'bed'; s.gSel = null; s.gx = s.gtx = -half + 4.3; s.gy = s.gty = 2.7; }
+    if (s.gx == null || Math.abs(s.gx) > half || s.gMode !== mode) { s.gMode = mode; s.gSel = null; s.gx = s.gtx = -half + edge; s.gy = s.gty = 2.7; }
     groveView(s);
   }
   s.propPos = s.D.clone().addScaledVector(s.f, -(s.gDepth + 7));
@@ -185,7 +173,7 @@ function groveView(s) {
   s.witchPos = s.D.clone().addScaledVector(s.r, -(s.gHalf + 1.6)).addScaledVector(s.f, 1.2);
 }
 const groveFocus = (s) => { if (s.gSel) return s.gSel; let best = GBED[0], bd = Infinity; for (const k of GBED) { const [x, y] = s.gXZ[k], d = (x - s.gtx) ** 2 + (y - s.gty) ** 2; if (d < bd) { bd = d; best = k; } } return best; };
-const groveClamp = (s) => { const m = portrait ? 1.2 : 4.3; s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + m, s.gHalf - m); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0 - (portrait ? 0.4 : 0), s.gY1 + (portrait ? 0.4 : 0)); };
+const groveClamp = (s) => { const m = portrait ? 1.9 : 4.3; s.gtx = THREE.MathUtils.clamp(s.gtx, -s.gHalf + m, s.gHalf - m); s.gty = THREE.MathUtils.clamp(s.gty, s.gY0, s.gY1); };
 function standFor(kind, top) {
   const low = top < 1.0, mid = top < 2.4;
   if (kind === 'bottle') return low ? 'stand-mshort' : mid ? 'stand-mtall' : 'ped2';
@@ -423,7 +411,7 @@ function placeGrove(s) {
   for (const o of groveOrbs) {
     const p = s.gPos[o.k]; if (!p) continue;
     // the window can change shape after the grove is built (a phone turned, a preview frame that grows): size each plant for the shape it has now
-    if (o.art) { const a = plantArt[o.k], h0 = khash(o.k); o.air = portrait; o.h = o.air ? 2.2 + (h0 % 5) * 0.06 : 3.9 + (h0 % 5) * 0.12; o.w = o.h * a.w / a.h; if (o.air && o.w > 1.95) { o.w = 1.95; o.h = o.w * a.h / a.w; } o.mesh.scale.set(o.w, o.h, 1); }
+    if (o.art) { const a = plantArt[o.k], h0 = khash(o.k); o.air = false; o.h = 3.9 + (h0 % 5) * 0.12; o.w = o.h * a.w / a.h; if (portrait && o.w > 2.7) { o.w = 2.7; o.h = o.w * a.h / a.w; } o.mesh.scale.set(o.w, o.h, 1); }
     if (o.air) { o.base = p.clone(); o.mesh.position.copy(p); continue; }
     if (o.art) { o.base = p.clone().setY(o.h / 2 - 0.12); o.mesh.position.copy(o.base); continue; }
     const lift = 1.25 + (khash(o.k) % 4) * 0.12;   // no painting yet: its photograph in a round frame, on a stake
@@ -924,7 +912,7 @@ function openInfo(i) {
 function plantProducts(k) { return allItems.filter((it) => (ingredientData.products[it.p.handle] || []).includes(k)); }
 function openPlant(k) {
   const pl = GPLANTS[k]; if (!pl) return;
-  const side = current?.id === 'grove' && (portrait || !narrow.matches), swap = side && !!openK;
+  const side = current?.id === 'grove' && !portrait && !narrow.matches, swap = side && !!openK;
   const list = plantProducts(k), ph = plantPhotos[k], art = plantArt[k];
   openInfo({ id: 'plant', back: side ? 'Close' : 'Back to the grove', build: () => [
     side ? el('p', { className: 'side-hint', textContent: portrait ? 'Keep wandering above. Tap another plant, or the garden to close.' : 'Keep walking. Tap another plant to read about it, or the ground to close.' }) : '',
@@ -1043,15 +1031,16 @@ function buildLabels(s) {
   const box = $('#labels'); box.replaceChildren();
   labels = s.items.map((it) => { const d = el('div', { className: 'lab' }, el('span', { textContent: it.p.name }), el('small', { textContent: [priceLabel(it.p), plantNames(it.p, 2)].filter(Boolean).join(' · ') })); box.append(d); return { it, el: d }; });
 }
-function restShift() { if (!openK && current?.id === 'grove') { shift.tx = 0; shift.ty = -innerHeight * (portrait ? 0.07 : 0.12); return; } if (openK) { shift.ty = portrait ? innerHeight * 0.3 : 0; shift.tx = portrait ? 0 : Math.min(250, innerWidth * 0.16); return; } shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
+function restShift() { if (current?.id === 'gate' && !portrait) { shift.tx = 0; shift.ty = innerHeight * 0.13; return; }   // the gate rides a little high, leaving the foot of the page for the welcome
+  if (!openK && current?.id === 'grove') { shift.tx = 0; shift.ty = innerHeight * (portrait ? 0.03 : -0.12); return; } if (openK) { shift.ty = portrait ? innerHeight * 0.3 : 0; shift.tx = portrait ? 0 : Math.min(250, innerWidth * 0.16); return; } shift.ty = portrait ? innerHeight * (current?.items.length ? 0.17 : 0.17) : 0; shift.tx = (current?.items.length || current?.id === 'grove') && !portrait ? -innerWidth * 0.085 : 0; }
 function go(id, instant) {
   if (id && id !== 'gate') id = 'grove';   // the garden is the herb grove; there are no other clearings to visit
   const s = byId[id] || byId.gate, changed = s !== current; current = s;
   if (location.hash.slice(1).split('--')[0] !== s.id && !(s.id === 'gate' && !location.hash.slice(1))) history.pushState(null, '', `#${s.id}`);
   const home = s.id === 'gate', place = $('#place');
-  place.toggleAttribute('data-home', home); document.body.classList.toggle('home', home); place.hidden = s.id === 'grove'; $('#grove-cap').hidden = s.id !== 'grove';   // the places bar appears once you are inside the garden
+  place.toggleAttribute('data-home', home); document.body.classList.toggle('home', home); place.hidden = s.id === 'grove'; $('#grove-cap').hidden = s.id !== 'grove'; document.body.classList.toggle('in-grove', s.id === 'grove');   // the places bar appears once you are inside the garden
   $('#place-label').hidden = home && narrow.matches;
-  $('#place-label').replaceChildren(...(home ? ['Organic herbal teas,', el('br'), 'tinctures and ritual tools'] : [s.label]));
+  $('#place-label').replaceChildren(...(home ? ['Organic herbal teas, ', el('br'), 'tinctures and ritual tools'] : [s.label]));
   $('#place-title').textContent = home ? 'Reconnecting you with your roots' : s.name;
   $('#place-says').hidden = home || !s.says; $('#place-says-text').textContent = s.says ? `“${s.says}”` : '';
   audio.place(s.id);
@@ -1136,12 +1125,21 @@ canvas.addEventListener('pointerup', (e) => {
   if (current?.lined && current.items.length && !selected) { current.panTarget = focusOf(current).index * STEP; syncFocus(); }
   if (current?.gFree && moved > 8 && downWas) { const perPx = (2 * current.gDist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / innerHeight; current.gtx -= (downWas.vx || 0) * perPx * 7; if (portrait) current.gty += (downWas.vy || 0) * perPx * 7; groveClamp(current); canvas.style.cursor = ''; syncFocus(); }
   if (moved > 8) return;
-  const hit = pick(e);
+  let hit = pick(e);
+  // a tap on a plant's name, or on its "Meet the plant" pill, counts as a tap on the plant
+  if (!hit && current?.id === 'grove' && !openK) { const o = groveOrbs.find((q) => q.tagA > 0.2 && Math.abs(e.clientX - q.sx) < 84 && e.clientY > q.sy - 16 && e.clientY < q.sy + 96); if (o) hit = { plant: o.k }; }
   if (!hit) { if (selected || openK) closeOverlays(); return; }
   if (hit.station) { closeOverlays(true); go(hit.station); }
   else if (hit.witch) { closeOverlays(true); go(current.id === 'gate' ? 'tea' : 'potions'); }
   else if (hit.item) { if (hit.item.station !== current) go(hit.item.station.id); select(hit.item); }
-  else if (hit.plant) { if (current.id !== 'grove') go('grove'); if (hit.plant !== openK) openPlant(hit.plant); }
+  else if (hit.plant) {
+    if (current.id !== 'grove') go('grove');
+    if (hit.plant !== openK) {
+      // the page opens under the finger: swallow the click that follows this tap, so it cannot land on whatever appears there
+      const stop = (ev) => { ev.stopPropagation(); ev.preventDefault(); }; addEventListener('click', stop, true); setTimeout(() => removeEventListener('click', stop, true), 420);
+      openPlant(hit.plant);
+    }
+  }
 });
 addEventListener('keydown', (e) => {
   if (!entered) return;
@@ -1286,8 +1284,8 @@ function frame() {
         if (o.air) { tmp.copy(o.mesh.position); tmp.y -= o.h * 0.52; } else { tmp.copy(g.gPos[o.k]); tmp.y = 0.2; } tmp.project(camera); const x = ((tmp.x + 1) / 2) * innerWidth, y = ((1 - tmp.y) / 2) * innerHeight;
         if (tmp.z < 1 && x > -120 && x < innerWidth + 120) {
           const on = o.k === hoverPlant || o.k === openK || o.k === fk2;
-          a = y > sheetTop - 30 || (portrait && (y < headH + 26 || y > innerHeight - barH - 70)) ? 0 : portrait ? (on ? 1 : THREE.MathUtils.clamp(1.3 - Math.hypot((x - innerWidth / 2) / innerWidth, (y - innerHeight * 0.45) / innerHeight) * 1.7, 0.3, 1)) : x > edge - 40 ? 0 : on ? 1 : THREE.MathUtils.clamp(1.25 - Math.abs(x - (openK ? edge / 2 : innerWidth * 0.5)) / (innerWidth * 0.5), 0.35, 1);
-          o.label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, 0)`;
+          a = y > sheetTop - 30 || (portrait && (y < headH + 26 || y > innerHeight - 96)) ? 0 : portrait ? (on ? 1 : THREE.MathUtils.clamp(1.3 - Math.hypot((x - innerWidth / 2) / innerWidth, (y - innerHeight * 0.45) / innerHeight) * 1.7, 0.3, 1)) : x > edge - 40 ? 0 : on ? 1 : THREE.MathUtils.clamp(1.25 - Math.abs(x - (openK ? edge / 2 : innerWidth * 0.5)) / (innerWidth * 0.5), 0.35, 1);
+          o.label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, 0)`; o.sx = x; o.sy = y;
           if (o.tagOn !== on) { o.tagOn = on; o.label.classList.toggle('on', on); } if ((o.k === openK) !== o.tagOpen) { o.tagOpen = o.k === openK; o.label.classList.toggle('open', o.tagOpen); }
         }
       }
