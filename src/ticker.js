@@ -25,3 +25,10 @@ export function runTicker(track, items, reduce) {
   const pace = () => { track.style.animationDuration = `${Math.max(20, Math.round(track.scrollWidth / 2 / 52))}s`; };
   pace(); addEventListener('resize', pace); document.fonts?.ready.then(pace);
 }
+
+// No zooming the page by accident. Safari on iPhone ignores the page's no-zoom setting, so pinches and
+// double-taps are stopped here, and the stylesheet allows only scrolling gestures.
+['gesturestart', 'gesturechange', 'gestureend'].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', (e) => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => { const now = Date.now(); if (now - lastTouchEnd < 320 && !e.target.closest?.('input, textarea, select, button, a, label, [role="button"], canvas')) e.preventDefault(); lastTouchEnd = now; }, { passive: false });
