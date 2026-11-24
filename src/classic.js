@@ -427,7 +427,7 @@ function product(p) {
   const aside = el('aside', { className: 'pp-aside' }, el('div', { className: 'pa-photos' }, extra.map((src, i) => el('img', { className: `pa-${i}`, src: A(src), alt: '', loading: 'lazy' }))),
     el('div', { className: 'pa-card tone-' + col.tone }, moons('pa-moon'), el('h3', { textContent: 'The apothecary promise' }), el('ul', {}, [['leaf', 'Organic, pesticide-free plants'], ['plant-2', 'Direct from family farms in Sri Lanka'], ['flower', 'Mixed by hand in small batches'], ['seedling', 'Nothing you can’t pronounce']].map(([ic, t]) => el('li', {}, icon(ic), t)))));
   out.push(ribbons([p.name, col.name, 'Small batch', 'Hand harvested'], pl.length ? pl.map((x) => x.n) : ['Farm direct', 'Sri Lanka', 'Made by hand']));
-  out.push(el('section', { className: 'sec tone-cream details scal' }, el('div', { className: 'details-in' }, p.lede ? el('p', { className: 'first', textContent: p.lede }) : null, p.sections.map((s) => ({ ...s, blocks: s.blocks.filter((b) => !(b.k === 'note' && b.t && b.t.toLowerCase().includes(p.name.toLowerCase()))) })).filter((s) => s.blocks.length).map((s, i) => el('details', { open: i < 2 }, el('summary', {}, icon(s.icon === 'cup' ? 'cup' : s.icon === 'package' ? 'bottle' : s.icon === 'lotus' ? 'flower' : s.icon === 'plant' ? 'plant-2' : s.icon || 'leaf'), el('span', { textContent: s.title })), blocks(s.blocks)))),
+  out.push(el('section', { className: 'sec tone-cream details scal' }, el('div', { className: 'details-in' }, p.lede ? el('p', { className: 'first', textContent: p.lede }) : null, tidySections(p).map((s, i) => el('details', { open: i < 2 }, el('summary', {}, icon(s.icon), el('span', { textContent: s.title })), blocks(s.blocks)))),
     el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease. Consult a healthcare professional before use if pregnant, nursing, or on medication.' }), aside));
   const w = reviewData.wholesale[p.handle];
   if (w) out.push(el('section', { className: 'sec tone-hibiscus duo-one' }, el('p', { className: 'kicker', textContent: 'Wholesale' }), el('h2', { textContent: w.h }), el('p', { className: 'sec-sub', textContent: w.t }), el('a', { className: 'btn', href: `${STORE}/pages/wholesale-blue-water-lily`, target: '_blank', rel: 'noopener', textContent: 'Apply for wholesale' })));
@@ -468,11 +468,55 @@ function product(p) {
   if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { const on = !e.isIntersecting && e.boundingClientRect.top < 0 && bar.isConnected; bar.classList.toggle('on', on); document.body.classList.toggle('buybar-on', on); }).observe(add);
   return [...order.map((x) => (x === null ? tabs : x)).filter(Boolean), bar];
 }
+// The store's product write-ups come in many shapes (a tag list as "About", a product name as a heading,
+// three spellings of "How to use"). This folds each one into the same calm order:
+// About, Ingredients, How to use, Benefits, Sourcing & quality, Good to know.
+const KINDS = [
+  ['ingredients', 'Ingredients', 'plant-2', /ingredient|botanical blend|key botanical|bundle includes|included in each|^includes?\b/i],
+  ['use', 'How to use', 'cup', /how to use|suggested use|instruction|prepar|serving|hot tea|cold brew|use as|ritual use|insect use|^lotus tea$/i],
+  ['benefits', 'Benefits', 'flower', /benefit|properties|powerhouse|daily wellness/i],
+  ['sourcing', 'Sourcing & quality', 'leaf', /sourcing|quality/i],
+  ['care', 'Good to know', 'leaf', /caution|warning|safety/i],
+];
+const flat = (t) => (t || '').toLowerCase().replace(/[’'"“”~]/g, '').replace(/\s+/g, ' ').trim();
+// sentence case for small headings, keeping the names of products and places
+const KEEP_CASE = new Set(['Hathor’s', "Hathor's", 'Ease', 'Nectar', 'Blue', 'Lotus', 'Moringa', 'Sri', 'Lanka', 'Yoni', 'Palo', 'Santo', 'Ayurvedic']);
+const sentence = (t) => t.split(' ').map((w, i) => (i === 0 || KEEP_CASE.has(w.replace(/[:?!,]$/, '')) || /[A-Z].*[A-Z]/.test(w.slice(1)) ? w : w.toLowerCase())).join(' ');
+const cleanTitle = (t) => t.replace(/[“”"]/g, '').replace(/!{2,}/g, '!').replace(/\bburner burner\b/i, 'burner').replace(/\s*~\s*/g, ': ').trim();
+function tidySections(p) {
+  const name = flat(p.name), groups = new Map(), tags = [];
+  for (const sec of p.sections) {
+    const title = cleanTitle(sec.title || '');
+    const kind = KINDS.find(([, , , re]) => re.test(title));
+    const key = kind ? kind[0] : 'about';
+    const keep = [];
+    for (const b of sec.blocks) {
+      if (b.k === 'note' && b.t && b.t.includes('•')) { tags.push(...b.t.split('•').map((x) => x.trim()).filter(Boolean)); continue; }   // tag lists become one "at a glance" line
+      if (b.k === 'note' && flat(b.t).includes(name)) continue;   // a line that only repeats the product name
+      keep.push(b);
+    }
+    if (!keep.length) continue;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({ title, blocks: keep });
+  }
+  const order = [['about', 'About', 'flower'], ...KINDS.map(([k, t, ic]) => [k, t, ic])];
+  const out = order.filter(([k]) => groups.has(k)).map(([k, t, ic]) => {
+    const parts = groups.get(k);
+    // only label the pieces when a section was stitched together from several (and never with the product name or "About")
+    const label = (x) => parts.length > 1 && x.title && !/^about$/i.test(x.title) && flat(x.title) !== flat(t) && !flat(x.title).includes(name);
+    const title = k === 'ingredients' && parts.every((x) => /bundle|included|includes/i.test(x.title)) ? 'In the bundle' : t;
+    return { title, icon: ic, blocks: parts.flatMap((x) => (label(x) ? [{ k: 'h', t: sentence(x.title) }, ...x.blocks] : x.blocks)) };
+  });
+  if (tags.length) { let a = out.find((x) => x.title === 'About'); if (!a) { a = { title: 'About', icon: 'flower', blocks: [] }; out.unshift(a); } a.blocks.push({ k: 'tags', t: [...new Set(tags)] }); }
+  return out;
+}
 function blocks(list) {
   const out = []; let ul = null;
   for (const b of list) {
     if (b.k === 'li') { if (!ul) { ul = el('ul'); out.push(ul); } ul.append(b.term ? el('li', {}, el('b', { textContent: `${b.term}. ` }), b.t) : el('li', { textContent: b.t })); continue; }
     ul = null;
+    if (b.k === 'h') { out.push(el('h4', { className: 'dsub', textContent: b.t })); continue; }
+    if (b.k === 'tags') { out.push(el('p', { className: 'dglance' }, el('b', { textContent: 'At a glance' }), ' ', b.t.join(' · '))); continue; }
     if (b.k === 'dt') out.push(el('p', { className: 'dt' }, el('b', { textContent: b.term }), el('span', { textContent: b.t })));
     else if (b.k === 'note' && b.t.includes('•')) out.push(el('ul', { className: 'tags' }, b.t.split('•').map((x) => x.trim()).filter(Boolean).map((x) => el('li', { textContent: x }))));
     else out.push(el('p', { className: b.k === 'note' ? 'aside' : '', textContent: b.t }));

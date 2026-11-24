@@ -2077,3 +2077,7 @@ html body .head .logo { width: 132px; height: 112px; }
 .card-win { box-shadow: none !important; background: none !important; border: 0 !important; outline: 0 !important; }
 .card-win img { object-fit: cover !important; }
 .card-art { background: none !important; }
+.details .dsub { margin: 18px 0 6px !important; font-family: var(--display); font-weight: 400; font-size: 1.22rem; line-height: 1.2; color: var(--ink); }
+.details details > .dsub:first-of-type { margin-top: 4px !important; }
+.details .dglance { margin-top: 14px !important; padding-top: 12px; border-top: 1px solid var(--rule, rgba(246, 240, 226, .16)); font-style: italic; color: var(--ink-2); }
+.details .dglance b { font-style: normal; font-weight: 600; color: var(--ink); margin-right: 4px; }
