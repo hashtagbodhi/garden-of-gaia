@@ -1858,3 +1858,14 @@ footer .promise h3 { text-wrap: balance; }
 .vhero h1 { max-width: 11ch; }
 .hero-switch { top: 18px; bottom: auto; }
 @media (max-width: 820px) { .hero-switch { top: 12px; bottom: auto; right: max(12px, env(safe-area-inset-right, 0px)); transform: none; } .hs-l { display: none; } .hs-opt { min-height: 32px; padding: 0 12px; font-size: .92rem; } }
+
+/* ---- the footer film: full width, edge to edge, the very bottom of the page ---- */
+.foot-film { position: relative; width: 100vw; margin: 36px calc(50% - 50vw) -40px; aspect-ratio: 21 / 9; max-height: 78vh; overflow: hidden; background: #c9b9c9; }
+.ff-vid { display: block; width: 100%; height: 100%; object-fit: cover; }
+.foot-film::before { content: ''; position: absolute; inset: 0 0 auto; height: 18%; z-index: 1; pointer-events: none; background: linear-gradient(var(--night, #0d1326), transparent); }
+@media (max-width: 760px) { .foot-film { aspect-ratio: 2 / 1; } }   /* the lettering spans most of the width, so phones crop only a little off the sides */
+
+html body .foot-film { width: auto !important; max-width: none !important; margin: 36px calc(-1 * max(var(--pad), env(safe-area-inset-right, 0px))) -40px calc(-1 * max(var(--pad), env(safe-area-inset-left, 0px))) !important; }
+/* Sarah steps aside while the footer film is in view, so nothing sits on the logo */
+.ask-sarah { transition: opacity .35s, transform .35s; }
+body.film-on .ask-sarah { opacity: 0; transform: translateY(12px); pointer-events: none; }

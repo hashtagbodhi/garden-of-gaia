@@ -491,6 +491,15 @@ function infoPage(id) {
 }
 
 /* ---------- chrome ---------- */
+// the last thing on every page: the logo as mossy stone letters in a lotus lake at dawn, gently alive. No text over it.
+// It plays only while it is on screen, and holds still for people who prefer less motion.
+function footFilm() {
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const v = el('video', { className: 'ff-vid', muted: true, playsInline: true, loop: true, preload: 'none', poster: A('assets/video/foot-poster.jpg'), ariaHidden: 'true' });
+  v.muted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = A('assets/video/foot.mp4');
+  if (!still && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => { document.body.classList.toggle('film-on', e.isIntersecting); if (e.isIntersecting) v.play?.().catch(() => {}); else v.pause?.(); }, { threshold: 0.15 }).observe(v);
+  return el('div', { className: 'foot-film', role: 'img', ariaLabel: 'Garden of Gaia Apothecary, carved in mossy stone letters rising from a misty lotus lake at dawn' }, v);
+}
 function footer() {
   const f = $('#foot');
   const group = (title, kids, cls = '') => { const d = el('details', { className: `fg ${cls}`, open: true }, el('summary', {}, el('h3', { textContent: title })), ...kids); return d; };
@@ -507,6 +516,7 @@ function footer() {
     promisesRow(),
     el('div', { className: 'foot-social' }, ...[[FACEBOOK, 'Facebook', `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.700"/><path d="M13 20.500v-7h2.300l.4-2.700H13V9.200c0-.8.3-1.300 1.400-1.300h1.400V5.600c-.3 0-1.100-.1-2-.1-2 0-3.300 1.200-3.300 3.400v1.900H8.300v2.700h2.200v7" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linejoin="round"/></svg>`], [INSTAGRAM, 'Instagram', `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.500" y="3.500" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.700"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.700"/><circle cx="17.200" cy="6.800" r="1.100" fill="currentColor"/></svg>`], [`mailto:${EMAIL}`, 'Email', `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.500" width="18" height="13" rx="2.500" fill="none" stroke="currentColor" stroke-width="1.700"/><path d="M4 7.500l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.700" stroke-linecap="round" stroke-linejoin="round"/></svg>`]].filter((x) => x[0]).map(([href, label, svg]) => { const a = html('a', 'fso', svg); a.href = href; a.setAttribute('aria-label', label); a.title = label; if (!href.startsWith('mailto')) { a.target = '_blank'; a.rel = 'noopener'; } return a; })),
     el('div', { className: 'foot-fine' }, el('p', { className: 'fine', textContent: `© 2026 The Garden of Gaia Apothecary. ${SALE.line || ''}` }), el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. Our products are not intended to diagnose, treat, cure, or prevent any disease.' })));
+  f.append(footFilm());
   const fold = () => f.querySelectorAll('details.fg').forEach((d) => { d.open = innerWidth > 760; });
   fold(); addEventListener('resize', fold);
 }
