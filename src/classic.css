@@ -2024,3 +2024,23 @@ html body .head .logo { width: 132px; height: 112px; }
 /* product photo: a calmer height so the buy box and photo sit level */
 @media (min-width: 981px) { .pp .pp-shot.first img, .pp .pp-main { max-height: min(78vh, 720px); width: 100%; object-fit: cover; } }
 .ps-inside li::before, .ps-promise li::before { content: none !important; display: none !important; }
+
+/* ===== smoothness: no flicker behind the sale tags, lighter painting on phones ===== */
+/* the tag gets its own steady layer and a baked-in shadow, so nothing repaints behind it */
+.badge { filter: none !important; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(0) !important; }
+.badge::after { animation: none !important; }
+/* touch screens: a tap must not leave a card half-hovered (photo swap, zoom and lift only with a real pointer) */
+@media (hover: none) {
+  .card:hover, .card:active { transform: none !important; }
+  .card:hover .card-win img { transform: none !important; }
+  .card:hover .card-win img.alt { opacity: 0 !important; }
+  .col:hover .col-photo img { transform: none !important; }
+}
+.card-win { isolation: isolate; transform: translateZ(0); }
+.card-win img { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+/* phones: drop costly live blurs behind panels */
+@media (max-width: 760px) {
+  .head, .head-sky, .pp-tabs, .pp-buy, .sheet, .ask-sarah { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+@media (prefers-reduced-motion: reduce) { .deco, .fl, .sway, .spin-slow { animation: none !important; } }
+@media (max-width: 760px) { .sec::after, .page-head::after, .story-band::after, .pp::after { background-image: url(../assets/img-s/sky.webp); } }

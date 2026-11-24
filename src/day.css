@@ -612,3 +612,11 @@ html.day .vine-bud { filter: drop-shadow(0 3px 5px rgba(84, 56, 20, .3)) !import
 html.day .sheet-sum { background: #f6e9c9 url(../assets/day/card-honey.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .25), 0 -10px 30px -20px rgba(84, 56, 20, .35) !important; }
 html.day .sheet-sum .subtotal, html.day .sheet-sum p { color: #2b1d14 !important; }
 html.day .sheet-sum .subtotal strong { color: #22160e !important; }
+/* the paper no longer stays fixed while scrolling: it scrolls with the page, which is far cheaper on phones */
+html.day body { background-attachment: scroll !important; }
+@media (max-width: 760px) { html.day .pp-buy, html.day .head, html.day .pp-tabs { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; } }
+/* phones: lighter copies of the big painted backgrounds */
+@media (max-width: 760px) {
+  html.day .sec::after, html.day .page-head::after, html.day .story-band::after, html.day .pp::after, html.day .h-sky { background-image: url(../assets/img-s/sky-day.webp) !important; }
+  html.day .foot { background-image: linear-gradient(rgba(20, 40, 26, .35), rgba(20, 40, 26, .55)), url(../assets/day/footer-green-s.webp) !important; }
+}

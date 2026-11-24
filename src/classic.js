@@ -112,10 +112,11 @@ let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
 
 /* ---------- pieces ---------- */
+const HOVER = matchMedia('(hover: hover) and (pointer: fine)').matches;
 function productCard(p, i = 0) {
   const col = COL[p.station], pl = plantsOf(p);
   const a = el('a', { className: `card tone-${col.tone}`, href: `#p--${p.handle}` },
-    el('div', { className: 'card-art' }, el('div', { className: 'card-win' }, el('img', { src: photo(p), alt: '', loading: 'lazy', decoding: 'async' }), p.gallery[1] ? el('img', { className: 'alt', src: photo(p, 1), alt: '', loading: 'lazy', decoding: 'async' }) : null),
+    el('div', { className: 'card-art' }, el('div', { className: 'card-win' }, el('img', { src: photo(p), alt: '', loading: 'lazy', decoding: 'async' }), p.gallery[1] && HOVER ? el('img', { className: 'alt', alt: '', decoding: 'async' }) : null),
       el('span', { className: 'card-no', textContent: `No. ${String(catalog.indexOf(p) + 1).padStart(2, '0')}` }),
       p.sale && SALE.pct ? el('span', { className: 'badge' }, el('b', { textContent: `${SALE.pct}%` }), el('i', { textContent: 'off' })) : null),
     el('div', { className: 'card-body' },
@@ -124,6 +125,7 @@ function productCard(p, i = 0) {
       el('p', { className: 'card-plants', textContent: pl.length ? pl.slice(0, 3).map((x) => x.n).join(' · ') + (pl.length > 3 ? ` · +${pl.length - 3}` : '') : p.sub }),
       el('p', { className: 'card-price' }, priceLabel(p), p.sale && SALE.pct && p.variants[0].price ? el('s', { textContent: money(p.variants[0].price) }) : null)));
   a.style.setProperty('--tilt', `${((i % 5) - 2) * 0.35}deg`);
+  const alt = a.querySelector('img.alt'); if (alt) a.addEventListener('pointerenter', () => { if (!alt.src) alt.src = photo(p, 1); }, { once: true });
   return a;
 }
 const grid = (list, cls = '') => el('div', { className: `grid ${cls}` }, list.map(productCard));
@@ -197,7 +199,9 @@ const stamp = (text, ic = 'flower', cls = '') => el('div', { className: `stamp $
 // the garden's paintings come in two lights: night (the originals) and afternoon (assets/img/day/), swapped with the theme
 const DAY_ART = new Set(['fx0', 'fx1', 'fx2', 'fx3', 'fx4', 'fx5', 'fx6', 'fx7', 'fx8', 'plant1', 'plant2', 'plant3', 'plant4', 'plant5', 'plant8', 'flower0', 'flower1', 'flower2', 'flower4', 'pond', 'gate', 'banyan']);
 const isDay = () => document.documentElement.classList.contains('day');
-const artSrc = (n) => A(`assets/img/${isDay() && DAY_ART.has(n) ? 'day/' : ''}${n}.webp`);
+// phones and small tablets get the lighter copies of the paintings
+const SMALL_ART = matchMedia('(max-width: 900px)').matches;
+const artSrc = (n) => A(`assets/${SMALL_ART ? 'img-s' : 'img'}/${isDay() && DAY_ART.has(n) ? 'day/' : ''}${n}.webp`);
 const artImg = (n, props) => { const i = el('img', { ...props, src: artSrc(n) }); i.dataset.art = n; return i; };
 const swapArt = () => document.querySelectorAll('img[data-art]').forEach((i) => { const s2 = artSrc(i.dataset.art); if (i.src !== s2) i.src = s2; });
 const edge = (names, cls = '') => el('div', { className: `edge ${cls}`, ariaHidden: 'true' }, names.map((n, i) => { const im = artImg(n, { alt: '', loading: 'lazy', decoding: 'async' }); im.style.setProperty('--i', i); return im; }));
