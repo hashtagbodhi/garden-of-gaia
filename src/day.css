@@ -598,3 +598,4 @@ html.day .sidx-list.none::after { color: rgba(43, 29, 20, .7) !important; }
 @media (max-width: 900px) { html.day .sidx-tools { background: rgba(246, 238, 220, .95) url(../assets/day/paper.webp) center / 1400px auto !important; border-bottom-color: rgba(150, 112, 52, .25) !important; } }
 html.day .sidx .sidx-in { background: none !important; background-image: none !important; box-shadow: none !important; }
 html.day body.locked .head, html.day body.nav-open .head { background: rgba(248, 240, 222, .96) url(../assets/day/paper.webp) center / 1400px auto !important; }
+@media (max-width: 760px) { html.day .head .head-tools .ask-chip.ask-chip:not(.basket-pill):not(.theme-btn) { display: none !important; } }   /* phones, afternoon: Ask Sarah lives in the menu and the floating button */
