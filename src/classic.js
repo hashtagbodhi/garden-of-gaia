@@ -203,7 +203,7 @@ function reviewCard(r, withProduct) {
 /* ---------- pages ---------- */
 function home() {
   const m = [];
-  m.push(hero());
+  m.push(heroPair());
   m.push(ribbons(['Hand harvested', 'Farm direct from Sri Lanka', 'Small batch', 'Organic & pesticide-free', 'Brewed under the full moon'], ['Blue lotus', 'Butterfly pea', 'Hibiscus', 'Moringa', 'Ceylon cinnamon', 'Turmeric', 'Frankincense']));
   // promises
   // shop by collection
@@ -254,6 +254,37 @@ function home() {
 }
 // what the shop stands by: shown at the foot of every page, above the fine print
 const promisesRow = () => el('section', { className: 'promises tone-marigold' }, sun('pr-sun'), ...[['leaf', 'Organic & pesticide-free', 'Grown in rich soil and hand harvested. Our Blue Lotus is tested and backed by a COA.'], ['plant-2', 'Farmer direct', 'Direct trade with multigenerational regenerative farmers in Sri Lanka. No middlemen.'], ['flower', 'Made in-house', 'Signature blends like Butterfly Chai and Full Spectrum Hibiscus, made by hand in small batches.']].map(([ic, t, d]) => el('div', { className: 'promise' }, icon(ic), el('h3', { textContent: t }), el('p', { textContent: d }))));
+// two homepage heroes to compare: the painted scene, and close-up plant films with one line over them.
+// A switch on the hero flips between them; the choice is remembered on this device.
+function heroPair() {
+  let mode = 'video'; try { mode = localStorage.getItem('gaia-hero') || 'video'; } catch (e) { /* private mode */ }
+  const painted = hero(), film = videoHero();
+  const vid = film.querySelector('video'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const opt = (k, t) => { const b = el('button', { type: 'button', className: 'hs-opt', textContent: t }); b.dataset.k = k; return b; };
+  const sw = el('div', { className: 'hero-switch', role: 'group', ariaLabel: 'Homepage hero' }, el('span', { className: 'hs-l', textContent: 'Hero' }), opt('video', 'Film'), opt('painted', 'Painted'));
+  const wrap = el('div', { className: 'hero-pair' }, film, painted, sw);
+  const set = (k) => {
+    mode = k; try { localStorage.setItem('gaia-hero', k); } catch (e) { /* private mode */ }
+    film.hidden = k !== 'video'; painted.hidden = k === 'video';
+    sw.querySelectorAll('.hs-opt').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === k)));
+    if (k === 'video' && !still) vid.play?.().catch(() => {}); else vid.pause?.();
+  };
+  sw.querySelectorAll('.hs-opt').forEach((b) => (b.onclick = () => set(b.dataset.k)));
+  set(mode === 'painted' ? 'painted' : 'video');
+  return wrap;
+}
+function videoHero() {
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // close-ups from Pexels and Mixkit (both free for commercial use), cut to 2½ seconds each; phones get an upright cut
+  const tall = matchMedia('(max-aspect-ratio: 1/1)').matches, name = tall ? 'hero-tall' : 'hero';
+  const v = el('video', { className: 'vh-film', muted: true, playsInline: true, loop: true, autoplay: !still, preload: 'auto', poster: A(`assets/video/${name}-poster.jpg`), ariaHidden: 'true' });
+  v.muted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = A(`assets/video/${name}.mp4`);
+  return el('section', { className: 'vhero' }, v, el('div', { className: 'vh-shade' }),
+    el('div', { className: 'vh-copy' },
+      el('p', { className: 'vh-kick', textContent: 'Farm-direct from Sri Lanka' }),
+      el('h1', { textContent: 'Reconnecting you with your roots' }),
+      el('div', { className: 'vh-row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'vh-link', href: './#grove', textContent: 'Shop by plants →' }))));
+}
 function hero() {
   const L = (name, cls, d) => { const i = el('img', { className: `hl ${cls}`, src: A(`assets/img/${name}.webp`), alt: '', decoding: 'async' }); i.style.setProperty('--d', d); return i; };
   const flies = el('div', { className: 'hl flies' }, Array.from({ length: 34 }, (_, i) => { const f = el('i'); f.style.cssText = `left:${(i * 37 + 11) % 100}%;top:${(i * 53 + 7) % 92}%;animation-delay:${-((i * 1.3) % 9).toFixed(1)}s;animation-duration:${6 + (i % 5)}s;--s:${1 + (i % 3) * .6}`; return f; }));
