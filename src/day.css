@@ -632,3 +632,8 @@ html.day .ps-promise li { border-color: rgba(150, 112, 52, .25) !important; }
 html.day .ps-promise li, html.day .ps-promise h3 { color: #22160e !important; }
 html.day .ps-promise .ti { width: 64px !important; height: 64px !important; }
 html.day .ps-promise li { grid-template-columns: none !important; justify-items: center; text-align: center; gap: 10px !important; padding: 16px 10px !important; font-size: .98rem !important; }
+html.day .card-win, html.day .card:hover .card-win { box-shadow: none !important; background: none !important; background-image: none !important; }
+html.day .card-art { background: none !important; background-image: none !important; }
+html.day .card-win img { filter: drop-shadow(0 0 0 transparent); }
+/* no lime ring on a touched or hovered card */
+html.day .card:hover, html.day .card:focus-visible, html.day .card:active { box-shadow: 0 0 0 1px rgba(150, 112, 52, .3), 0 18px 34px -22px rgba(84, 56, 20, .5) !important; outline: none; }

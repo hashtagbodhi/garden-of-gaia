@@ -2072,3 +2072,8 @@ html body .head .logo { width: 132px; height: 112px; }
   .ps-promise li:nth-child(-n+2) { border-bottom: 0; }
   .ps-promise li:not(:last-child) { border-right: 1px solid var(--rule, rgba(246, 240, 226, .16)); }
 }
+
+/* product cards: the photo itself is cut into the arch, no coloured frame around it */
+.card-win { box-shadow: none !important; background: none !important; border: 0 !important; outline: 0 !important; }
+.card-win img { object-fit: cover !important; }
+.card-art { background: none !important; }
