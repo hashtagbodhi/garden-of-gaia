@@ -1896,3 +1896,9 @@ html body .foot-top .foot-acts { justify-content: center; }
 html body .foot-mark { display: block; width: min(380px, 70vw); max-width: none; margin: 44px auto 0; }
 html body .fm-vid { display: block; width: 100%; height: auto; aspect-ratio: 760 / 681; mix-blend-mode: screen; background: #000; }
 html body .foot-fine { text-align: center; } html body .foot-fine .fine { margin-left: auto; margin-right: auto; max-width: 70ch; }
+/* plant page: the floating fireflies must not take a grid cell; photo left, words right */
+.page-head.plant-head.has-photo > .sec-flies { position: absolute !important; inset: 0; grid-area: auto; }
+@media (min-width: 761px) {
+  .page-head.plant-head.has-photo > .plant-photo { grid-column: 1; grid-row: 1; }
+  .page-head.plant-head.has-photo > .plant-words { grid-column: 2; grid-row: 1; }
+}

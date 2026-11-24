@@ -58,7 +58,7 @@ html.day .nav-panel { background-color: #fbf5e8 !important; color: var(--ink) !i
 
 
 /* cards and panels: white paper */
-html.day .card, html.day .quote, html.day .col, html.day .door, html.day .promise, html.day .duo-card, html.day .plant, html.day .gift-card, html.day .fg, html.day .pp-buy, html.day .pp-box, html.day .faq details, html.day .basket-in, html.day .sidx-in, html.day .find-in, html.day .np-cols a, html.day .h-card {
+html.day .card, html.day .quote, html.day .col, html.day .door, html.day .promise, html.day .duo-card, html.day .plant, html.day .gift-card, html.day .fg, html.day .faq details, html.day .basket-in, html.day .sidx-in, html.day .find-in, html.day .np-cols a, html.day .h-card {
   background-color: var(--card) !important; background-image: none !important; color: var(--ink) !important; box-shadow: var(--card-shadow) !important; border-color: var(--card-line) !important; }
 html.day .card *, html.day .col *, html.day .door *, html.day .promise *, html.day .plant *, html.day .duo-card * { text-shadow: none !important; }
 html.day .card .price, html.day .price { color: var(--ink) !important; }
@@ -187,3 +187,81 @@ html.day .gift-tile:nth-child(4) .gt-n { color: var(--g-terra) !important; }
 /* the paintings sit in sunlight: soft ground shadows instead of a night glow */
 html.day .deco, html.day .cg-art, html.day .edge img, html.day .hero .hl:not(.h-sky):not(.flies):not(.h-shade):not(.h-rays) { filter: drop-shadow(0 14px 18px rgba(84, 56, 20, .22)) !important; }
 html.day .h-rays { opacity: .35 !important; mix-blend-mode: soft-light; }
+
+/* ---------- QC pass: afternoon everywhere ---------- */
+/* no film in the afternoon: always the painted hero, and no switch */
+html.day .vhero { display: none !important; }
+html.day .hero-pair > .hero[hidden] { display: grid !important; }
+html.day .hero-switch { display: none !important; }
+
+/* product page: the buy column sits on the page, no boxed card */
+html.day .pp-buy, html.day .pp-box, html.day .pp-info { background: transparent !important; box-shadow: none !important; border: 0 !important; }
+html.day .pp .chip, html.day .pp .ing, html.day .pp-ings a { background: #fffdf7 !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1px rgba(79, 138, 43, .3) !important; }
+html.day .pp .chip svg, html.day .pp .ing svg, html.day .ti { color: #2f6b3a !important; }
+
+/* round icons and plant faces: deep green behind, never black */
+html.day .pface { background: #24452d !important; box-shadow: 0 0 0 1.5px rgba(192, 138, 42, .55), 0 0 0 6px rgba(36, 69, 45, .14), 0 12px 24px -14px rgba(36, 69, 45, .5) !important; }
+html.day .pface::after { background: radial-gradient(60% 50% at 30% 22%, rgba(255, 255, 255, .28), transparent 60%) !important; }
+html.day .pface.no { color: #d6f0a0 !important; }
+html.day .ti-c, html.day .col-ic, html.day .promise .ti, html.day .door .ti, html.day .brew-steps .ti { color: #2f6b3a !important; }
+
+/* plant cards: readable tags and counts, one soft shadow */
+html.day .plant { box-shadow: 0 1px 0 #fff inset, 0 14px 30px -22px rgba(84, 56, 20, .4), 0 0 0 1px rgba(176, 134, 52, .22) !important; }
+html.day .plant .tags b, html.day .plant .use, html.day .plant-tags b, html.day .plant .pt { color: #2f6b3a !important; box-shadow: inset 0 0 0 1px rgba(79, 138, 43, .35) !important; background: rgba(185, 224, 122, .18) !important; }
+html.day .plant .n, html.day .plant .count, html.day .plant .pn { color: #8a5a12 !important; }
+
+/* filter pills: the active one deep green, the rest outlined */
+html.day .pill, html.day .filter button, html.day .chips button, html.day .tabs button { color: var(--ink) !important; }
+html.day .pill.on, html.day .filter button.on, html.day .chips button.on, html.day [aria-pressed="true"].pill { background: #2f5f33 !important; color: #f3f8e6 !important; box-shadow: none !important; }
+
+/* plant page: words and chips on paper */
+html.day .plant-uses .pu-l { color: #8a5a12 !important; }
+html.day .plant-uses b { color: #2f6b3a !important; background: rgba(185, 224, 122, .2) !important; box-shadow: inset 0 0 0 1px rgba(79, 138, 43, .4) !important; }
+html.day .plant-head .plant-photo img { box-shadow: 0 0 0 1px #c08a2a, 0 0 0 7px #fffdf7, 0 0 0 8px rgba(192, 138, 42, .45), 0 24px 50px -24px rgba(84, 56, 20, .5) !important; }
+html.day .page-head .chip, html.day .plant-head .chip, html.day .page-head .btn:not(.btn-main) { background: #fffdf7 !important; color: var(--ink) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.day .page-head h1, html.day .page-head .lede, html.day .page-head p, html.day .plant-head h1, html.day .plant-head p, html.day .hero-copy h1, html.day .hero-copy p { color: var(--ink) !important; text-shadow: 0 0 18px rgba(255, 250, 238, .85) !important; }
+html.day .plant-back, html.day .alt-link { color: #2f6b3a !important; }
+
+/* lists that sit on the painting: a quiet paper backing so they read */
+html.day .made-list, html.day .pg-list, html.day .plant-goods, html.day .uses-list { background: rgba(255, 253, 247, .82) !important; border-radius: 22px; padding: clamp(14px, 2vw, 24px) !important; box-shadow: 0 0 0 1px rgba(176, 134, 52, .2); }
+html.day .sold-out, html.day .so { color: #8a5a12 !important; }
+
+/* ticker: light words on the green band, always */
+html.day .ticker, html.day .ticker * { color: #eef6d8 !important; text-shadow: none !important; }
+html.day .ticker [class*="pill"], html.day .ticker .tk-badge { color: #1c3315 !important; }
+
+/* the basket sheet: paper, with its own tokens */
+html.day .sheet { --s-bg: #fbf5e8; --s-ink: #2b1d14; --s-ink2: rgba(43, 29, 20, .78); --s-ink3: rgba(43, 29, 20, .55); --s-rule: rgba(43, 29, 20, .14); --s-leaf: #2f6b3a;
+  background: radial-gradient(70% 120% at 85% -10%, rgba(185, 224, 122, .35), transparent 60%), radial-gradient(60% 120% at 0 120%, rgba(226, 179, 79, .22), transparent 60%), linear-gradient(180deg, #fffdf7, #f5ecda) !important;
+  border-bottom: 1px solid rgba(176, 134, 52, .45) !important; box-shadow: 0 30px 70px -20px rgba(84, 56, 20, .35) !important; }
+html.day .sheet-scrim { background: rgba(43, 29, 20, .28) !important; }
+
+/* Ask Sarah: the same pop-out on paper */
+html.day .consult { --c-ink: #2b1d14; --c-ink2: rgba(43, 29, 20, .8); --c-ink3: rgba(43, 29, 20, .58); --c-gold: #8a5a12; --c-gold2: #2f6b3a; --c-leaf: #2f6b3a; --c-line: rgba(176, 134, 52, .42); --c-plum: #fbf5e8; --c-deep: #f5ecda; background-color: rgba(43, 29, 20, .32) !important; }
+html.day .cs-card { background: radial-gradient(80% 60% at 100% 0, rgba(185, 224, 122, .28), transparent 65%), radial-gradient(70% 60% at 0 100%, rgba(226, 179, 79, .2), transparent 65%), #fffdf7 !important; box-shadow: 0 0 0 1px rgba(176, 134, 52, .45), 0 40px 90px -30px rgba(84, 56, 20, .45) !important; }
+html.day .cs-side { background: radial-gradient(80% 50% at 50% 78%, rgba(226, 179, 79, .3), transparent 70%), linear-gradient(180deg, #eef3e2, #f5ecda) !important; border-right-color: rgba(176, 134, 52, .3) !important; }
+html.day .cs-say, html.day .cs-card:has(.cs-begin) .cs-say { background: #24452d !important; box-shadow: inset 0 0 0 1.5px #c08a2a, 0 10px 24px -14px rgba(36, 69, 45, .6) !important; }
+html.day .cs-say p { color: #f3ecd6 !important; }
+html.day .cs-say cite { color: rgba(243, 236, 214, .7) !important; }
+html.day .cs-opt { background: #fffdf7 !important; color: var(--c-ink) !important; box-shadow: inset 0 0 0 1px rgba(176, 134, 52, .4) !important; }
+html.day .cs-opt .cs-s { color: var(--c-ink3) !important; }
+html.day .cs-opt.on { background: #eef6dc !important; box-shadow: inset 0 0 0 1.5px #2f6b3a !important; }
+html.day .cs-opt .cs-mark { color: #2f6b3a !important; }
+html.day .cs-q, html.day .cs-body h2 { color: var(--c-ink) !important; text-shadow: none !important; }
+html.day .cs-sub, html.day .cs-kick, html.day .cs-body p { color: var(--c-ink2) !important; }
+html.day .cs-dots i { background: rgba(43, 29, 20, .18) !important; } html.day .cs-dots i.on { background: #2f6b3a !important; }
+html.day .cs-pick { background: #fffdf7 !important; box-shadow: inset 0 0 0 1px rgba(176, 134, 52, .4), 0 18px 36px -24px rgba(84, 56, 20, .4) !important; }
+html.day .cs-orn, html.day .cs-in::before { opacity: .35; }
+
+/* the offer ticker keeps its light lettering on a green band */
+html.day .tkbar { background: linear-gradient(100deg, #1f3d27, #2f5f33 30%, #3b6e2c 55%, #2f5f33 78%, #1f3d27) 0 0 / 300% 100% !important; border-color: rgba(192, 138, 42, .5) !important; }
+html.day .tkbar::before { opacity: .5; }
+html.day .tkbar::after { background: linear-gradient(90deg, #1f3d27, transparent 9%, transparent 91%, #1f3d27) !important; }
+
+/* phones: the hero words get a soft paper wash behind them so they read over the painting */
+@media (max-width: 760px) {
+  html.day .hero-copy { position: relative; }
+  html.day .hero-copy::before { content: ''; position: absolute; z-index: -1; inset: -40px -24px -24px; background: linear-gradient(180deg, rgba(245, 236, 218, 0), rgba(245, 236, 218, .92) 18%, #f5ecda 60%); pointer-events: none; }
+  html.day .cs-say { border-radius: 16px !important; }
+}
+html.day .tkbar .tk-c .tk-t { color: #1c3315 !important; }

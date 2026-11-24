@@ -7,6 +7,7 @@ import '@fontsource-variable/cinzel';
 import '@fontsource/emilys-candy/latin-400.css';
 import './classic.css';
 import './sheet.css';
+import './day-auto.css';
 import './day.css';
 import catalog from './catalog.json';
 import reviewData from './reviews.json';
