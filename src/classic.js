@@ -226,23 +226,30 @@ function wordsFlow(list) {
     flow.append(q, ' ');
     return q;
   });
+  let box = null;
   const place = () => {
     const q = qs[cur]; if (!q || !flow.isConnected) return;
-    const r = q.getClientRects()[0], f = flow.getBoundingClientRect(); if (!r) return;
+    const r = q.getClientRects()[0], f = box.getBoundingClientRect(); if (!r) return;
     const x = Math.max(0, Math.min(r.left - f.left, f.width - who.offsetWidth));
     who.style.transform = `translate(${x.toFixed(0)}px, ${(r.top - f.top - who.offsetHeight - 8).toFixed(0)}px)`;
   };
+  let words = null;
+  const clear = () => { flow.classList.remove('focus'); words?.classList.remove('focus'); qs.forEach((q) => q.classList.remove('on')); };
+  flow.addEventListener('mouseleave', clear);
   function set(i) {
     cur = i; const r = list[i], p = byHandle[r.handle];
+    flow.classList.add('focus'); words?.classList.add('focus');
     qs.forEach((q, j) => q.classList.toggle('on', j === i));
     who.replaceChildren(el('b', { textContent: r.author }), p ? el('span', { textContent: p.name }) : null);
     requestAnimationFrame(place);
   }
   addEventListener('resize', () => requestAnimationFrame(place));
-  const box = el('div', { className: 'w-box' }, who, flow);
+  box = el('div', { className: 'w-box' }, who, flow);
   if ('ResizeObserver' in window) new ResizeObserver(() => place()).observe(flow);
-  set(0);
-  return el('div', { className: 'words' }, box, el('div', { className: 'w-foot' }, el('p', { textContent: 'Choose any quote to see who wrote it.' }), el('a', { className: 'w-all', href: '#reviews', textContent: `Read all ${reviews.length}` })));
+  words = el('div', { className: 'words' }, box, el('div', { className: 'w-foot' }, el('p', { textContent: 'Choose any quote to see who wrote it.' }), el('a', { className: 'w-all', href: '#reviews', textContent: `Read all ${reviews.length}` })));
+  // tapping outside the quotes on a phone clears the focus
+  document.addEventListener('click', (e) => { if (!flow.contains(e.target)) clear(); });
+  return words;
 }
 function reviewCard(r, withProduct) {
   const p = byHandle[r.handle];
@@ -538,7 +545,7 @@ function infoPage(id) {
     const media = el('div', { className: 'st-media' }), text = el('div', { className: 'st-text' }); let card = null, n = 0;
     for (const node of [...body.children]) {
       if (node.matches('figure, .pair')) media.append(node);
-      else if (node.matches('h3')) { card = el('article', { className: 'st-card' }, el('span', { className: 'st-n', ariaHidden: 'true', textContent: ROMAN[n++] })); card.append(node); text.append(card); }
+      else if (node.matches('h3')) { card = el('article', { className: 'st-card' }, el('span', { className: 'st-n', ariaHidden: 'true' }, icon(['leaf', 'plant-2', 'flower', 'cup', 'bottle'][n++ % 5], 'ti st-ic'))); card.append(node); text.append(card); }
       else if (node.matches('p') && card) card.append(node);
       else if (!node.matches('.lede, h2')) text.append(node);
     }

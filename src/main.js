@@ -111,7 +111,7 @@ const loadTex = (name, url = A(`${IMG}/${name}.webp`)) => new Promise((res) => {
 // ---- the herb grove's scene: one painting of a moonlit glade behind the bed of plants, in place of the built scenery ----
 // the painting behind the grove can be changed: six scenes, the choice remembered on this device
 const SCENES = [['grove-bg', 'Moonlit glade'], ['grove-bg-walled', 'Walled herb garden'], ['grove-bg-glass', 'Glasshouse at night'], ['grove-bg-tea', 'Tea hills of Sri Lanka'], ['grove-bg-moon', 'Moon garden'], ['grove-bg-lotus', 'Lotus temple']];
-let sceneI = (() => { try { const i = SCENES.findIndex((x) => x[0] === localStorage.getItem('gaia-scene')); return i < 0 ? 0 : i; } catch (e) { return 0; } })();
+let sceneI = 1;   // the garden is always the walled herb garden (the scene picker was retired)
 const prepBackdrop = (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.needsUpdate = true; return t; };
 let backdrop = null; const GROVE = 1;   // layer 1: what is seen in the grove (the painting and the plants)
 function buildBackdrop() {
@@ -1380,8 +1380,6 @@ async function setScene(i) {
   gsap.to(c, { r: 1, g: 1, b: 1, duration: 0.6, ease: 'sine.out' });
   btn.classList.remove('busy'); sceneBusy = false; audio.play('page');
 }
-$('#scene-name').textContent = SCENES[sceneI][1];
-$('#scene-toggle').onclick = (e) => { e.stopPropagation(); setScene(sceneI + 1); };
 Promise.all([SCENES[sceneI][0]].map((n) => loadTex(n))).then(() => {
   buildWorld(); buildBackdrop();
   renderBasket();

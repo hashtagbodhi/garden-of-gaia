@@ -164,9 +164,9 @@ html.day .tone-moss { --g1: rgba(110, 170, 100, .26); --g2: rgba(200, 220, 150, 
 html.day .ticker { background: linear-gradient(90deg, #24452d, #2f5f33 50%, #24452d) !important; color: #eef6d8 !important; border-bottom: 1px solid rgba(192, 138, 42, .45) !important; }
 html.day .ticker * { color: inherit; }
 html.day .ticker .tk-pill, html.day .ticker b, html.day .ticker em { border-color: rgba(238, 246, 216, .5) !important; }
-html.day .ribbon.r1 { background: #b9e07a !important; color: #1c3315 !important; }
+html.day .ribbon.r1 { background: #cfdcb6 url(../assets/day/sage-wash.webp) center / cover !important; color: #1f3320 !important; }
 html.day .ribbon.r1 i { color: var(--g-terra) !important; }
-html.day .ribbon.r2 { background: #24452d !important; color: #f3ecd6 !important; }
+html.day .ribbon.r2 { background: #1f4a2c url(../assets/day/footer-green.webp) center / cover !important; color: #f3ecd6 !important; }
 html.day .ribbon.r2 i { color: #e2b34f !important; }
 
 /* links and small accents that were violet */
@@ -476,3 +476,30 @@ html.day .brew-way { background: #f3e6c8 url(../assets/day/card-paper.webp) cent
 /* In their words: calm paper behind the quotes */
 html.day .kind { background-image: url(../assets/day/paper.webp) !important; background-size: 1400px auto !important; }
 html.day .kind::after { opacity: 0 !important; }
+
+/* ===== second Artlist kit ===== */
+/* Sarah stands in a painted afternoon garden */
+html.day .cs-side { background: #e9dcb8 url(../assets/day/sarah-bg.webp) center 30% / cover !important; }
+html.day .cs-side::before { background: none !important; }
+html.day .cs-fig { filter: drop-shadow(0 18px 24px rgba(60, 40, 10, .35)) !important; }
+/* product page: painted botanical border */
+html.day .pp { background-color: #f6ecd4 !important; background-image: url(../assets/day/pp-bg.webp) !important; background-size: cover !important; background-position: center !important; }
+/* product cards: warm honey parchment */
+html.day .card, html.day .plant-goods li, html.day .brew-way, html.day .gift-tile, html.day .gift-tile:nth-child(n), html.day .np-cols a, html.day .plant {
+  background-color: #f6e9c9 !important; background-image: url(../assets/day/card-honey.webp) !important; background-size: cover !important; background-position: center !important; background-blend-mode: normal !important; }
+/* wide buttons use the long swatches, so they never look stretched */
+html.day :is(.btn, .btn-glow, .btn-main, .sheet-x, .to-top, .f-chip.all, .cs-go, .cs-begin):not(.foot *) { background-image: url(../assets/day/btn-sage-long.webp) !important; background-size: 100% 100% !important; background-color: transparent !important; }
+html.day .foot :is(.btn, .btn-glow, .to-top, .f-chip.all) { background-image: url(../assets/day/btn-honey-long.webp) !important; background-size: 100% 100% !important; }
+/* chosen answer: the painted tick */
+html.day .cs-grid .cs-opt.on .cs-mark { background: url(../assets/day/tick.webp) center / contain no-repeat !important; box-shadow: none !important; color: transparent !important; width: 30px !important; height: 30px !important; }
+html.day .details details { background: #f6e9c9 url(../assets/day/card-honey.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .22), 0 12px 24px -18px rgba(84, 56, 20, .45) !important; }
+html.day .details summary .ti[data-ic] { background: var(--ic) center / contain no-repeat !important; }
+/* banner ribbon: soft sage wash, not lime */
+/* story: painted badges instead of numerals */
+html.day .st-n { background: none !important; box-shadow: none !important; border: 0 !important; }
+html.day .st-n .st-ic[data-ic] { width: 100% !important; height: 100% !important; background: var(--ic) center / contain no-repeat !important; color: transparent !important; }
+html.day .st-n .st-ic[data-ic] svg { visibility: hidden; }
+/* product tab bar: painted paper, not a white strip */
+html.day .pp-tabs { background: rgba(246, 236, 212, .9) url(../assets/day/paper.webp) center / 1400px auto !important; box-shadow: 0 1px 0 rgba(150, 112, 52, .3) !important; border-color: rgba(150, 112, 52, .25) !important; }
+html.day .pp-tabs button { color: #2b1d14 !important; background: transparent !important; }
+html.day .pp-tabs button:hover, html.day .pp-tabs button[aria-current], html.day .pp-tabs button.on { background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; }
