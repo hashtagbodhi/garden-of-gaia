@@ -188,6 +188,8 @@ function shell(body, { q, sub, back = true, n }) {
       el('div', { className: 'cs-top' }, prev || el('span', { className: 'cs-brand', textContent: '✦ Ask Sarah' }), dots, close),
       el('div', { className: 'cs-body' }, n ? el('p', { className: 'cs-kick', textContent: `Question ${n} of ${STEPS}` }) : null, el('h2', { id: 'consult-q', className: 'cs-q', textContent: q }), sub ? el('p', { className: 'cs-sub', textContent: sub }) : null, body)));
   card.addEventListener('click', (e) => e.stopPropagation());
+  // the bar with the close button stays clear over the painting, and frosts only once the question scrolls under it
+  const scroller = card.querySelector('.cs-in'); scroller.addEventListener('scroll', () => scroller.classList.toggle('scrolled', scroller.scrollTop > 4), { passive: true });
   return card;
 }
 const SAYS = ['Welcome in. Sit with me a moment.', 'Start with what weighs on you most.', 'Every body takes its plants differently.', 'Some herbs wake you, some settle you. Timing matters.', 'This is the part I never skip.', 'A good ritual does not need to be costly.', 'Here is what I would pour for you.'];

@@ -308,3 +308,10 @@ html.consult-on .ask-sarah { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .cs-card:has(.cs-begin) .cs-side::before, .fn-rays, .badge::before, .badge::after, .stamp::before, .fn-burst::before, .fn-burst::after { animation: none !important; } }
 @media (min-width: 861px) { .cs-card .cs-begin::after, .cs-card .cs-begin::before, .cs-card .cs-begin .cs-arrow::after, .cs-card .cs-begin .cs-arrow::before { content: none !important; display: none !important; } .cs-card .cs-begin .cs-arrow ~ .cs-arrow { display: none; } }
+
+/* Ask Sarah: the top bar no longer paints a dark block over the card; it frosts only when the question scrolls beneath it */
+html body .cs-top, html body .consult.wide .cs-top { background: none !important; }
+html body .cs-top::before { content: ''; position: absolute; z-index: -1; inset: 0 calc(-1 * clamp(20px, 3.4vw, 44px)); pointer-events: none; opacity: 0; transition: opacity .25s;
+  background: rgba(26, 18, 50, .45); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+html body .cs-in.scrolled .cs-top::before { opacity: 1; }

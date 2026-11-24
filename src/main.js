@@ -109,10 +109,13 @@ const loadTex = (name, url = A(`${IMG}/${name}.webp`)) => new Promise((res) => {
 });
 
 // ---- the herb grove's scene: one painting of a moonlit glade behind the bed of plants, in place of the built scenery ----
+// the painting behind the grove can be changed: six scenes, the choice remembered on this device
+const SCENES = [['grove-bg', 'Moonlit glade'], ['grove-bg-walled', 'Walled herb garden'], ['grove-bg-glass', 'Glasshouse at night'], ['grove-bg-tea', 'Tea hills of Sri Lanka'], ['grove-bg-moon', 'Moon garden'], ['grove-bg-lotus', 'Lotus temple']];
+let sceneI = (() => { try { const i = SCENES.findIndex((x) => x[0] === localStorage.getItem('gaia-scene')); return i < 0 ? 0 : i; } catch (e) { return 0; } })();
+const prepBackdrop = (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.needsUpdate = true; return t; };
 let backdrop = null; const GROVE = 1;   // layer 1: what is seen in the grove (the painting and the plants)
 function buildBackdrop() {
-  const t = tex['grove-bg']; if (!t) return;
-  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter;
+  const t = tex[SCENES[sceneI][0]] || tex['grove-bg']; if (!t) return; prepBackdrop(t);
   backdrop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: t, depthTest: false, depthWrite: false, fog: false, color: 0x000000 }));
   backdrop.renderOrder = -999; backdrop.frustumCulled = false; backdrop.layers.set(GROVE); backdrop.visible = false;
   scene.add(camera); camera.add(backdrop); fitBackdrop();
@@ -1362,7 +1365,24 @@ function frame() {
 
 /* ---------- boot ---------- */
 resize();
-Promise.all(['grove-bg'].map((n) => loadTex(n))).then(() => {
+// change the scene: fade the painting down, swap it, bring it back up
+let sceneBusy = false, sceneToastT = 0;
+async function setScene(i) {
+  if (sceneBusy || !backdrop) return; sceneBusy = true;
+  sceneI = (i + SCENES.length) % SCENES.length; const [k, name] = SCENES[sceneI];
+  try { localStorage.setItem('gaia-scene', k); } catch (e) { /* private mode */ }
+  const btn = $('#scene-toggle'); btn.classList.add('busy'); $('#scene-name').textContent = name; btn.setAttribute('aria-label', `Garden scene: ${name}. Change scene`);
+  const toast = $('#scene-toast'); toast.textContent = name; toast.hidden = false; toast.classList.remove('out'); clearTimeout(sceneToastT); sceneToastT = setTimeout(() => toast.classList.add('out'), 1800);
+  const t = tex[k] || await loadTex(k);
+  const c = backdrop.material.color; gsap.killTweensOf(c);
+  await new Promise((res) => gsap.to(c, { r: 0.08, g: 0.08, b: 0.12, duration: 0.28, ease: 'sine.in', onComplete: res }));
+  if (t) { backdrop.material.map = prepBackdrop(t); backdrop.material.needsUpdate = true; }
+  gsap.to(c, { r: 1, g: 1, b: 1, duration: 0.6, ease: 'sine.out' });
+  btn.classList.remove('busy'); sceneBusy = false; audio.play('page');
+}
+$('#scene-name').textContent = SCENES[sceneI][1];
+$('#scene-toggle').onclick = (e) => { e.stopPropagation(); setScene(sceneI + 1); };
+Promise.all([SCENES[sceneI][0]].map((n) => loadTex(n))).then(() => {
   buildWorld(); buildBackdrop();
   renderBasket();
   camPos.set(0, 7, 64); camLook.copy(byId.gate.camLook);
