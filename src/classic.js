@@ -445,7 +445,7 @@ function product(p) {
     side = el('aside', { className: 'pp-side', id: 'pp-inside' },
       pl.length ? el('div', { className: 'ps-card ps-inside' }, el('p', { className: 'kicker', textContent: pl.length === 1 ? 'The plant' : `${pl.length} plants inside` }), el('h2', { textContent: pl.length === 1 ? 'What it is' : 'What’s inside' }),
         el('ul', {}, pl.map((x) => el('li', {}, el('a', { href: `#plant--${x.k}` }, plantFace(x.k, 'sm ps-face'), el('span', {}, el('b', { textContent: x.n }), x.b ? el('i', { textContent: x.b }) : null, x.note ? el('small', { textContent: x.note }) : null)))))) : null,
-      el('div', { className: 'ps-card ps-promise' }, el('h3', { textContent: 'The apothecary promise' }), el('ul', {}, [['leaf', 'Organic, pesticide-free plants'], ['plant-2', 'Farm-direct from family growers'], ['flower', 'Mixed by hand in small batches'], ['cup', 'Nothing you can’t pronounce']].map(([ic, t]) => el('li', {}, icon(ic), t)))));
+      pl.length ? null : el('div', { className: 'ps-card ps-promise' }, el('h3', { textContent: 'The apothecary promise' }), el('ul', {}, [['leaf', 'Organic, pesticide-free plants'], ['plant-2', 'Farm-direct from family growers'], ['flower', 'Mixed by hand in small batches'], ['cup', 'Nothing you can’t pronounce']].map(([ic, t]) => el('li', {}, icon(ic), t)))));
     const inner = det.querySelector('.details-in'); const wrap = el('div', { className: 'pp-cols' }); inner.replaceWith(wrap); wrap.append(inner, side);
     const fine = det.querySelector('.fine'); if (fine) inner.append(fine);
   }
@@ -484,21 +484,27 @@ const KEEP_CASE = new Set(['Hathor’s', "Hathor's", 'Ease', 'Nectar', 'Blue', '
 const sentence = (t) => t.split(' ').map((w, i) => (i === 0 || KEEP_CASE.has(w.replace(/[:?!,]$/, '')) || /[A-Z].*[A-Z]/.test(w.slice(1)) ? w : w.toLowerCase())).join(' ');
 const cleanTitle = (t) => t.replace(/[“”"]/g, '').replace(/!{2,}/g, '!').replace(/\bburner burner\b/i, 'burner').replace(/\s*~\s*/g, ': ').trim();
 function tidySections(p) {
-  const name = flat(p.name), groups = new Map(), tags = [];
+  const name = flat(p.name), groups = new Map(), tags = [], extraUse = [];
   for (const sec of p.sections) {
     const title = cleanTitle(sec.title || '');
     const kind = KINDS.find(([, , , re]) => re.test(title));
     const key = kind ? kind[0] : 'about';
     const keep = [];
-    for (const b of sec.blocks) {
-      if (b.k === 'note' && b.t && b.t.includes('•')) { tags.push(...b.t.split('•').map((x) => x.trim()).filter(Boolean)); continue; }   // tag lists become one "at a glance" line
-      if (b.k === 'note' && flat(b.t).includes(name)) continue;   // a line that only repeats the product name
-      keep.push(b);
+    for (const b0 of sec.blocks) {
+      let b = { ...b0, t: (b0.t || '').replace(/[🔹🔸✨]/gu, ' ').replace(/\s{2,}/g, ' ').trim() };
+      if (b.k === 'note' && b.t.includes('•')) { tags.push(...b.t.split('•').map((x) => x.trim()).filter(Boolean)); continue; }   // tag lists become one "at a glance" line
+      // directions that were typed into another list ("How to Use: spray onto…") move to How to use
+      const m = b.t.match(/^(.*?)\s*How to use:\s*(.+)$/i);
+      if (m && key !== 'use') { if (m[1].trim().length > 12 && !flat(m[1]).startsWith(name)) keep.push({ ...b, t: m[1].trim() }); extraUse.push({ k: 'p', t: m[2].trim() }); continue; }
+      // a line that starts by repeating the product name: keep what follows a colon, otherwise drop it
+      if (flat(b.t).startsWith(name)) { const i = b.t.indexOf(':'); if (i > 0 && i < 90 && b.t.length - i > 20) b = { ...b, t: b.t.slice(i + 1).trim() }; else if (b.t.length < 140 || b.k === 'note') continue; }
+      if (b.t) keep.push(b);
     }
     if (!keep.length) continue;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push({ title, blocks: keep });
   }
+  if (extraUse.length) { if (!groups.has('use')) groups.set('use', []); groups.get('use').push({ title: '', blocks: extraUse }); }
   const order = [['about', 'About', 'flower'], ...KINDS.map(([k, t, ic]) => [k, t, ic])];
   const out = order.filter(([k]) => groups.has(k)).map(([k, t, ic]) => {
     const parts = groups.get(k);
