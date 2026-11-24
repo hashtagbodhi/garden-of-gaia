@@ -330,7 +330,7 @@ html.day .cs-opt, html.day .cs-card button:not(.cs-begin):not(.cs-go):not(.cs-x)
 
 /* the phone menu: a painted botanical panel; Ask Sarah and Gifts as washes, not flat greens */
 @media (max-width: 1080px) {
-  html.day .mnav { background: #f6eedc url(../assets/day/menu-panel.webp) center / cover !important; }
+  html.day .mnav { background: #f6eedc !important; }
   html.day .mnav .mn-ask { background: url(../assets/day/sage-wash.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(79, 112, 60, .4), 0 12px 24px -16px rgba(47, 74, 40, .5) !important; }
   html.day .mnav .mn-ask, html.day .mnav .mn-ask * { color: #1f3320 !important; }
   html.day .mnav .mn-ask small { color: rgba(31, 51, 32, .78) !important; }
@@ -537,7 +537,8 @@ html.day .ps-inside li + li { border-color: rgba(150, 112, 52, .25) !important; 
 html.day .pp-cols > .details-in > .first { color: #22160e !important; }
 /* menus: calmer painted backgrounds so every word reads */
 @media (max-width: 1080px) {
-  html.day .mnav { background: linear-gradient(rgba(248, 241, 226, .72), rgba(248, 241, 226, .72)), url(../assets/day/menu-panel.webp) center / cover, #f6eedc !important; }
+  html.day .mnav { background: #f6eedc !important; }
+  html.day body.nav-open .mnav { background: linear-gradient(rgba(248, 241, 226, .72), rgba(248, 241, 226, .72)), url(../assets/day/menu-panel.webp) center / cover, #f6eedc !important; }   /* the painting loads only when the menu opens */
   html.day .mnav .mn-l, html.day .mnav .mn-big a, html.day .mnav .mn-small a { color: #22160e !important; }
   html.day .mnav .mn-big small, html.day .mnav .mn-label { color: rgba(43, 29, 20, .78) !important; }
 }
@@ -620,3 +621,8 @@ html.day body { background-attachment: scroll !important; }
   html.day .sec::after, html.day .page-head::after, html.day .story-band::after, html.day .pp::after, html.day .h-sky { background-image: url(../assets/img-s/sky-day.webp) !important; }
   html.day .foot { background-image: linear-gradient(rgba(20, 40, 26, .35), rgba(20, 40, 26, .55)), url(../assets/day/footer-green-s.webp) !important; }
 }
+/* quantity, afternoon: the sage swatch is the pill itself; minus and plus are plain dark marks */
+html.day .qty { background: url(../assets/day/btn-sage-long.webp) center / 100% 100% no-repeat !important; box-shadow: none !important; filter: drop-shadow(0 5px 7px rgba(47, 74, 40, .25)); padding: 0 6px !important; min-width: 136px; justify-content: space-between; }
+html.day .qty button { background: none !important; color: #1a2e1b !important; font-weight: 600; text-shadow: 0 1px 0 rgba(255, 250, 236, .5); }
+html.day .qty button:hover { background: rgba(255, 250, 236, .35) !important; }
+html.day .qty output { color: #1a2e1b !important; text-shadow: 0 1px 0 rgba(255, 250, 236, .5); }

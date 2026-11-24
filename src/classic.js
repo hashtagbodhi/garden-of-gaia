@@ -724,6 +724,12 @@ addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeIndex(); clo
 addEventListener('hashchange', route);
 addEventListener('scroll', () => $('#head').classList.toggle('scrolled', scrollY > 30), { passive: true });
 footer(); renderBasket(); route();
+// the preloader leaves as soon as the fonts and the pictures on the first screen are ready (never more than 2.6 s)
+{ const pre = $('#pre'); if (pre) {
+  const done = () => { pre.classList.add('out'); setTimeout(() => pre.remove(), 600); };
+  const seen = [...document.querySelectorAll('#main img')].filter((i) => { const r = i.getBoundingClientRect(); return r.width && r.top < innerHeight && r.bottom > 0; }).slice(0, 8);
+  Promise.race([Promise.all([document.fonts ? document.fonts.ready : null, ...seen.map((i) => (i.decode ? i.decode().catch(() => {}) : null))]), new Promise((r) => setTimeout(r, 2600))]).then(done);
+} }
 if (!store.get('gaia-21', false)) { $('#age').hidden = false; document.body.classList.add('locked'); $('#age-yes').focus(); }
 $('#age-yes').onclick = () => { store.set('gaia-21', true); $('#age').hidden = true; document.body.classList.remove('locked'); };
 $('#age-no').onclick = () => { $('#age-denied').hidden = false; $('#age-yes').hidden = true; $('#age-no').hidden = true; };

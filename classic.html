@@ -8,8 +8,21 @@
 <meta name="description" content="Small-batch herbal teas, tinctures and ritual tools, hand harvested from regenerative family farms in Sri Lanka. Shop farm-direct.">
 <meta name="theme-color" content="#0d1326">
 <script>try{if(localStorage.getItem('gaia-theme')==='day'){document.documentElement.classList.add('day');document.querySelector('meta[name=theme-color]').content='#f5ecda';}}catch(e){}</script>
+<style>
+/* first-paint preloader: the logo breathing on the page colour until the first screen is ready */
+.pre{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0b1020;transition:opacity .5s ease,visibility .5s}
+html.day .pre{background:#f6eedc}
+.pre.out{opacity:0;visibility:hidden}
+.pre-logo{width:150px;height:132px;background:#b9f655;-webkit-mask:url(./assets/img-s/logo.webp) center/contain no-repeat;mask:url(./assets/img-s/logo.webp) center/contain no-repeat;animation:pre-b 1.6s ease-in-out infinite}
+html.day .pre-logo{background:#2f5f1f}
+.pre-ring{position:absolute;width:210px;height:210px;border-radius:50%;border:1.5px solid rgba(185,246,85,.18);border-top-color:#b9f655;animation:pre-s 1.2s linear infinite}
+html.day .pre-ring{border-color:rgba(47,95,31,.15);border-top-color:#2f6b3a}
+@keyframes pre-b{50%{opacity:.6;transform:scale(.97)}}@keyframes pre-s{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pre-logo,.pre-ring{animation:none}}
+</style>
 </head>
 <body class="classic">
+<div id="pre" class="pre" aria-hidden="true"><span class="pre-ring"></span><span class="pre-logo"></span></div>
 <div class="flutters" id="flutters" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
 

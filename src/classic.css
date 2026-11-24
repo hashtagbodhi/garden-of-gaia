@@ -2044,3 +2044,9 @@ html body .head .logo { width: 132px; height: 112px; }
 }
 @media (prefers-reduced-motion: reduce) { .deco, .fl, .sway, .spin-slow { animation: none !important; } }
 @media (max-width: 760px) { .sec::after, .page-head::after, .story-band::after, .pp::after { background-image: url(../assets/img-s/sky.webp); } }
+/* quantity: one soft pill holds the whole control; minus and plus are plain, large tap targets */
+.qty { background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px var(--rule, rgba(246, 240, 226, .2)) !important; padding: 0 4px !important; min-height: 52px; gap: 0 !important; }
+.qty button { background: none !important; width: 44px !important; height: 44px !important; font-size: 1.5rem !important; font-weight: 500; color: var(--ink) !important; border-radius: 50%; transition: background .2s, transform .15s; }
+.qty button:hover { background: rgba(255, 255, 255, .12) !important; }
+.qty button:active { transform: scale(.92); }
+.qty output { min-width: 30px !important; font-size: 1.2rem !important; font-weight: 700; }
