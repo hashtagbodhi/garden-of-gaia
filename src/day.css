@@ -570,3 +570,31 @@ html.day .head .head-tools .ask-chip.ask-chip:not(.basket-pill):not(.theme-btn),
 /* menu button matches the round tools */
 html.day .head .head-tools .menu-btn, html.day .head .menu-btn { background: radial-gradient(circle at 35% 30%, #fffaf0, #f1e6cc 70%) !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .55), 0 6px 14px -8px rgba(84, 56, 20, .45) !important; color: #1f3a26 !important; filter: none !important; min-height: 48px; }
 @media (max-width: 760px) { html.day .head .menu-btn { min-height: 40px; } }
+
+/* ===== Shop index, afternoon: painted paper, deep green and honey accents, no lime ===== */
+html.day .sidx { background: radial-gradient(60% 50% at 0% 0%, rgba(143, 174, 126, .28), transparent 70%), radial-gradient(50% 45% at 100% 100%, rgba(226, 179, 79, .22), transparent 70%), url(../assets/day/paper.webp) center / 1400px auto, #f6eedc !important; color: #22160e !important; }
+html.day .sidx-head h2 { color: #22160e !important; }
+html.day .sidx-lede { color: rgba(43, 29, 20, .82) !important; }
+html.day .sidx-back { color: #2b1d14 !important; }
+html.day .sidx-back::before { background: radial-gradient(circle at 35% 30%, #fffaf0, #f1e6cc 70%) !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .55) !important; color: #1f3a26 !important; }
+html.day .sidx-label, html.day .sidx-list h3 { color: #2f6b3a !important; }
+/* search: a paper field with a deep green line, a green focus ring instead of lime */
+html.day .sidx-search input { color: #22160e !important; background: rgba(255, 251, 240, .75) !important; border: 0 !important; border-radius: 14px; padding: 12px 16px !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .4) !important; outline: none !important; }
+html.day .sidx-search input:focus, html.day .sidx-search input:focus-visible { box-shadow: inset 0 0 0 2px #2f6b3a, 0 0 0 4px rgba(143, 174, 126, .3) !important; outline: none !important; }
+html.day .sidx-search input::placeholder { color: rgba(43, 29, 20, .5) !important; }
+/* filters: ink text, the chosen one on a sage swatch */
+html.day .sidx-filter { gap: 8px 10px !important; }
+html.day .sidx-filter button { color: rgba(43, 29, 20, .82) !important; padding: 7px 14px !important; border: 0 !important; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(150, 112, 52, .3) !important; }
+html.day .sidx-filter button:hover { color: #22160e !important; box-shadow: inset 0 0 0 1.5px rgba(47, 107, 58, .6) !important; }
+html.day .sidx-filter button[aria-selected="true"] { background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; box-shadow: none !important; }
+html.day .sidx-filter .sidx-label { padding-right: 4px; }
+/* the list: dark names, readable plants and prices, warm hairlines */
+html.day .sidx-list a { color: #22160e !important; border-top-color: rgba(150, 112, 52, .25) !important; border-radius: 12px; }
+html.day .sidx-list a:hover { background: rgba(246, 233, 201, .7) !important; }
+html.day .sidx-list .s { color: rgba(43, 29, 20, .7) !important; }
+html.day .sidx-list .p { color: #22160e !important; font-weight: 600; }
+html.day .sidx-list img { filter: drop-shadow(0 6px 10px rgba(84, 56, 20, .3)) !important; }
+html.day .sidx-list.none::after { color: rgba(43, 29, 20, .7) !important; }
+@media (max-width: 900px) { html.day .sidx-tools { background: rgba(246, 238, 220, .95) url(../assets/day/paper.webp) center / 1400px auto !important; border-bottom-color: rgba(150, 112, 52, .25) !important; } }
+html.day .sidx .sidx-in { background: none !important; background-image: none !important; box-shadow: none !important; }
+html.day body.locked .head, html.day body.nav-open .head { background: rgba(248, 240, 222, .96) url(../assets/day/paper.webp) center / 1400px auto !important; }
