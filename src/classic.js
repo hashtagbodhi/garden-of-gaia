@@ -7,6 +7,7 @@ import '@fontsource-variable/cinzel';
 import '@fontsource/emilys-candy/latin-400.css';
 import './classic.css';
 import './sheet.css';
+import './day.css';
 import catalog from './catalog.json';
 import reviewData from './reviews.json';
 import ingredientData from './ingredients.json';
@@ -172,7 +173,7 @@ function collage(list, big = false) {
   const prev = el('button', { className: 'fan-arrow', type: 'button', ariaLabel: 'Previous card', textContent: '←' }), next = el('button', { className: 'fan-arrow', type: 'button', ariaLabel: 'Next card', textContent: '→' });
   prev.onclick = () => turn(-1); next.onclick = () => turn(1);
   arrange();
-  wrap.append(el('img', { className: 'cg-art', src: A(`assets/img/${ARTS[(n * 3) % ARTS.length]}.webp`), alt: '', loading: 'lazy', decoding: 'async' }), fan, moons('cg-moon'),
+  wrap.append(artImg(ARTS[(n * 3) % ARTS.length], { className: 'cg-art', alt: '', loading: 'lazy', decoding: 'async' }), fan, moons('cg-moon'),
     el('div', { className: 'fan-ctl' }, prev, shuffle, next), cap);
   return wrap;
 }
@@ -192,8 +193,14 @@ function moons(cls = '') {
 const sun = (cls = '') => html('div', `sun ${cls}`, `<svg viewBox="0 0 200 200" aria-hidden="true">${Array.from({ length: 24 }, (_, i) => `<path d="M100 100 L${100 + 96 * Math.cos((i * 15 - 3) * Math.PI / 180)} ${100 + 96 * Math.sin((i * 15 - 3) * Math.PI / 180)} L${100 + 96 * Math.cos((i * 15 + 3) * Math.PI / 180)} ${100 + 96 * Math.sin((i * 15 + 3) * Math.PI / 180)}Z" fill="currentColor" opacity="${i % 2 ? .5 : 1}"/>`).join('')}<circle cx="100" cy="100" r="40" fill="currentColor"/><circle cx="100" cy="100" r="30" fill="none" stroke="var(--bg)" stroke-width="2"/><path d="M78 100 Q100 82 122 100 Q100 118 78 100Z" fill="var(--bg)"/><circle cx="100" cy="100" r="7" fill="currentColor"/></svg>`);
 const stamp = (text, ic = 'flower', cls = '') => el('div', { className: `stamp ${cls}`, ariaHidden: 'true' }, html('span', 'stamp-ring', `<svg viewBox="0 0 120 120"><defs><path id="ring-${cls || 'a'}" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs><text><textPath href="#ring-${cls || 'a'}" textLength="288" lengthAdjust="spacing">${text}</textPath></text></svg>`), icon(ic, 'ti stamp-ic'));
 // a strip of the garden's plants, standing along the bottom edge of a block
-const edge = (names, cls = '') => el('div', { className: `edge ${cls}`, ariaHidden: 'true' }, names.map((n, i) => { const im = el('img', { src: A(`assets/img/${n}.webp`), alt: '', loading: 'lazy', decoding: 'async' }); im.style.setProperty('--i', i); return im; }));
-const deco = (name, cls) => el('img', { className: `deco ${cls}`, src: A(`assets/img/${name}.webp`), alt: '', loading: 'lazy', decoding: 'async' });
+// the garden's paintings come in two lights: night (the originals) and afternoon (assets/img/day/), swapped with the theme
+const DAY_ART = new Set(['fx0', 'fx1', 'fx2', 'fx3', 'fx4', 'fx5', 'fx6', 'fx7', 'fx8', 'plant1', 'plant2', 'plant3', 'plant4', 'plant5', 'plant8', 'flower0', 'flower1', 'flower2', 'flower4', 'pond', 'gate', 'banyan']);
+const isDay = () => document.documentElement.classList.contains('day');
+const artSrc = (n) => A(`assets/img/${isDay() && DAY_ART.has(n) ? 'day/' : ''}${n}.webp`);
+const artImg = (n, props) => { const i = el('img', { ...props, src: artSrc(n) }); i.dataset.art = n; return i; };
+const swapArt = () => document.querySelectorAll('img[data-art]').forEach((i) => { const s2 = artSrc(i.dataset.art); if (i.src !== s2) i.src = s2; });
+const edge = (names, cls = '') => el('div', { className: `edge ${cls}`, ariaHidden: 'true' }, names.map((n, i) => { const im = artImg(n, { alt: '', loading: 'lazy', decoding: 'async' }); im.style.setProperty('--i', i); return im; }));
+const deco = (name, cls) => artImg(name, { className: `deco ${cls}`, alt: '', loading: 'lazy', decoding: 'async' });
 function reviewCard(r, withProduct) {
   const p = byHandle[r.handle];
   // a handwritten note on apothecary paper: stars, the words, who wrote it, and the jar they wrote about
@@ -288,7 +295,7 @@ function videoHero() {
       el('div', { className: 'vh-row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'vh-link', href: './#grove', textContent: 'Shop by plants →' }))));
 }
 function hero() {
-  const L = (name, cls, d) => { const i = el('img', { className: `hl ${cls}`, src: A(`assets/img/${name}.webp`), alt: '', decoding: 'async' }); i.style.setProperty('--d', d); return i; };
+  const L = (name, cls, d) => { const i = artImg(name, { className: `hl ${cls}`, alt: '', decoding: 'async' }); i.style.setProperty('--d', d); return i; };
   const flies = el('div', { className: 'hl flies' }, Array.from({ length: 34 }, (_, i) => { const f = el('i'); f.style.cssText = `left:${(i * 37 + 11) % 100}%;top:${(i * 53 + 7) % 92}%;animation-delay:${-((i * 1.3) % 9).toFixed(1)}s;animation-duration:${6 + (i % 5)}s;--s:${1 + (i % 3) * .6}`; return f; }));
   flies.style.setProperty('--d', .45);
   const sky = el('div', { className: 'hl h-sky', style: `background-image:url(${A('assets/img/sky.webp')})` }); sky.style.setProperty('--d', .08);
@@ -598,6 +605,11 @@ runTicker($('#ticker'), [SALE.line, 'Organic & pesticide-free', 'Farm-direct fro
 $('#basket-open').onclick = () => ($('#basket').hidden ? openBasket() : closeBasket()); $('#basket-close').onclick = closeBasket; $('#scrim').onclick = closeBasket; $('#basket-tab').onclick = closeBasket; $('#basket-shop').onclick = closeBasket;
 $('#menu-btn').onclick = () => { const o = document.body.classList.toggle('nav-open'); $('#menu-btn').setAttribute('aria-expanded', String(o)); if (o) { markMenu(); $('#mnav').scrollTop = 0; $('#mnav').style.setProperty('--mn-top', `${Math.max(0, Math.round($('#head').getBoundingClientRect().bottom))}px`); } };
 addEventListener('click', (e) => { if (e.target.closest?.('a[href^="./#"]')) store.set('gaia-view', 'garden'); }, true);
+// night or afternoon: the same shop in two lights, remembered on this device
+const themeBtn = $('#theme-top');
+const showTheme = () => { const day = document.documentElement.classList.contains('day'); themeBtn.setAttribute('aria-pressed', String(day)); themeBtn.setAttribute('aria-label', day ? 'Night theme' : 'Afternoon theme'); document.querySelector('meta[name=theme-color]')?.setAttribute('content', day ? '#f5ecda' : '#0d1326'); };
+themeBtn.onclick = () => { const day = document.documentElement.classList.toggle('day'); try { localStorage.setItem('gaia-theme', day ? 'day' : 'night'); } catch (e) { /* private mode */ } showTheme(); swapArt(); };
+showTheme();
 $('#ask-top').onclick = () => { closeMenu(); if (document.documentElement.classList.contains('consult-on')) closeConsult(); else askSarah(); };
 $('#nav-ask').onclick = () => { closeMenu(); askSarah(); };
 mountAsk(askSarah, A('assets/img/witch-face.webp'));

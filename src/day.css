@@ -1,0 +1,189 @@
+/* =====================================================================
+   Afternoon: the same shop in warm late-afternoon light.
+   Switched on with html.day (the sun / moon button in the header); everything else stays as it is.
+   Paper and white cards, dark ink, the garden painted in afternoon light behind every block,
+   and a deep green footer so the white animated logo still glows at the bottom.
+   ===================================================================== */
+html.day {
+  color-scheme: light;
+  --deep: #f5ecda;           /* page: warm paper */
+  --night: #f5ecda;
+  --ink: #2b1d14;            /* text: brown-black ink */
+  --ink-2: rgba(43, 29, 20, .78);
+  --ink-3: rgba(43, 29, 20, .55);
+  --rule: rgba(43, 29, 20, .14);
+  --paper: #fffdf7;          /* cards */
+  --cream: #2b1d14;          /* things that were cream-on-dark become ink-on-paper */
+  --leaf-ink: #3c7a18;       /* leaf green, deep enough to read as text */
+  --card: #fffdf7;
+  --card-line: rgba(176, 134, 52, .35);
+  --card-shadow: 0 1px 0 #fff inset, 0 18px 40px -26px rgba(84, 56, 20, .45), 0 0 0 1px rgba(176, 134, 52, .28);
+}
+html.day body { background: var(--deep) !important; color: var(--ink) !important; }
+
+/* every block: paper lit by its own colour, softly */
+html.day .tone-night, html.day .tone-cream, html.day .tone-marigold, html.day .tone-plum, html.day .tone-lotus, html.day .tone-hibiscus, html.day .tone-moss {
+  --fg: var(--ink); --soft: var(--ink-2); --line: var(--rule); --bg: var(--deep); background-color: var(--deep) !important;
+  background-image: radial-gradient(55% 70% at 88% 8%, var(--g1), transparent 70%), radial-gradient(50% 65% at 4% 96%, var(--g2), transparent 70%) !important; color: var(--ink); }
+html.day .tone-night { --g1: rgba(150, 110, 210, .16); --g2: rgba(90, 170, 120, .18); --pop: var(--leaf-ink); }
+html.day .tone-cream { --g1: rgba(90, 170, 120, .18); --g2: rgba(190, 140, 210, .16); --pop: var(--leaf-ink); }
+html.day .tone-marigold { --g1: rgba(238, 164, 58, .26); --g2: rgba(230, 110, 150, .14); --pop: #a8620e; }
+html.day .tone-plum { --g1: rgba(180, 110, 200, .2); --g2: rgba(120, 150, 230, .16); --pop: #8a3a9c; }
+html.day .tone-lotus { --g1: rgba(110, 140, 240, .2); --g2: rgba(90, 190, 200, .16); --pop: #3446b8; }
+html.day .tone-hibiscus { --g1: rgba(235, 90, 150, .18); --g2: rgba(190, 120, 220, .14); --pop: #b3165c; }
+html.day .tone-moss { --g1: rgba(110, 190, 120, .22); --g2: rgba(90, 170, 190, .16); --pop: var(--leaf-ink); }
+html.day [class*="tone-"] .kicker { color: var(--pop); }
+
+/* the garden behind every block, now in afternoon light */
+html.day .sec::after, html.day .page-head::after, html.day .story-band::after, html.day .pp::after { background-image: url(../assets/img/sky-day.webp) !important; opacity: .22 !important; }
+
+/* text that was cream on night */
+html.day h1, html.day h2, html.day h3, html.day h4, html.day p, html.day li, html.day label, html.day figcaption, html.day blockquote, html.day summary { color: inherit; }
+html.day main, html.day .sec, html.day .page-head, html.day .pp, html.day .foot-fine { color: var(--ink); }
+html.day .kicker { text-shadow: none !important; }
+html.day h1, html.day h2, html.day .sec-head h2, html.day .page-head h1 { color: var(--ink) !important; text-shadow: none !important; }
+html.day .lede, html.day .sec-head p, html.day .page-head p { color: var(--ink-2) !important; text-shadow: none !important; }
+html.day .bigword, html.day .big-q { color: rgba(43, 29, 20, .06) !important; -webkit-text-stroke-color: rgba(43, 29, 20, .1) !important; }
+
+/* header: paper glass instead of night glass */
+html.day .head, html.day .head.scrolled { background: rgba(250, 244, 230, .88) !important; -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); box-shadow: 0 1px 0 rgba(176, 134, 52, .3) !important; border-color: rgba(176, 134, 52, .3) !important; }
+html.day .head-sky { opacity: 0 !important; }
+html.day .head .logo, html.day .foot-logo, html.day .age-logo { background: #2f5f1f !important; }
+html.day .mnav a, html.day .mnav .nav-top, html.day .mnav button, html.day .head-tools button:not(.basket-pill) { color: var(--ink) !important; }
+html.day .find-btn, html.day .menu-btn, html.day .snd, html.day .theme-btn { background: rgba(255, 255, 255, .7) !important; box-shadow: inset 0 0 0 1px rgba(43, 29, 20, .18) !important; }
+html.day .mb-ic i { background: var(--ink) !important; }
+html.day .ask-chip { background: #fff !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1px rgba(176, 134, 52, .55) !important; }
+html.day .nav-gifts { background: #fff !important; box-shadow: inset 0 0 0 1px rgba(179, 22, 92, .35) !important; }
+html.day .nav-panel { background-color: #fbf5e8 !important; color: var(--ink) !important; }
+
+
+/* cards and panels: white paper */
+html.day .card, html.day .quote, html.day .col, html.day .door, html.day .promise, html.day .duo-card, html.day .plant, html.day .gift-card, html.day .fg, html.day .pp-buy, html.day .pp-box, html.day .faq details, html.day .basket-in, html.day .sidx-in, html.day .find-in, html.day .np-cols a, html.day .h-card {
+  background-color: var(--card) !important; background-image: none !important; color: var(--ink) !important; box-shadow: var(--card-shadow) !important; border-color: var(--card-line) !important; }
+html.day .card *, html.day .col *, html.day .door *, html.day .promise *, html.day .plant *, html.day .duo-card * { text-shadow: none !important; }
+html.day .card .price, html.day .price { color: var(--ink) !important; }
+html.day .door i, html.day .col-go, html.day .text-link, html.day a.alt-link { color: #8a3a9c !important; }
+
+/* buttons that were outlined in cream */
+html.day .btn:not(.btn-main), html.day .btn-glow { color: var(--ink) !important; background: #fff !important; box-shadow: inset 0 0 0 1.5px #2f5f1f, 0 6px 18px -10px rgba(47, 95, 31, .5) !important; }
+html.day .btn-main { color: #10200a !important; }
+
+/* the hero: afternoon sky behind the same scene, ink lettering */
+html.day .h-sky { background-image: url(../assets/img/sky-day.webp) !important; }
+html.day .h-shade { background: linear-gradient(90deg, rgba(250, 243, 228, .9) 0%, rgba(250, 243, 228, .55) 38%, rgba(250, 243, 228, 0) 62%), linear-gradient(0deg, rgba(245, 236, 218, 1) 0%, rgba(245, 236, 218, 0) 22%) !important; }
+html.day .hero { background: var(--deep) !important; }
+html.day .hero-copy h1, html.day .hero-copy p, html.day .hero-copy .lede { color: var(--ink) !important; text-shadow: 0 0 24px rgba(255, 250, 238, .9) !important; }
+html.day .hero-copy .kicker { color: var(--leaf-ink) !important; }
+html.day .hero .flies i, html.day .sec-flies i { background: #fff6c8 !important; box-shadow: 0 0 8px 2px rgba(255, 214, 120, .7) !important; }
+html.day .hero-switch { background: rgba(255, 252, 244, .86) !important; }
+html.day .hs-opt { color: var(--ink) !important; }
+html.day .hs-opt[aria-pressed="true"] { color: #1f1408 !important; }
+
+/* word ribbons */
+html.day .ribbons { filter: saturate(.9) brightness(1.06); }
+
+/* testimonials already are paper notes; give them a touch more lift on paper */
+html.day .quote.note { box-shadow: 0 22px 44px -26px rgba(84, 56, 20, .5), 0 0 0 1px rgba(217, 178, 86, .55) !important; }
+
+/* footer: a deep green band, so the white animated logo still glows */
+html.day .foot { background-color: #1d3a26 !important; background-image: radial-gradient(60% 80% at 90% 100%, rgba(238, 164, 58, .18), transparent), radial-gradient(60% 80% at 0 0, rgba(185, 246, 85, .12), transparent) !important; --ink: #f6efdc; --ink-2: rgba(246, 239, 220, .8); --rule: rgba(246, 239, 220, .2); color: #f6efdc !important; }
+html.day .foot h2, html.day .foot h3, html.day .foot p, html.day .foot a, html.day .foot li, html.day .foot summary, html.day .foot button { color: #f6efdc !important; }
+html.day .foot .promise, html.day .foot .fg { background-color: rgba(255, 255, 255, .06) !important; box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .16) !important; color: #f6efdc !important; }
+html.day .foot .promise * { color: #f6efdc !important; }
+html.day .foot .btn, html.day .foot .btn-glow { background: transparent !important; color: #f6efdc !important; box-shadow: inset 0 0 0 1.5px #b9f655 !important; }
+html.day .fm-vid { background: #000; }
+
+/* the theme switch itself */
+.theme-btn { display: inline-grid; place-items: center; width: 40px; height: 40px; flex: none; border: 0; border-radius: 50%; cursor: pointer; background: rgba(8, 12, 26, .6); box-shadow: inset 0 0 0 1px rgba(246, 240, 226, .22); color: #f6c445; transition: box-shadow .25s, background .25s, transform .4s cubic-bezier(.2, .8, .2, 1); }
+.theme-btn:hover { box-shadow: inset 0 0 0 1px #d9b256; transform: rotate(-18deg); }
+.theme-btn:focus-visible { outline: 2px solid #d9b256; outline-offset: 2px; }
+.theme-btn svg { width: 20px; height: 20px; }
+.theme-btn .tb-sun { display: none; }
+html.day .theme-btn { color: #b3165c; }
+html.day .theme-btn .tb-sun { display: none; }
+html.day .theme-btn .tb-moon { display: block; }
+html:not(.day) .theme-btn .tb-sun { display: block; }
+html:not(.day) .theme-btn .tb-moon { display: none; }
+@media (max-width: 760px) { .theme-btn { width: 44px; height: 44px; } }
+
+/* gifts by budget: white tiles, labels in deep jewel colours so they read on paper */
+html.day .gift-tile { background-color: var(--card) !important; background-image: none !important; box-shadow: var(--card-shadow) !important; border-radius: 18px; }
+html.day .gift-tile .gt-n { text-shadow: none !important; -webkit-text-stroke: 0 !important; }
+html.day .gift-tile:nth-child(1) .gt-n { color: #8a3a9c !important; }
+html.day .gift-tile:nth-child(2) .gt-n { color: #a8620e !important; }
+html.day .gift-tile:nth-child(3) .gt-n { color: #3c7a18 !important; }
+html.day .gift-tile:nth-child(4) .gt-n { color: #b3165c !important; }
+html.day .gift-tile .gt-s { color: var(--ink-2) !important; }
+html.day .gifts-band.clean .gt-card .gt-pics img { filter: drop-shadow(0 10px 14px rgba(84, 56, 20, .35)); }
+
+/* photo windows wait on soft leaf green, not night */
+html.day .card-win, html.day .gt-pics img, html.day .h-card img { background-color: #e6ecd6 !important; }
+
+/* the promises sit inside the green footer: no paper band there */
+html.day .foot .promises, html.day .promises.tone-marigold { background: transparent !important; background-image: none !important; }
+html.day .foot .promises::after { display: none !important; }
+html.day .foot .promise h3, html.day .foot .promise p { color: #f6efdc !important; }
+
+/* little leftovers */
+html.day .hs-opt:not([aria-pressed="true"]) { color: var(--ink) !important; }
+html.day .hero .h-moon i, html.day .moons i { border-color: rgba(43, 29, 20, .5) !important; }
+html.day .head .nav-ask { color: var(--ink) !important; }
+
+/* phone menu: paper, ink text; the Ask Sarah and Gifts cards keep their own colours */
+@media (max-width: 760px) {
+  html.day .mnav { background: #f7efdf !important; background-image: radial-gradient(70% 50% at 100% 0, rgba(190, 140, 210, .22), transparent 70%), radial-gradient(70% 50% at 0 100%, rgba(110, 190, 120, .2), transparent 70%) !important; color: var(--ink) !important; }
+  html.day .mnav a, html.day .mnav .mn-row, html.day .mnav h3, html.day .mnav p, html.day .mnav span, html.day .mnav small, html.day .mnav label, html.day .mnav input { color: var(--ink) !important; text-shadow: none !important; }
+  html.day .mnav input { border-color: rgba(43, 29, 20, .25) !important; background: #fff !important; }
+  html.day .mnav input::placeholder { color: rgba(43, 29, 20, .45) !important; }
+  html.day .mnav .mn-ask, html.day .mnav .mn-ask * { color: #f6efdc !important; }
+  html.day .mnav .mn-ask small { color: rgba(246, 239, 220, .78) !important; }
+  html.day .mnav .mn-gift, html.day .mnav .mn-gift * { color: #fff6e4 !important; }
+  html.day .mnav hr, html.day .mnav .mn-sep { border-color: rgba(43, 29, 20, .14) !important; }
+}
+html.day .nav a, html.day .nav .nav-top, html.day .nav button { color: var(--ink) !important; }
+@media (max-width: 760px) { html.day .mnav .mn-ask i, html.day .mnav .mn-gift i { color: #1d1426 !important; } }
+
+/* ---------- afternoon palette: greens, gold and terracotta; no purple or violet ---------- */
+html.day {
+  --g-leaf: #4f8a2b;     /* fresh leaf */
+  --g-sage: #8fae7e;     /* sage */
+  --g-moss: #24452d;     /* deep moss */
+  --g-gold: #c08a2a;     /* honey gold */
+  --g-terra: #b8552f;    /* terracotta */
+  --leaf-ink: #3f7a1f;
+}
+html.day .tone-night { --g1: rgba(143, 174, 126, .26); --g2: rgba(192, 138, 42, .14); --pop: var(--leaf-ink); }
+html.day .tone-cream { --g1: rgba(143, 174, 126, .24); --g2: rgba(238, 196, 120, .2); --pop: var(--leaf-ink); }
+html.day .tone-marigold { --g1: rgba(238, 180, 80, .26); --g2: rgba(143, 174, 126, .2); --pop: #9a6312; }
+html.day .tone-plum { --g1: rgba(120, 170, 110, .24); --g2: rgba(238, 196, 120, .18); --pop: #2f6b3a; }
+html.day .tone-lotus { --g1: rgba(110, 175, 150, .24); --g2: rgba(200, 225, 160, .22); --pop: #2e6f5e; }
+html.day .tone-hibiscus { --g1: rgba(214, 120, 80, .18); --g2: rgba(143, 174, 126, .22); --pop: var(--g-terra); }
+html.day .tone-moss { --g1: rgba(110, 170, 100, .26); --g2: rgba(200, 220, 150, .2); --pop: var(--leaf-ink); }
+
+/* ticker and word ribbons: green bands */
+html.day .ticker { background: linear-gradient(90deg, #24452d, #2f5f33 50%, #24452d) !important; color: #eef6d8 !important; border-bottom: 1px solid rgba(192, 138, 42, .45) !important; }
+html.day .ticker * { color: inherit; }
+html.day .ticker .tk-pill, html.day .ticker b, html.day .ticker em { border-color: rgba(238, 246, 216, .5) !important; }
+html.day .ribbon.r1 { background: #b9e07a !important; color: #1c3315 !important; }
+html.day .ribbon.r1 i { color: var(--g-terra) !important; }
+html.day .ribbon.r2 { background: #24452d !important; color: #f3ecd6 !important; }
+html.day .ribbon.r2 i { color: #e2b34f !important; }
+
+/* links and small accents that were violet */
+html.day .door i, html.day .col-go, html.day .text-link, html.day a.alt-link, html.day .n-prod, html.day .quote figcaption a { color: #2f6b3a !important; }
+html.day .theme-btn { color: #2f6b3a; }
+html.day .nav-gifts { box-shadow: inset 0 0 0 1px rgba(79, 138, 43, .45) !important; }
+html.day .gift-tile:nth-child(1) .gt-n { color: #2f6b3a !important; }
+html.day .gift-tile:nth-child(4) .gt-n { color: var(--g-terra) !important; }
+
+/* phone menu cards: green instead of plum */
+@media (max-width: 760px) {
+  html.day .mnav .mn-ask { background: linear-gradient(120deg, #2f5f33, #24452d) !important; box-shadow: inset 0 0 0 1.5px rgba(192, 138, 42, .7), 0 14px 30px -18px rgba(36, 69, 45, .6) !important; }
+  html.day .mnav .mn-gift { background: repeating-linear-gradient(45deg, #b9e07a 0 10px, #e2b34f 10px 20px, #8fae7e 20px 30px, #f3ecd6 30px 40px) !important; }
+  html.day .mnav .mn-gift > * { background-color: #2f5f33 !important; background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .12) 1.5px, transparent 2px) !important; background-size: 26px 26px !important; }
+  html.day .mnav .mn-gift a, html.day .mnav .mn-gift button { background: #24452d !important; border-color: rgba(226, 179, 79, .7) !important; }
+}
+
+/* the paintings sit in sunlight: soft ground shadows instead of a night glow */
+html.day .deco, html.day .cg-art, html.day .edge img, html.day .hero .hl:not(.h-sky):not(.flies):not(.h-shade):not(.h-rays) { filter: drop-shadow(0 14px 18px rgba(84, 56, 20, .22)) !important; }
+html.day .h-rays { opacity: .35 !important; mix-blend-mode: soft-light; }
