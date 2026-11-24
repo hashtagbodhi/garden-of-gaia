@@ -2023,3 +2023,4 @@ html body .head .logo { width: 132px; height: 112px; }
 @media (max-width: 640px) { .pp-trust { gap: 8px; } .pp-trust li { font-size: .8rem; } .pp-trust .ti { width: 36px; height: 36px; } .ps-card { padding: 18px; } }
 /* product photo: a calmer height so the buy box and photo sit level */
 @media (min-width: 981px) { .pp .pp-shot.first img, .pp .pp-main { max-height: min(78vh, 720px); width: 100%; object-fit: cover; } }
+.ps-inside li::before, .ps-promise li::before { content: none !important; display: none !important; }

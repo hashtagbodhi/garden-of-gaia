@@ -544,3 +544,5 @@ html.day .pp-cols > .details-in > .first { color: #22160e !important; }
 html.day .nav-panel { background: none !important; }
 html.day .nav-panel::before { background: linear-gradient(rgba(250, 244, 230, .7), rgba(250, 244, 230, .7)), url(../assets/day/paper.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .3), 0 30px 60px -30px rgba(84, 56, 20, .55) !important; }
 html.day .nav-panel small, html.day .nav-panel span { color: rgba(43, 29, 20, .85) !important; }
+/* buy box sits on a soft paper card so the painted border never runs behind the words */
+html.day .pp-buy { background: rgba(252, 246, 231, .88) !important; border-radius: 24px; padding: clamp(20px, 2.2vw, 30px) !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .2), 0 24px 50px -30px rgba(84, 56, 20, .45) !important; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
