@@ -78,6 +78,8 @@ def as_ground(col):
     """a colour used for a panel or a glow"""
     r, g, b, a = col
     h, l, s = hue(r, g, b)
+    if s > 0.5 and 60 <= h < 110 and l > 0.45:                 # neon lime grounds -> soft sage (no neon in the afternoon)
+        return fmt(207, 224, 184, a)
     if l < 0.28:                                                 # night panels -> paper
         return fmt(*PAPER, min(1, a + 0.05) if a > .5 else a * .9)
     if s > 0.35 and 190 <= h < 330:                              # violet and blue glows -> sage

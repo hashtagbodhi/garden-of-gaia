@@ -24,7 +24,7 @@ fs.writeFileSync(`${out}/index.html`, `<title>Garden of Gaia Apothecary</title>\
 // the classic site: a second, complete page
 fs.writeFileSync(`${out}/classic.html`, fs.readFileSync('dist/classic.html', 'utf8').replace('</head>', `${FONTS}\n</head>`)); files.push('classic.html');
 // images and sound
-for (const d of ['img', 'img/day', 'img-s', 'cut', 'card', 'gal', 'stock', 'plants', 'plantart', 'video']) for (const f of fs.readdirSync(`dist/assets/${d}`)) if (fs.statSync(`dist/assets/${d}/${f}`).isFile()) copy(`assets/${d}/${f}`);
+for (const d of ['img', 'img/day', 'day', 'img-s', 'cut', 'card', 'gal', 'stock', 'plants', 'plantart', 'video']) for (const f of fs.readdirSync(`dist/assets/${d}`)) if (fs.statSync(`dist/assets/${d}/${f}`).isFile()) copy(`assets/${d}/${f}`);
 // (scanned 3D models are no longer used: every plant has a painting)
 const walk0 = (d) => fs.readdirSync(`dist/${d}`, { withFileTypes: true }).forEach((e) => (e.isDirectory() ? walk(`${d}/${e.name}`) : copy(`${d}/${e.name}`)));
 fs.writeFileSync('raw/files.json', JSON.stringify(files.map((p) => ({ path: p }))));

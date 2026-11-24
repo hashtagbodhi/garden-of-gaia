@@ -26,9 +26,9 @@ html.day .tone-night, html.day .tone-cream, html.day .tone-marigold, html.day .t
   --fg: var(--ink); --soft: var(--ink-2); --line: var(--rule); --bg: var(--deep); background-color: var(--deep) !important;
   background-image: radial-gradient(55% 70% at 88% 8%, var(--g1), transparent 70%), radial-gradient(50% 65% at 4% 96%, var(--g2), transparent 70%) !important; color: var(--ink); }
 html.day .tone-night { --g1: rgba(150, 110, 210, .16); --g2: rgba(90, 170, 120, .18); --pop: var(--leaf-ink); }
-html.day .tone-cream { --g1: rgba(90, 170, 120, .18); --g2: rgba(190, 140, 210, .16); --pop: var(--leaf-ink); }
+html.day .tone-cream { --g1: rgba(90, 170, 120, .18); --g2: rgba(226, 179, 79, .16); --pop: var(--leaf-ink); }
 html.day .tone-marigold { --g1: rgba(238, 164, 58, .26); --g2: rgba(230, 110, 150, .14); --pop: #a8620e; }
-html.day .tone-plum { --g1: rgba(180, 110, 200, .2); --g2: rgba(120, 150, 230, .16); --pop: #8a3a9c; }
+html.day .tone-plum { --g1: rgba(143, 174, 126, .22); --g2: rgba(226, 179, 79, .16); --pop: #2f6b3a; }
 html.day .tone-lotus { --g1: rgba(110, 140, 240, .2); --g2: rgba(90, 190, 200, .16); --pop: #3446b8; }
 html.day .tone-hibiscus { --g1: rgba(235, 90, 150, .18); --g2: rgba(190, 120, 220, .14); --pop: #b3165c; }
 html.day .tone-moss { --g1: rgba(110, 190, 120, .22); --g2: rgba(90, 170, 190, .16); --pop: var(--leaf-ink); }
@@ -62,7 +62,7 @@ html.day .card, html.day .quote, html.day .col, html.day .door, html.day .promis
   background-color: var(--card) !important; background-image: none !important; color: var(--ink) !important; box-shadow: var(--card-shadow) !important; border-color: var(--card-line) !important; }
 html.day .card *, html.day .col *, html.day .door *, html.day .promise *, html.day .plant *, html.day .duo-card * { text-shadow: none !important; }
 html.day .card .price, html.day .price { color: var(--ink) !important; }
-html.day .door i, html.day .col-go, html.day .text-link, html.day a.alt-link { color: #8a3a9c !important; }
+html.day .door i, html.day .col-go, html.day .text-link, html.day a.alt-link { color: #2f6b3a !important; }
 
 /* buttons that were outlined in cream */
 html.day .btn:not(.btn-main), html.day .btn-glow { color: var(--ink) !important; background: #fff !important; box-shadow: inset 0 0 0 1.5px #2f5f1f, 0 6px 18px -10px rgba(47, 95, 31, .5) !important; }
@@ -109,7 +109,7 @@ html:not(.day) .theme-btn .tb-moon { display: none; }
 /* gifts by budget: white tiles, labels in deep jewel colours so they read on paper */
 html.day .gift-tile { background-color: var(--card) !important; background-image: none !important; box-shadow: var(--card-shadow) !important; border-radius: 18px; }
 html.day .gift-tile .gt-n { text-shadow: none !important; -webkit-text-stroke: 0 !important; }
-html.day .gift-tile:nth-child(1) .gt-n { color: #8a3a9c !important; }
+html.day .gift-tile:nth-child(1) .gt-n { color: #2f6b3a !important; }
 html.day .gift-tile:nth-child(2) .gt-n { color: #a8620e !important; }
 html.day .gift-tile:nth-child(3) .gt-n { color: #3c7a18 !important; }
 html.day .gift-tile:nth-child(4) .gt-n { color: #b3165c !important; }
@@ -131,7 +131,7 @@ html.day .head .nav-ask { color: var(--ink) !important; }
 
 /* phone menu: paper, ink text; the Ask Sarah and Gifts cards keep their own colours */
 @media (max-width: 760px) {
-  html.day .mnav { background: #f7efdf !important; background-image: radial-gradient(70% 50% at 100% 0, rgba(190, 140, 210, .22), transparent 70%), radial-gradient(70% 50% at 0 100%, rgba(110, 190, 120, .2), transparent 70%) !important; color: var(--ink) !important; }
+  html.day .mnav { background: #f7efdf !important; background-image: radial-gradient(70% 50% at 100% 0, rgba(226, 179, 79, .2), transparent 70%), radial-gradient(70% 50% at 0 100%, rgba(110, 190, 120, .2), transparent 70%) !important; color: var(--ink) !important; }
   html.day .mnav a, html.day .mnav .mn-row, html.day .mnav h3, html.day .mnav p, html.day .mnav span, html.day .mnav small, html.day .mnav label, html.day .mnav input { color: var(--ink) !important; text-shadow: none !important; }
   html.day .mnav input { border-color: rgba(43, 29, 20, .25) !important; background: #fff !important; }
   html.day .mnav input::placeholder { color: rgba(43, 29, 20, .45) !important; }
@@ -265,3 +265,116 @@ html.day .tkbar::after { background: linear-gradient(90deg, #1f3d27, transparent
   html.day .cs-say { border-radius: 16px !important; }
 }
 html.day .tkbar .tk-c .tk-t { color: #1c3315 !important; }
+
+/* ================= afternoon kit: painted paper, washes, swatch buttons and badges (assets/day) ================= */
+html.day { --kit: url(../assets/day/paper.webp); }
+html.day body { background-color: #f6eedc !important; background-image: url(../assets/day/paper.webp) !important; background-size: 1400px auto !important; background-attachment: fixed !important; }
+html.day .hero, html.day main, html.day .page { background-color: transparent !important; }
+/* section washes: sage and honey watercolour, alternating; no flat fills */
+html.day .sec, html.day .page-head, html.day .story-band, html.day .promises:not(.foot .promises) { background-color: transparent !important; background-image: url(../assets/day/sage-wash.webp) !important; background-size: cover !important; background-position: center !important; }
+html.day .sec:nth-of-type(even), html.day .sec.tone-marigold, html.day .sec.tone-cream { background-image: url(../assets/day/honey-wash.webp) !important; }
+html.day .sec::after, html.day .page-head::after, html.day .story-band::after { opacity: .1 !important; }
+
+/* cards: hand-made paper texture instead of white */
+html.day .card, html.day .quote, html.day .col, html.day .door, html.day .promise, html.day .duo-card, html.day .plant, html.day .gift-card, html.day .fg, html.day .faq details, html.day .basket-in, html.day .sidx-in, html.day .find-in, html.day .np-cols a, html.day .pa-card, html.day .ing, html.day .brew-steps li, html.day .details details, html.day .gt, html.day .gift-tile, html.day .np {
+  background-color: #f8f0de !important; background-image: url(../assets/day/card-paper.webp) !important; background-size: 520px auto !important; background-position: center !important;
+  box-shadow: 0 0 0 1px rgba(150, 112, 52, .22), 0 14px 30px -20px rgba(84, 56, 20, .45) !important; }
+html.day .quote.note { background-size: 420px auto !important; }
+/* "most loved": a painted polaroid frame around each pick */
+html.day .h-card { background: url(../assets/day/photo-frame.webp) center / 100% 100% no-repeat !important; box-shadow: none !important; filter: drop-shadow(0 12px 16px rgba(84, 56, 20, .22)); }
+html.day .h-card img, html.day .card-win { background-color: transparent !important; background-image: url(../assets/day/sage-wash.webp) !important; background-size: cover !important; }
+
+/* buttons: sage watercolour swatch, ink lettering, no neon */
+html.day .btn-main, html.day .basket-pill, html.day .add, html.day .btn-add, html.day .pp-add, html.day .cs-begin, html.day .cs-go, html.day button.add-btn {
+  background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; border: 0 !important;
+  box-shadow: none !important; filter: drop-shadow(0 6px 8px rgba(47, 74, 40, .28)); text-shadow: 0 1px 0 rgba(255, 250, 236, .55) !important; }
+html.day .btn-main *, html.day .basket-pill * { color: #1f3320 !important; }
+html.day .basket-pill .count, html.day .basket-pill b, html.day .basket-pill em { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; color: #3d2508 !important; box-shadow: none !important; }
+html.day .btn-main:hover, html.day .basket-pill:hover, html.day .add:hover { filter: drop-shadow(0 8px 12px rgba(47, 74, 40, .36)) brightness(1.04); }
+html.day .btn:not(.btn-main), html.day .btn-glow, html.day .ask-chip, html.day .nav-gifts {
+  background: url(../assets/day/card-paper.webp) center / 300px auto !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .55), 0 6px 14px -10px rgba(84, 56, 20, .4) !important; }
+
+/* tags and chips: a soft sage dab of paint */
+html.day .plant-uses b, html.day .chip, html.day .f-chip, html.day .tags span, html.day .plant .tag, html.day .p-tags span, html.day .ing-chip, html.day .pill {
+  background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; color: #22401f !important; box-shadow: none !important; border-color: transparent !important; }
+html.day .f-chip.on, html.day .chip.on { background-image: url(../assets/day/btn-honey.webp) !important; color: #3d2508 !important; }
+
+/* painted badge icons replace line icons where they stand alone */
+html.day :is(.col-ic, .promise .ti, .door > .ti, .brew-steps .ti, .pa-card li .ti, .details summary .ti, .stamp-ic, .big-ic, .ing .ti, .pface.no .ti)[data-ic] {
+  background: var(--ic) center / contain no-repeat !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; color: transparent !important; }
+html.day :is(.col-ic, .promise .ti, .door > .ti, .brew-steps .ti, .pa-card li .ti, .details summary .ti, .stamp-ic, .big-ic, .ing .ti, .pface.no .ti)[data-ic] svg { visibility: hidden; }
+html.day .promise .ti { width: 64px !important; height: 64px !important; }
+html.day .col-ic, html.day .brew-steps .ti { width: 58px !important; height: 58px !important; }
+html.day [data-ic=leaf], html.day [data-ic=seedling], html.day [data-ic=plant] { --ic: url(../assets/day/ic-leaf.webp); }
+html.day [data-ic=plant-2], html.day [data-ic=lotus], html.day [data-ic=sun] { --ic: url(../assets/day/ic-lotus.webp); }
+html.day [data-ic=flower] { --ic: url(../assets/day/ic-flower.webp); }
+html.day [data-ic=cup], html.day [data-ic=steam] { --ic: url(../assets/day/ic-cup.webp); }
+html.day [data-ic=bottle], html.day [data-ic=package] { --ic: url(../assets/day/ic-bottle.webp); }
+html.day [data-ic=droplet], html.day [data-ic=jar] { --ic: url(../assets/day/ic-jar.webp); }
+html.day [data-ic=flame] { --ic: url(../assets/day/ic-flame.webp); }
+html.day [data-ic=gift] { --ic: url(../assets/day/ic-gift.webp); }
+html.day .stamp .stamp-ic { background-color: transparent !important; }
+
+/* footer: a painted deep-green forest band */
+html.day .foot { background-color: #1d3a26 !important; background-image: linear-gradient(rgba(20, 40, 26, .35), rgba(20, 40, 26, .55)), url(../assets/day/footer-green.webp) !important; background-size: cover !important; background-position: center top !important; }
+html.day .foot .btn, html.day .foot .btn-glow { box-shadow: inset 0 0 0 1.5px rgba(226, 179, 79, .8) !important; background: transparent !important; }
+html.day .foot .promise { background: rgba(255, 250, 236, .07) !important; }
+html.day .foot .promise .ti[data-ic] { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .3)); }
+
+/* the basket and Ask Sarah: painted paper panels */
+html.day .sheet { --s-bg: transparent; background-color: #f7efdc !important; background-image: url(../assets/day/basket-strip.webp) !important; background-size: cover !important; background-position: center !important; }
+html.day .sheet .card, html.day .sheet li { background-color: rgba(255, 250, 238, .55) !important; }
+html.day .cs-card { background: #f7efdc url(../assets/day/sarah-panel.webp) center / cover !important; }
+html.day .cs-say, html.day .cs-card:has(.cs-begin) .cs-say { background: url(../assets/day/footer-green.webp) center / cover !important; }
+html.day .cs-opt, html.day .cs-card button:not(.cs-begin):not(.cs-go):not(.cs-x) { background: url(../assets/day/card-paper.webp) center / 300px auto !important; }
+
+/* the phone menu: a painted botanical panel; Ask Sarah and Gifts as washes, not flat greens */
+@media (max-width: 900px) {
+  html.day .mnav { background: #f6eedc url(../assets/day/menu-panel.webp) center / cover !important; }
+  html.day .mnav .mn-ask { background: url(../assets/day/sage-wash.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(79, 112, 60, .4), 0 12px 24px -16px rgba(47, 74, 40, .5) !important; }
+  html.day .mnav .mn-ask, html.day .mnav .mn-ask * { color: #1f3320 !important; }
+  html.day .mnav .mn-ask small { color: rgba(31, 51, 32, .78) !important; }
+  html.day .mnav .mn-gift { background: url(../assets/day/honey-wash.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(176, 134, 52, .45), 0 12px 24px -16px rgba(120, 80, 20, .45) !important; }
+  html.day .mnav .mn-gift > *, html.day .mnav .mn-gift a, html.day .mnav .mn-gift button { background: transparent !important; background-image: none !important; }
+  html.day .mnav .mn-gift, html.day .mnav .mn-gift * { color: #3d2508 !important; }
+  html.day .mnav .mn-gift a, html.day .mnav .mn-gift button { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; border: 0 !important; }
+  html.day .mnav input, html.day .mnav .mn-search { background: rgba(255, 250, 236, .6) url(../assets/day/card-paper.webp) center / 300px auto !important; border-color: rgba(79, 112, 60, .35) !important; }
+}
+html.day .nav-panel { background: #f6eedc url(../assets/day/paper.webp) center / cover !important; }
+
+/* header on painted paper, not a flat cream bar */
+html.day .head, html.day .head.scrolled { background: rgba(248, 240, 222, .55) url(../assets/day/paper.webp) center / 1400px auto !important; }
+html.day .head-tools button:not(.basket-pill):not(.theme-btn), html.day .theme-btn { background: url(../assets/day/card-paper.webp) center / 200px auto !important; }
+/* the menu's Gifts door: a honey watercolour parcel, no purple */
+@media (max-width: 900px) {
+  html.day .mnav .mn-gift { border: 0 !important; overflow: visible; }
+  html.day .mnav .mn-gift .mg-main { background: none !important; color: #3d2508 !important; }
+  html.day .mnav .mn-gift .mg-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 250, 230, .55) 0 8deg, transparent 8deg 18deg) !important; }
+  html.day .mnav .mn-gift .mg-main img { filter: drop-shadow(0 8px 12px rgba(84, 56, 20, .35)) !important; }
+  html.day .mnav .mn-gift .mg-t { background: none !important; }
+  html.day .mnav .mn-gift .mg-t b { color: #3d2508 !important; text-shadow: 0 1px 0 rgba(255, 246, 220, .7) !important; }
+  html.day .mnav .mn-gift .mg-t small, html.day .mnav .mn-gift .mg-t em { color: #5a3a10 !important; }
+  html.day .mnav .mn-gift .mg-main i, html.day .mnav .mn-ask i { background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; box-shadow: none !important; }
+  html.day .mnav .mn-gift .mg-chips a { background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; color: #22401f !important; box-shadow: none !important; border: 0 !important; }
+  html.day .mnav .mn-gift .mg-bow { background: url(../assets/day/ic-gift.webp) center / contain no-repeat !important; color: transparent !important; box-shadow: none !important; width: 46px; height: 46px; top: -20px; }
+  html.day .mnav .mn-search, html.day .mnav .mn-search input { background: none !important; background-image: none !important; }
+  html.day .mnav .mn-search input { border-bottom: 1.5px solid rgba(79, 112, 60, .45) !important; }
+}
+@media (max-width: 900px) { html.day .mnav .mn-gift::before { background: url(../assets/day/honey-wash.webp) center / cover !important; box-shadow: none !important; } html.day .mnav .mn-gift::after { display: none !important; } }
+/* Ask Sarah: no paper slab under the header; the Begin arrow on a honey dab */
+html.day .cs-top, html.day .consult.wide .cs-top { background: none !important; background-image: none !important; }
+html.day .cs-in.scrolled .cs-top::before { background: url(../assets/day/paper.webp) center / cover !important; opacity: .92; }
+html.day .cs-begin .cs-arrow, html.day .cs-go .cs-arrow { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; color: #3d2508 !important; box-shadow: none !important; }
+html.day .cs-begin::after { background: linear-gradient(100deg, transparent 35%, rgba(255, 250, 230, .45) 50%, transparent 65%) !important; }
+/* product page: the "x% off" tag and the plant chips under the title */
+html.day .pp-buy .chips a, html.day .pp-buy .chip, html.day .pp-buy .pp-off, html.day .off-tag { background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; color: #22401f !important; box-shadow: none !important; border: 0 !important; }
+html.day .pp-buy .chip .ti { color: #2f6b3a !important; }
+html.day .pp { background-image: url(../assets/day/sage-wash.webp) !important; background-size: cover !important; }
+/* footer groups stay glassy on the green forest band (no paper) */
+html.day .foot .fg, html.day .foot .promise, html.day .foot .card { background: rgba(14, 32, 20, .42) !important; background-image: none !important; box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .16) !important; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+html.day .foot .f-chip, html.day .foot .chip { background: rgba(246, 239, 220, .1) !important; background-image: none !important; color: #f6efdc !important; box-shadow: inset 0 0 0 1px rgba(226, 179, 79, .45) !important; }
+html.day .foot .f-chip .ti { color: #e2b34f !important; }
+/* product lists on plant pages float on the wash, no white slab behind */
+html.day .plant-goods { background: none !important; background-image: none !important; box-shadow: none !important; }
+/* ticker: no neon lime badge in the afternoon */
+html.day .tkbar .tk-badge { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; color: #3d2508 !important; box-shadow: none !important; }

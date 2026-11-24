@@ -52,7 +52,7 @@ const COL = {
   roots: { name: 'Gifts & guides', short: 'Gifts', tone: 'moss', icon: 'leaf', blurb: 'Gift cards and our free Divine Pantry guide.' },
 };
 const ORDER = ['tea', 'potions', 'pond', 'altar', 'roots'];
-const icon = (name, cls = 'ti') => html('span', cls, TI[name] || TI.leaf);
+const icon = (name, cls = 'ti') => { const n = html('span', cls, TI[name] || TI.leaf); n.dataset.ic = name; return n; };
 const cardImg = (p) => A(`assets/card/${p.handle}.webp`);
 const photo = (p, i = 0) => typeof p === 'string' ? A(`assets/stock/${p}.webp`) : A(p.gallery[i] || p.gallery[0] || `assets/card/${p.handle}.webp`);
 const best = ['blue-water-lily-flowers-organic-whole-flower', 'butterfly-chai-organic-whole-spice-blend-ceylon-black-tea', 'hathors-ease-blue-lotus-magnesium-whipped-tallow-balm', 'full-spectrum-hibiscus-flower-premium-loose-leaf-tea', 'blue-water-lily-tincture', 'cleansing-lungs-respiratory-digestion-immunity-loose-leaf-herbal-tea', 'golden-sticky-chai-haldi-doodh-paste-golden-milk', 'rainbow-body-cosmic-herbal-blend'].map((h) => byHandle[h]).filter(Boolean);
