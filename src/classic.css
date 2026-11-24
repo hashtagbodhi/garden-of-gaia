@@ -1859,13 +1859,32 @@ footer .promise h3 { text-wrap: balance; }
 .hero-switch { top: 18px; bottom: auto; }
 @media (max-width: 820px) { .hero-switch { top: 12px; bottom: auto; right: max(12px, env(safe-area-inset-right, 0px)); transform: none; } .hs-l { display: none; } .hs-opt { min-height: 32px; padding: 0 12px; font-size: .92rem; } }
 
-/* ---- the footer film: full width, edge to edge, the very bottom of the page ---- */
-.foot-film { position: relative; width: 100vw; margin: 36px calc(50% - 50vw) -40px; aspect-ratio: 21 / 9; max-height: 78vh; overflow: hidden; background: #c9b9c9; }
-.ff-vid { display: block; width: 100%; height: 100%; object-fit: cover; }
-.foot-film::before { content: ''; position: absolute; inset: 0 0 auto; height: 18%; z-index: 1; pointer-events: none; background: linear-gradient(var(--night, #0d1326), transparent); }
-@media (max-width: 760px) { .foot-film { aspect-ratio: 2 / 1; } }   /* the lettering spans most of the width, so phones crop only a little off the sides */
 
-html body .foot-film { width: auto !important; max-width: none !important; margin: 36px calc(-1 * max(var(--pad), env(safe-area-inset-right, 0px))) -40px calc(-1 * max(var(--pad), env(safe-area-inset-left, 0px))) !important; }
-/* Sarah steps aside while the footer film is in view, so nothing sits on the logo */
-.ask-sarah { transition: opacity .35s, transform .35s; }
-body.film-on .ask-sarah { opacity: 0; transform: translateY(12px); pointer-events: none; }
+/* the new logo is nearly square, so it gets a taller box to keep its small top line readable */
+@media (min-width: 761px) { html body .head .logo { width: 108px; height: 96px; } html body .foot-logo { width: 190px; height: 168px; } }
+/* ---- testimonials: cream apothecary notes, all the same height, a sideways swipe on phones ---- */
+html body .kind .quotes { display: grid !important; columns: auto !important; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; align-items: stretch; gap: 18px; }
+html body .quotes .quote.note { break-inside: avoid; margin-bottom: 18px; }
+html body .kind .quotes .quote.note { margin-bottom: 0; }
+html body .quote.note { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 30px 28px 24px; border-radius: 6px 6px 22px 6px; color: #2a1d14;
+  background-color: #f3ead6 !important; background-image: radial-gradient(120% 90% at 0 0, rgba(255, 255, 255, .55), transparent 60%) !important; box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 24px 50px -24px rgba(0, 0, 0, .7), 0 0 0 1px rgba(217, 178, 86, .5); }
+html body .quote.note::before { content: '“'; position: absolute; top: -6px; right: 20px; font: 400 6.5rem/1 var(--display); color: rgba(146, 108, 40, .22); pointer-events: none; }
+html body .quote.note .stars { margin: 0; color: #b8862b; letter-spacing: .14em; font-size: 1rem; }
+html body .quote.note .q-t { margin: 0; font-family: var(--display); font-size: 1.25rem; color: #1f4a2c; }
+html body .quote.note blockquote { margin: 0; flex: 1; font-family: var(--serif); font-style: italic; font-size: 1.12rem; line-height: 1.5; color: #2a1d14;
+}
+html body .kind .quote.note blockquote { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+html body .quote.note figcaption { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px dashed rgba(42, 29, 20, .25); color: #2a1d14; font-size: .95rem; }
+html body .quote.note .n-who { display: grid; gap: 1px; min-width: 0; }
+html body .quote.note .n-who b { font-family: var(--display); font-weight: 400; font-size: 1.3rem; color: #1f4a2c; }
+html body .quote.note .n-who small { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: #8a6a3a; }
+html body .quote.note .n-prod { display: inline-flex; align-items: center; gap: 8px; min-width: 0; color: #6b2a4a; font-size: .9rem; text-decoration: none; text-align: right; }
+html body .quote.note .n-prod img { flex: none; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px #f3ead6, 0 0 0 3px rgba(217, 178, 86, .8); }
+html body .quote.note .n-prod span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+html body .quote.note .n-prod:hover span { text-decoration: underline; }
+@media (max-width: 760px) {
+  html body .kind .quotes { display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; margin: 0 calc(-1 * var(--pad)); padding: 6px var(--pad) 18px; overscroll-behavior-x: contain; touch-action: pan-x pan-y; scrollbar-width: none; }
+  html body .kind .quotes::-webkit-scrollbar { display: none; }
+  html body .kind .quote.note { flex: 0 0 84%; scroll-snap-align: center; }
+}
+html body .quote.note .n-who small { white-space: nowrap; } @media (max-width: 760px) { html body .quote.note .n-prod span { font-size: .85rem; } }
