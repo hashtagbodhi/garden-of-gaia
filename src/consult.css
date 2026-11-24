@@ -301,7 +301,7 @@ html.consult-on .ask-sarah { display: none; }
   .cs-card:has(.cs-begin) .cs-sub { font-size: 1.22rem; color: rgba(255, 243, 224, .88); }
   .cs-card .cs-begin { min-height: 68px !important; padding: 0 10px 0 30px !important; border-radius: 999px !important; outline: 0 !important; font-family: 'Emilys Candy', serif !important; font-size: 1.6rem !important; letter-spacing: 0 !important; text-transform: none !important; color: #120d24 !important;
     background: linear-gradient(135deg, #e6ffb0, #b9f655 45%, #f0c35a) !important; box-shadow: 0 0 0 3px #0c0a1e, 0 0 0 5px #f0c35a, 0 0 0 9px rgba(12, 10, 30, .5), 0 0 44px rgba(185, 246, 85, .6) !important; transition: transform .25s cubic-bezier(.2, 1.4, .4, 1), box-shadow .25s; }
-  .cs-card .cs-begin:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 0 3px #0c0a1e, 0 0 0 5px #f0c35a, 0 0 0 9px rgba(12, 10, 30, .5), 0 0 60px rgba(185, 246, 85, .85) !important; }
+  .cs-card .cs-begin:hover { transform: none; }   /* no hover effect on Begin (asked to remove it) */
   .cs-card .cs-begin .cs-star { color: #a3266f !important; }
   .cs-card .cs-begin .cs-arrow { display: grid; place-items: center; width: 48px; height: 48px; margin-left: 8px; border-radius: 50%; background: #120d24 !important; color: #b9f655 !important; box-shadow: none !important; }
   .cs-card:has(.cs-begin) .cs-say { border-radius: 999px; background: linear-gradient(135deg, rgba(163, 38, 111, .85), rgba(58, 20, 102, .9)) !important; box-shadow: inset 0 0 0 1.5px #f0c35a, 0 10px 30px -10px #000; color: #fff3e0; }
@@ -315,3 +315,7 @@ html body .cs-top::before { content: ''; position: absolute; z-index: -1; inset:
   background: rgba(26, 18, 50, .45); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
 html body .cs-in.scrolled .cs-top::before { opacity: 1; }
+/* Begin my ritual: still on hover, in both themes */
+.cs-begin:hover, .cs-card .cs-begin:hover { transform: none !important; filter: none !important; }
+.cs-begin:hover .cs-arrow, .cs-card .cs-begin:hover .cs-arrow { translate: 0 0 !important; }
+.cs-begin::after { animation: none !important; display: none !important; }

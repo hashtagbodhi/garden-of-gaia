@@ -202,6 +202,48 @@ const artImg = (n, props) => { const i = el('img', { ...props, src: artSrc(n) })
 const swapArt = () => document.querySelectorAll('img[data-art]').forEach((i) => { const s2 = artSrc(i.dataset.art); if (i.src !== s2) i.src = s2; });
 const edge = (names, cls = '') => el('div', { className: `edge ${cls}`, ariaHidden: 'true' }, names.map((n, i) => { const im = artImg(n, { alt: '', loading: 'lazy', decoding: 'async' }); im.style.setProperty('--i', i); return im; }));
 const deco = (name, cls) => artImg(name, { className: `deco ${cls}`, alt: '', loading: 'lazy', decoding: 'async' });
+// one large sentence with small photos set into the words
+function statement() {
+  const tea = catalog.find((p) => p.station === 'tea' && p.gallery.length);
+  const pic = (src, round) => el('img', { className: `st-pic${round ? ' round' : ''}`, src, alt: '', loading: 'lazy' });
+  return el('section', { className: 'sec tone-cream statement' }, el('p', { className: 'stmt' },
+    'Every ', el('b', { textContent: 'flower' }), ' ', pic(A('assets/plants/blue-lotus.webp')), ' is hand ', el('b', { textContent: 'harvested' }), ' ', pic(A('assets/stock/green-valley.webp'), true),
+    ' by families in Sri Lanka, and mixed into ', el('b', { textContent: 'rituals' }), ' ', pic(tea ? photo(tea) : A('assets/stock/tea-jars.webp')), ' for whatever this ', el('b', { textContent: 'season' }), ' is asking of you.'));
+}
+// "In their words": every quote in one flowing paragraph; the chosen one comes into focus with its writer above it
+function wordsFlow(list) {
+  const ICS = ['leaf', 'flower', 'plant-2'];
+  const clip = (t) => { t = t.trim().replace(/\s+/g, ' '); if (t.length <= 260) return t; const c = t.slice(0, 250); return `${c.slice(0, c.lastIndexOf(' '))}…`; };
+  const who = el('div', { className: 'w-who', ariaLive: 'polite' });
+  const flow = el('p', { className: 'w-flow' });
+  let cur = 0;
+  const qs = list.map((r, i) => {
+    const q = el('span', { className: 'w-q', tabIndex: 0, role: 'button' }, el('span', { className: 'w-ic', ariaHidden: 'true' }, icon(ICS[i % ICS.length])), `“${clip(r.body)}”`);
+    q.setAttribute('aria-label', `Quote from ${r.author}`);
+    const go = () => set(i);
+    q.addEventListener('mouseenter', go); q.addEventListener('focus', go); q.addEventListener('click', go);
+    q.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    flow.append(q, ' ');
+    return q;
+  });
+  const place = () => {
+    const q = qs[cur]; if (!q || !flow.isConnected) return;
+    const r = q.getClientRects()[0], f = flow.getBoundingClientRect(); if (!r) return;
+    const x = Math.max(0, Math.min(r.left - f.left, f.width - who.offsetWidth));
+    who.style.transform = `translate(${x.toFixed(0)}px, ${(r.top - f.top - who.offsetHeight - 8).toFixed(0)}px)`;
+  };
+  function set(i) {
+    cur = i; const r = list[i], p = byHandle[r.handle];
+    qs.forEach((q, j) => q.classList.toggle('on', j === i));
+    who.replaceChildren(el('b', { textContent: r.author }), p ? el('span', { textContent: p.name }) : null);
+    requestAnimationFrame(place);
+  }
+  addEventListener('resize', () => requestAnimationFrame(place));
+  const box = el('div', { className: 'w-box' }, who, flow);
+  if ('ResizeObserver' in window) new ResizeObserver(() => place()).observe(flow);
+  set(0);
+  return el('div', { className: 'words' }, box, el('div', { className: 'w-foot' }, el('p', { textContent: 'Choose any quote to see who wrote it.' }), el('a', { className: 'w-all', href: '#reviews', textContent: `Read all ${reviews.length}` })));
+}
 function reviewCard(r, withProduct) {
   const p = byHandle[r.handle];
   // a handwritten note on apothecary paper: stars, the words, who wrote it, and the jar they wrote about
@@ -236,7 +278,8 @@ function home() {
   // brew
   m.push(el('section', { className: 'sec tone-lotus brew scal' }, sun('b-sun'), deco('fx1', 'b-d0 sway'), deco('pond', 'b-d1 spin-slow'), sectionHead('Steep slow. Stay rooted.', 'Brew it your way', null, null, [catalog.find((p) => p.station === 'tea'), 'tea-jars', ...catalog.filter((p) => p.station === 'tea').slice(3, 5)], 'Steep'), el('ol', { className: 'brew-steps' }, ...[['steam', 'Hot cup', 'Steep 1–2 tsp in just-boiled water for 5–7 minutes. Add honey and lemon if you like.'], ['droplet', 'Cold brew', 'Steep overnight in the fridge for a strong infusion. Pour over a glass of ice.'], ['sun', 'Sun brew', 'Fill a jar with herbs and water and let the sunshine do the work for 3–4 hours.']].map(([ic, t, d]) => el('li', {}, icon(ic), el('h3', { textContent: t }), el('p', { textContent: d })))), el('a', { className: 'btn', href: '#shop-tea', textContent: 'Shop loose leaf' })));
   // reviews
-  m.push(el('section', { className: 'sec tone-hibiscus kind scal' }, html('span', 'big-q', '“'), deco('fx6', 'k-d0 sway'), deco('bfly1', 'k-d1 fl'), sectionHead(`${stars(5)} 5.0 from ${reviews.length} reviews`, 'In their words', null, ['Read them all', '#reviews'], [...new Set(reviews.map((r) => byHandle[r.handle]).filter(Boolean))].slice(0, 4), 'Love'), el('div', { className: 'quotes' }, reviews.filter((r) => r.body.length > 60).slice(0, 6).map((r) => reviewCard(r, true)))));
+  m.push(statement());
+  m.push(el('section', { className: 'sec tone-hibiscus kind scal' }, html('span', 'big-q', '“'), deco('fx6', 'k-d0 sway'), deco('bfly1', 'k-d1 fl'), sectionHead(`${stars(5)} 5.0 from ${reviews.length} reviews`, 'In their words', null, null, [...new Set(reviews.map((r) => byHandle[r.handle]).filter(Boolean))].slice(0, 4), 'Love'), wordsFlow(reviews.filter((r) => r.body.length > 60 && r.body.length < 420).slice(0, 6))));
   // gifts
   m.push(ribbons(['Give a gift that keeps on giving', 'Gift cards', 'Under $25'], ['Wholesale', 'The Elixir Bar', 'Ritual sets']));
   m.push(giftsBand());
@@ -442,17 +485,19 @@ function plantsPage() {
   return [el('section', { className: 'page-head tone-moss' }, deco('plant3', 'ph-d0'), deco('flower2', 'ph-d1'), el('p', { className: 'kicker', textContent: 'Ingredient led' }), el('h1', { textContent: 'The plants' }), el('p', { className: 'lede', textContent: `${used.length} flowers, leaves, roots, spices and resins we work with. Find a plant by name, or by what you need it for.` })),
     el('section', { className: 'sec tone-cream plants-all' }, el('div', { className: 'plant-tools' }, search, el('div', { className: 'pf-chips', role: 'group', ariaLabel: 'What it is for' }, chips), el('div', { className: 'pf-row' }, count, ask)), grid2, none)];
 }
-function plantPage(k) {
-  const x = PLANTS[k], list = productsWith(k), ph = plantPhotos[k], u = PLANT_USES[k] || [], gs = groupsOf(k);
-  // other plants people reach for, for the same reasons
-  const kin = Object.keys(PLANTS).filter((o) => o !== k && productsWith(o).length && groupsOf(o).some((g) => gs.includes(g))).sort((a, b) => (plantPhotos[b] ? 1 : 0) - (plantPhotos[a] ? 1 : 0) || groupsOf(b).filter((g) => gs.includes(g)).length - groupsOf(a).filter((g) => gs.includes(g)).length).slice(0, 4);
-  const goods = el('ul', { className: 'plant-goods' }, list.map((pr) => {
+// one product as a row: photo, name, price and a quick add (plant pages, the brew page)
+function goodsRow(pr) {
     const v = pr.variants.find((z) => z.available) || pr.variants[0], uses = usesOf(pr.handle);
     const add = el('button', { type: 'button', className: 'pg-add', textContent: v.available ? '+ Add' : 'Sold out', disabled: !v.available });
     add.onclick = (e) => { e.preventDefault(); addToBasket(v.id, 1, pr.name); add.textContent = 'Added ✓'; setTimeout(() => { add.textContent = '+ Add'; }, 1600); };
     return el('li', {}, el('a', { className: 'pg-img', href: `#p--${pr.handle}`, ariaLabel: pr.name }, el('img', { src: photo(pr, 0), alt: '', loading: 'lazy' })),
       el('div', {}, el('a', { className: 'pg-name', href: `#p--${pr.handle}`, textContent: pr.name }), el('span', { className: 'pg-meta', textContent: [`${pr.variants.length > 1 ? 'From ' : ''}$${now(Math.min(...pr.variants.map((z) => z.price)), pr).toFixed(2)}`, pr.sub].filter(Boolean).join(' · ') }), uses.length ? el('em', { className: 'pg-use', textContent: `For ${uses.join(', ').toLowerCase()}` }) : null), add);
-  }));
+}
+function plantPage(k) {
+  const x = PLANTS[k], list = productsWith(k), ph = plantPhotos[k], u = PLANT_USES[k] || [], gs = groupsOf(k);
+  // other plants people reach for, for the same reasons
+  const kin = Object.keys(PLANTS).filter((o) => o !== k && productsWith(o).length && groupsOf(o).some((g) => gs.includes(g))).sort((a, b) => (plantPhotos[b] ? 1 : 0) - (plantPhotos[a] ? 1 : 0) || groupsOf(b).filter((g) => gs.includes(g)).length - groupsOf(a).filter((g) => gs.includes(g)).length).slice(0, 4);
+  const goods = el('ul', { className: 'plant-goods' }, list.map(goodsRow));
   return [el('section', { className: `page-head tone-moss plant-head${ph ? ' has-photo' : ''}` }, deco('flower0', 'ph-d0'), deco('bfly3', 'ph-d1'),
       ph ? el('figure', { className: 'plant-photo' }, el('img', { src: A(`assets/plants/${k}.webp`), alt: x.n }), el('figcaption', {}, 'Photo: ', el('a', { href: ph.src, target: '_blank', rel: 'noopener', textContent: photoCredit(ph) }))) : icon(x.ic, 'ti big-ic'),
       el('div', { className: 'plant-words' }, el('a', { className: 'alt-link plant-back', href: '#plants', textContent: '← All plants' }), el('p', { className: 'kicker', textContent: x.b || 'Plant' }), el('h1', { textContent: x.n }), el('p', { className: 'lede', textContent: x.note }),
@@ -467,7 +512,24 @@ function giftsPage(k) {
   return [el('section', { className: 'page-head tone-hibiscus' }, deco('bfly5', 'ph-d0'), deco('flower1', 'ph-d1'), el('p', { className: 'kicker', textContent: 'Give a gift that keeps on giving' }), el('h1', { textContent: k ? `Gifts ${t.toLowerCase()}` : 'Gifts' }), el('p', { className: 'lede', textContent: 'Prices shown are what you pay today.' })),
     k ? el('section', { className: 'sec tone-cream' }, el('nav', { className: 'tabs' }, ['25', '40', '75'].map((g) => el('a', { href: `#gifts-${g}`, ariaCurrent: g === k ? 'page' : null, textContent: { 25: 'Under $25', 40: '$25 to $40', 75: '$40 to $75' }[g] })), el('a', { href: `#p--${CARD}`, textContent: 'Gift card' })), grid(list)) : giftsBand()];
 }
+// Brew it your way: three ways to steep, each painted, each with the teas that suit it
+function brewPage() {
+  const teas = catalog.filter((p) => p.station === 'tea' && p.handle !== CARD && p.gallery.length), used = new Set();
+  const ways = [
+    ['hot', 'Hot cup', '5–7 minutes · just-boiled water', 'Steep 1–2 teaspoons in just-boiled water for 5–7 minutes, covered so the oils stay in the cup. Add honey and lemon if you like.', /chai|calm|sleep|dream|golden|chamomile|lavender|peace/i],
+    ['cold', 'Cold brew', 'Overnight · in the fridge', 'Steep overnight in the fridge for a strong, smooth infusion that extracts slowly. Strain and pour over a glass of ice.', /hibiscus|jamaica|butterfly|rainbow|rose/i],
+    ['sun', 'Sun brew', '3–4 hours · in the sun', 'Fill a glass jar with herbs and water, close it, and let the sunshine do the work for 3–4 hours. Gentle, bright and golden.', /lotus|cleans|mint|lemon|calendula|green|lily/i]];
+  const pick = (re) => { const out = teas.filter((p) => !used.has(p.handle) && re.test(`${p.name} ${p.sub || ''}`)).slice(0, 3); for (const p of teas) { if (out.length >= 3) break; if (!used.has(p.handle) && !out.includes(p)) out.push(p); } out.forEach((p) => used.add(p.handle)); return out; };
+  const art = (k, t) => { const img = el('img', { src: A(`assets/day/brew-${k}.webp`), alt: t, loading: 'lazy' }); img.onerror = () => img.replaceWith(icon({ hot: 'cup', cold: 'droplet', sun: 'sun' }[k], 'ti bw-ic')); return img; };
+  return [el('section', { className: 'page-head tone-lotus brew-head' }, deco('flower4', 'ph-d0'), deco('bfly0', 'ph-d1'), el('p', { className: 'kicker', textContent: 'Steep slow. Stay rooted.' }), el('h1', { textContent: 'Brew it your way' }), el('p', { className: 'lede', textContent: 'Three ways to steep our loose leaf, and the teas we reach for with each one.' })),
+    el('section', { className: 'sec tone-cream brew-page' }, ways.map(([k, t, time, d, re], n) => el('article', { className: `brew-way bw-${k}` },
+      el('figure', { className: 'bw-art' }, art(k, t)),
+      el('div', { className: 'bw-text' }, el('span', { className: 'bw-n', ariaHidden: 'true', textContent: ROMAN[n] }), el('h2', { textContent: t }), el('p', { className: 'bw-time', textContent: time }), el('p', { className: 'bw-d', textContent: d })),
+      el('div', { className: 'bw-shop' }, el('p', { className: 'kicker', textContent: `Teas for a ${t.toLowerCase()}` }), el('ul', { className: 'plant-goods bw-goods' }, pick(re).map(goodsRow))))),
+      el('a', { className: 'btn bw-all', href: '#shop-tea', textContent: 'Shop all loose leaf' }))];
+}
 function infoPage(id) {
+  if (id === 'brew') return brewPage();
   const i = INFO.find((x) => x.id === id);
   if (id === 'reviews') return [el('section', { className: 'page-head tone-plum' }, el('p', { className: 'kicker', textContent: `${stars(5)} 5.0 from ${reviews.length} reviews` }), el('h1', { textContent: 'Kind words' })), el('section', { className: 'sec tone-plum' }, el('div', { className: 'quotes' }, reviews.map((r, i) => { const c = reviewCard(r, true); if (i >= 9) c.classList.add('later'); return c; })), reviews.length > 9 ? (() => { const b = el('button', { type: 'button', className: 'btn more-reviews', textContent: `Show all ${reviews.length} reviews` }); b.onclick = () => { b.closest('.sec').classList.add('all'); b.remove(); }; return b; })() : null)];
   const tone = { story: 'moss', brew: 'lotus', wholesale: 'hibiscus', elixir: 'marigold', hello: 'night' }[id] || 'night';

@@ -378,3 +378,101 @@ html.day .foot .f-chip .ti { color: #e2b34f !important; }
 html.day .plant-goods { background: none !important; background-image: none !important; box-shadow: none !important; }
 /* ticker: no neon lime badge in the afternoon */
 html.day .tkbar .tk-badge { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; color: #3d2508 !important; box-shadow: none !important; }
+
+/* ===== Ask Sarah, afternoon: calm Begin button, clean frame, padded answer cards ===== */
+html.day .cs-card .cs-begin, html.day .cs-card .cs-begin:hover, html.day .cs-card .cs-begin:focus-visible { box-shadow: none !important; outline: 0 !important; transform: none !important; }
+html.day .cs-card .cs-begin:focus-visible { outline: 2px solid #2f6b3a !important; outline-offset: 4px !important; }
+html.day .cs-card:has(.cs-begin) .cs-side { box-shadow: inset 0 0 0 2px rgba(176, 134, 52, .55) !important; }
+html.day .cs-card:has(.cs-begin) .cs-side::before { display: none !important; }
+html.day .cs-card:has(.cs-begin) .cs-body::before { color: #b0862f !important; text-shadow: none !important; }
+html.day .cs-card:has(.cs-begin) .cs-q { color: var(--c-ink) !important; text-shadow: none !important; }
+html.day .cs-card:has(.cs-begin) .cs-sub { color: rgba(43, 29, 20, .82) !important; }
+/* Sarah's speech pill: room around the words */
+html.day .cs-say { padding: 12px 24px !important; border-radius: 999px !important; line-height: 1.3; }
+html.day .cs-say p { color: #fbf3dd !important; margin: 0 !important; }
+/* answer cards: rounded, padded, one outline when chosen, readable text */
+html.day .cs-grid { gap: 10px !important; }
+html.day .cs-grid .cs-opt, html.day .cs-grid .cs-opt:hover, html.day .cs-grid .cs-opt.on {
+  border: 0 !important; border-bottom: 0 !important; border-radius: 16px !important; padding: 14px 48px 14px 18px !important; transform: none !important; outline: 0 !important;
+  background: rgba(255, 250, 238, .72) url(../assets/day/card-paper.webp) center / 360px auto !important; background-blend-mode: soft-light; }
+html.day .cs-grid .cs-opt { box-shadow: 0 0 0 1px rgba(150, 112, 52, .3), 0 8px 18px -14px rgba(84, 56, 20, .5) !important; }
+html.day .cs-grid .cs-opt:hover { box-shadow: 0 0 0 1.5px rgba(47, 107, 58, .55), 0 10px 20px -14px rgba(84, 56, 20, .55) !important; }
+html.day .cs-grid .cs-opt.on { box-shadow: 0 0 0 2px #2f6b3a, 0 10px 22px -14px rgba(47, 107, 58, .6) !important; background-color: rgba(238, 246, 220, .85) !important; }
+html.day .cs-opt .cs-l, html.day .cs-grid .cs-opt.on .cs-l, html.day .cs-grid .cs-opt:hover .cs-l { color: #2b1d14 !important; translate: 0 0 !important; }
+html.day .cs-opt .cs-s { color: rgba(43, 29, 20, .74) !important; }
+html.day .cs-grid .cs-opt .cs-mark { position: absolute !important; right: 14px !important; top: 50% !important; translate: 0 -50% !important; width: 26px !important; height: 26px !important; border-radius: 50% !important;
+  display: grid !important; place-items: center; font-size: 15px; line-height: 1; opacity: 1 !important; background: rgba(255, 250, 238, .9) !important; box-shadow: inset 0 0 0 1.5px rgba(143, 174, 126, .9) !important; color: transparent !important; }
+html.day .cs-grid .cs-opt .cs-mark:empty::before { content: '' !important; }
+html.day .cs-grid .cs-opt.on .cs-mark { background: #fffdf5 !important; box-shadow: inset 0 0 0 2px #2f6b3a !important; color: #1f4a26 !important; font-weight: 700; }
+html.day .cs-chips .cs-opt { border-radius: 999px !important; padding: 9px 18px !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .35) !important; }
+html.day .cs-chips .cs-opt.on { background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; box-shadow: none !important; }
+html.day .cs-chips .cs-opt.on .cs-l { color: #1f3320 !important; }
+
+/* ===== Gifts: four matching painted cards, green / gold / sage / terracotta accents ===== */
+html.day .gift-tile, html.day .gift-tile:nth-child(1), html.day .gift-tile:nth-child(2), html.day .gift-tile:nth-child(3), html.day .gift-tile:nth-child(4), html.day .gift-tile:hover {
+  background-color: #f8f0de !important; background-image: url(../assets/day/card-paper.webp) !important; background-size: 520px auto !important; background-position: center !important;
+  box-shadow: 0 0 0 1px rgba(150, 112, 52, .25), 0 16px 30px -22px rgba(84, 56, 20, .5) !important; color: var(--ink) !important; }
+html.day .gift-tile:nth-child(1) { --pop: #2f6b3a; } html.day .gift-tile:nth-child(2) { --pop: #a8701a; }
+html.day .gift-tile:nth-child(3) { --pop: #4f7a3a; } html.day .gift-tile:nth-child(4), html.day .gift-tile.gt-card { --pop: #ac4826; }
+html.day .gift-tile .gt-n { color: var(--pop) !important; }
+html.day .gift-tile .gt-s, html.day .gift-tile .gt-s * { color: rgba(43, 29, 20, .8) !important; }
+html.day .gift-tile .gt-s i { color: var(--pop) !important; }
+html.day .gift-tile .gt-pics img { border-color: var(--pop) !important; outline-color: var(--pop) !important; box-shadow: 0 0 0 2px var(--pop), 0 8px 14px -8px rgba(84, 56, 20, .45) !important; background-color: #eef2e2 !important; background-image: none !important; }
+
+/* ===== Homepage doors: bigger painted icons ===== */
+html.day .door > .ti[data-ic] { width: 84px !important; height: 84px !important; }
+@media (max-width: 760px) { html.day .door > .ti[data-ic] { width: 68px !important; height: 68px !important; } }
+
+/* ===== Product page: ingredients as clear text with a small painted leaf, no pill ===== */
+html.day .pp-buy .chips { gap: 6px 18px !important; }
+html.day .pp-buy .chips .chip, html.day .pp-buy .chips a { background: none !important; box-shadow: none !important; border: 0 !important; padding: 2px 0 !important; color: #22401f !important; font-weight: 500; text-decoration: none; }
+html.day .pp-buy .chips .chip:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(47, 107, 58, .5); }
+html.day .pp-buy .chips .chip .ti { width: 22px !important; height: 22px !important; background: url(../assets/day/ic-leaf.webp) center / contain no-repeat !important; color: transparent !important; }
+html.day .pp-buy .chips .chip .ti svg { visibility: hidden; }
+html.day .pp-buy, html.day .pp-buy p, html.day .pp-buy .ship-note { color: #2b1d14 !important; }
+html.day .pp-buy .was, html.day .pp-buy s { color: rgba(43, 29, 20, .6) !important; }
+
+/* ===== every button painted like the Basket pill: sage swatch, dark ink ===== */
+html.day :is(.btn, .btn-glow, .sheet-x, .to-top, .more-add, .pg-add, .f-chip.all, .ask-chip, .nav-gifts):not(.btn-main) {
+  background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; border: 0 !important;
+  box-shadow: none !important; filter: drop-shadow(0 5px 7px rgba(47, 74, 40, .26)); text-shadow: 0 1px 0 rgba(255, 250, 236, .5) !important; }
+html.day :is(.btn, .btn-glow, .sheet-x, .to-top, .more-add, .pg-add, .ask-chip, .nav-gifts) * { color: #1f3320 !important; }
+html.day :is(.btn, .btn-glow, .sheet-x, .to-top, .more-add, .pg-add, .f-chip.all, .ask-chip, .nav-gifts, .btn-main, .basket-pill):hover { filter: drop-shadow(0 7px 10px rgba(47, 74, 40, .34)) brightness(1.05); }
+html.day .pg-add:disabled, html.day .pg-add.sold, html.day .pg-add[aria-disabled=true] { background-image: url(../assets/day/chip-dab.webp) !important; color: rgba(31, 51, 32, .6) !important; filter: none; }
+/* round header buttons (search, theme, menu) and the quantity box */
+html.day :is(.find-btn, .theme-btn, .nav-toggle, .menu-btn, .burger, .head-tools > button:not(.basket-pill)) {
+  background: url(../assets/day/chip-dab.webp) center / 140% 140% no-repeat !important; box-shadow: none !important; border: 0 !important; color: #1f3320 !important; filter: drop-shadow(0 4px 6px rgba(47, 74, 40, .22)); }
+html.day .qty { background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; box-shadow: none !important; border: 0 !important; }
+html.day .qty, html.day .qty * { color: #1f3320 !important; }
+/* footer: a honey swatch reads on the deep green band */
+html.day .foot :is(.btn, .btn-glow, .to-top, .f-chip.all) { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; color: #3d2508 !important; box-shadow: none !important; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .3)); text-shadow: none !important; }
+html.day .foot :is(.btn, .btn-glow, .to-top) * { color: #3d2508 !important; }
+/* brew page, afternoon */
+html.day .brew-way { background: rgba(255, 250, 238, .5) url(../assets/day/card-paper.webp) center / 520px auto !important; background-blend-mode: soft-light; box-shadow: 0 0 0 1px rgba(150, 112, 52, .22), 0 18px 34px -24px rgba(84, 56, 20, .5) !important; }
+html.day .bw-n, html.day .bw-time { color: #a8701a !important; }
+html.day .bw-text h2 { color: #2b1d14 !important; }
+html.day .bw-d { color: rgba(43, 29, 20, .82) !important; }
+html.day .bw-art img { filter: drop-shadow(0 14px 18px rgba(84, 56, 20, .25)); }
+/* statement and In their words, afternoon */
+html.day .statement { background-image: url(../assets/day/paper.webp) !important; background-size: 1400px auto !important; }
+html.day .stmt { color: #5b6e55 !important; }
+html.day .stmt b { color: #1f3a26 !important; }
+html.day .w-flow, html.day .w-flow * { color: #1f3320 !important; text-shadow: none !important; }
+html.day .w-who, html.day .w-who * { background-color: transparent; color: #f6efdc !important; }
+html.day .w-who { background: #1f4a2c url(../assets/day/footer-green.webp) center / cover !important; }
+html.day .w-box, html.day .w-foot { border-color: rgba(47, 74, 40, .35) !important; }
+html.day .w-foot p { color: rgba(43, 29, 20, .75) !important; }
+html.day .w-all { color: #1f3a26 !important; border-bottom-color: #ac4826 !important; }
+html.day .w-ic .ti[data-ic] { background: var(--ic) center / contain no-repeat !important; color: transparent !important; }
+html.day .w-ic .ti[data-ic] svg { visibility: hidden; }
+html.day .w-ic { width: 1.25em; height: 1.25em; vertical-align: -.22em; }
+html.day .kind .big-q { display: none !important; }
+/* ticker "Organic & pesticide-free" badge: honey swatch instead of neon lime */
+html.day .tkbar .tk-c .tk-t, html.day #ticker .tk-c .tk-t { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; background-color: transparent !important; color: #3d2508 !important; box-shadow: none !important; }
+/* Begin: no focus ring drawn when Sarah opens */
+html.day .cs-card .cs-begin:focus, html.day .cs-card .cs-begin:focus-visible { outline: 0 !important; box-shadow: none !important; }
+/* brew cards: warm paper, not white */
+html.day .brew-way { background: #f3e6c8 url(../assets/day/card-paper.webp) center / 520px auto !important; background-blend-mode: multiply !important; }
+/* In their words: calm paper behind the quotes */
+html.day .kind { background-image: url(../assets/day/paper.webp) !important; background-size: 1400px auto !important; }
+html.day .kind::after { opacity: 0 !important; }
