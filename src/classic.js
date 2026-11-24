@@ -318,18 +318,6 @@ const promisesRow = () => el('section', { className: 'promises tone-marigold' },
 // A switch on the hero flips between them; the choice is remembered on this device.
 // the homepage hero is the painted scene only (the film hero was retired)
 function heroPair() { return hero(); }
-function videoHero() {
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // close-ups from Pexels and Mixkit (both free for commercial use), cut to 2½ seconds each; phones get an upright cut
-  const tall = matchMedia('(max-aspect-ratio: 1/1)').matches, name = tall ? 'hero-tall' : 'hero';
-  const v = el('video', { className: 'vh-film', muted: true, playsInline: true, loop: true, autoplay: !still, preload: 'auto', poster: A(`assets/video/${name}-poster.jpg`), ariaHidden: 'true' });
-  v.muted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.src = A(`assets/video/${name}.mp4`);
-  return el('section', { className: 'vhero' }, v, el('div', { className: 'vh-shade' }),
-    el('div', { className: 'vh-copy' },
-      el('p', { className: 'vh-kick', textContent: 'Farm-direct from Sri Lanka' }),
-      el('h1', { textContent: 'Reconnecting you with your roots' }),
-      el('div', { className: 'vh-row' }, el('a', { className: 'btn btn-main', href: '#shop', textContent: 'Shop the apothecary' }), el('a', { className: 'vh-link', href: './#grove', textContent: 'Shop by plants →' }))));
-}
 function hero() {
   const L = (name, cls, d) => { const i = artImg(name, { className: `hl ${cls}`, alt: '', decoding: 'async' }); i.style.setProperty('--d', d); return i; };
   const flies = el('div', { className: 'hl flies' }, Array.from({ length: 34 }, (_, i) => { const f = el('i'); f.style.cssText = `left:${(i * 37 + 11) % 100}%;top:${(i * 53 + 7) % 92}%;animation-delay:${-((i * 1.3) % 9).toFixed(1)}s;animation-duration:${6 + (i % 5)}s;--s:${1 + (i % 3) * .6}`; return f; }));
@@ -426,7 +414,7 @@ function product(p) {
     avg ? el('a', { className: 'pp-rating', href: '#pp-reviews', textContent: `${stars(Math.round(avg))} ${avg} · ${own.length} review${own.length > 1 ? 's' : ''}` }) : null,
     pl.length ? el('div', { className: 'chips' }, pl.slice(0, 8).map((x) => el('a', { className: 'chip', href: `#plant--${x.k}` }, icon(x.ic), x.n))) : null,
     price, variants, el('div', { className: 'pp-row' }, el('div', { className: 'qty' }, minus, qv, plus), add), ship,
-    el('ul', { className: 'pp-promises' }, ['Sourced direct from farmers in Sri Lanka', 'Regenerative agriculture partners', 'Organic loose leaf herbs'].map((t) => el('li', { textContent: t }))));
+    el('ul', { className: 'pp-trust' }, [['leaf', 'Organic, pesticide-free plants'], ['plant-2', 'Farm-direct sourcing'], ['flower', 'Made by hand in small batches']].map(([ic, t]) => el('li', {}, icon(ic), el('span', { textContent: t })))));
   const top = el('section', { className: `pp pp-${col.tone}` }, deco('fx0', 'pp-d0 sway'), deco('bfly2', 'pp-d1 fl'), el('div', { className: 'pp-gallery pp-stack' }, imgs.map((src, i) => el('figure', { className: `pp-shot${i === 0 ? ' first' : ''}` }, el('img', { src: A(src), alt: i === 0 ? p.title : '', loading: i ? 'lazy' : 'eager', decoding: 'async' }), i === 0 ? p.sale && SALE.pct ? el('span', { className: 'badge' }, el('b', { textContent: `${SALE.pct}%` }), el('i', { textContent: 'off' })) : null : null))), buy);
   const crumbs = el('nav', { className: 'crumbs', ariaLabel: 'You are here' }, el('a', { className: 'cr-back', href: `#shop-${p.station}`, textContent: `← ${col.name}` }), el('span', { className: 'cr-trail' }, el('a', { href: '#shop', textContent: 'Shop all' }), ' / ', el('a', { href: `#shop-${p.station}`, textContent: col.short || col.name }), ' / ', el('b', { textContent: p.name })));
   const out = [crumbs, top];
@@ -435,22 +423,32 @@ function product(p) {
   const aside = el('aside', { className: 'pp-aside' }, el('div', { className: 'pa-photos' }, extra.map((src, i) => el('img', { className: `pa-${i}`, src: A(src), alt: '', loading: 'lazy' }))),
     el('div', { className: 'pa-card tone-' + col.tone }, moons('pa-moon'), el('h3', { textContent: 'The apothecary promise' }), el('ul', {}, [['leaf', 'Organic, pesticide-free plants'], ['plant-2', 'Direct from family farms in Sri Lanka'], ['flower', 'Mixed by hand in small batches'], ['seedling', 'Nothing you can’t pronounce']].map(([ic, t]) => el('li', {}, icon(ic), t)))));
   out.push(ribbons([p.name, col.name, 'Small batch', 'Hand harvested'], pl.length ? pl.map((x) => x.n) : ['Farm direct', 'Sri Lanka', 'Made by hand']));
-  out.push(el('section', { className: 'sec tone-cream details scal' }, el('div', { className: 'details-in' }, p.lede ? el('p', { className: 'first', textContent: p.lede }) : null, p.sections.filter((s) => s.blocks.length).map((s, i) => el('details', { open: i < 2 }, el('summary', {}, icon(s.icon === 'cup' ? 'cup' : s.icon === 'package' ? 'bottle' : s.icon === 'lotus' ? 'flower' : s.icon === 'plant' ? 'plant-2' : s.icon || 'leaf'), el('span', { textContent: s.title })), blocks(s.blocks)))),
+  out.push(el('section', { className: 'sec tone-cream details scal' }, el('div', { className: 'details-in' }, p.lede ? el('p', { className: 'first', textContent: p.lede }) : null, p.sections.map((s) => ({ ...s, blocks: s.blocks.filter((b) => !(b.k === 'note' && b.t && b.t.toLowerCase().includes(p.name.toLowerCase()))) })).filter((s) => s.blocks.length).map((s, i) => el('details', { open: i < 2 }, el('summary', {}, icon(s.icon === 'cup' ? 'cup' : s.icon === 'package' ? 'bottle' : s.icon === 'lotus' ? 'flower' : s.icon === 'plant' ? 'plant-2' : s.icon || 'leaf'), el('span', { textContent: s.title })), blocks(s.blocks)))),
     el('p', { className: 'fine', textContent: 'These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease. Consult a healthcare professional before use if pregnant, nursing, or on medication.' }), aside));
   const w = reviewData.wholesale[p.handle];
   if (w) out.push(el('section', { className: 'sec tone-hibiscus duo-one' }, el('p', { className: 'kicker', textContent: 'Wholesale' }), el('h2', { textContent: w.h }), el('p', { className: 'sec-sub', textContent: w.t }), el('a', { className: 'btn', href: `${STORE}/pages/wholesale-blue-water-lily`, target: '_blank', rel: 'noopener', textContent: 'Apply for wholesale' })));
-  out.push(el('section', { className: 'sec tone-plum kind scal', id: 'pp-reviews' }, html('span', 'big-q', '“'), deco('fx3', 'k-d0 sway'), sectionHead(own.length ? `${stars(Math.round(avg))} ${avg} out of 5` : 'Kind words from the garden', own.length ? 'In their words' : 'What people say', own.length ? null : 'No reviews for this one yet. Here is what people say about the rest of the garden.'), el('div', { className: 'quotes' }, (own.length ? own : reviews.slice(0, 3)).map((r) => reviewCard(r, !own.length)))));
+  out.push(el('section', { className: 'sec tone-plum kind scal', id: 'pp-reviews' }, html('span', 'big-q', '“'), deco('fx3', 'k-d0 sway'), sectionHead(own.length ? `${stars(Math.round(avg))} ${avg} out of 5` : 'Kind words from the garden', own.length ? 'In their words' : 'What people say', own.length ? null : 'No reviews for this one yet. Here is what people say about the rest of the garden.'), wordsFlow((own.length ? own : reviews.filter((r) => r.body.length > 60)).slice(0, 6))));
   const related = catalog.filter((x) => x.station === p.station && x !== p).slice(0, 4);
   if (related.length) out.push(el('section', { className: `sec tone-${col.tone} loved scal` }, deco('fx4', 'l-d1 sway'), sectionHead('From the same corner of the garden', `More ${COL[p.station].short.toLowerCase()}`, null, [`Shop ${COL[p.station].short.toLowerCase()}`, `#shop-${p.station}`]), grid(related, 'grid-4')));
   // ---- a tighter page: buy box, then one sticky row of jumps (Details, Inside, Reviews, More), each section short ----
   const page = out.filter((x) => x && !x.classList.contains('ribbons') && !x.classList.contains('duo-one'));
   const find = (c) => page.find((x) => x.classList.contains(c));
   const det = find('details'), ins = find('inside'), rev = find('kind'), more = find('loved');
-  if (det) { det.id = 'pp-details'; det.querySelector('.pp-aside')?.remove(); det.querySelectorAll('details').forEach((d, i) => { d.open = i === 0; }); }
-  if (ins) ins.id = 'pp-inside'; if (more) more.id = 'pp-more';
-  if (rev) { const q = [...rev.querySelectorAll('.quotes > *')]; q.slice(3).forEach((x) => x.remove()); if (own.length > 3) rev.append(el('a', { className: 'btn pp-allrev', href: '#reviews', textContent: `Read all ${reviews.length} reviews` })); }
+  let side = null;
+  if (det) {
+    det.id = 'pp-details'; det.querySelector('.pp-aside')?.remove(); det.querySelectorAll('details').forEach((d, i) => { d.open = i === 0; });
+    // beside the text: what is inside (a compact list), then the apothecary promise
+    side = el('aside', { className: 'pp-side', id: 'pp-inside' },
+      pl.length ? el('div', { className: 'ps-card ps-inside' }, el('p', { className: 'kicker', textContent: pl.length === 1 ? 'The plant' : `${pl.length} plants inside` }), el('h2', { textContent: pl.length === 1 ? 'What it is' : 'What’s inside' }),
+        el('ul', {}, pl.map((x) => el('li', {}, el('a', { href: `#plant--${x.k}` }, plantFace(x.k, 'sm ps-face'), el('span', {}, el('b', { textContent: x.n }), x.b ? el('i', { textContent: x.b }) : null, x.note ? el('small', { textContent: x.note }) : null)))))) : null,
+      el('div', { className: 'ps-card ps-promise' }, el('h3', { textContent: 'The apothecary promise' }), el('ul', {}, [['leaf', 'Organic, pesticide-free plants'], ['plant-2', 'Farm-direct from family growers'], ['flower', 'Mixed by hand in small batches'], ['cup', 'Nothing you can’t pronounce']].map(([ic, t]) => el('li', {}, icon(ic), t)))));
+    const inner = det.querySelector('.details-in'); const wrap = el('div', { className: 'pp-cols' }); inner.replaceWith(wrap); wrap.append(inner, side);
+    const fine = det.querySelector('.fine'); if (fine) inner.append(fine);
+  }
+  if (more) more.id = 'pp-more';
+
   // details first (what it is, how to use it), then what is inside, then reviews and neighbours
-  const order = [crumbs, top, null, det, ins, rev, more].filter((x) => x !== undefined);
+  const order = [crumbs, top, null, det, det ? null : ins, rev, more].filter((x) => x !== undefined);
   const jump = (id, label) => { const b = el('button', { type: 'button', textContent: label }); b.onclick = () => document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); return b; };
   const tabs = el('nav', { className: 'pp-tabs', ariaLabel: 'On this page' }, el('div', { className: 'pp-tabs-in' }, det ? jump('pp-details', 'Details') : null, ins ? jump('pp-inside', pl.length === 1 ? 'The plant' : `Inside (${pl.length})`) : null, rev ? jump('pp-reviews', own.length ? `Reviews (${own.length})` : 'Reviews') : null, more ? jump('pp-more', 'More like this') : null));
   const hh = $('#head').offsetHeight; top.style.setProperty('--buy-top', `${hh + 56}px`); tabs.style.setProperty('--pp-top', `${hh}px`); document.documentElement.style.setProperty('--head-h3', `${hh + 56}px`);

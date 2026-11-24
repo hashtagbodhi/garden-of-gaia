@@ -130,7 +130,7 @@ html.day .hero .h-moon i, html.day .moons i { border-color: rgba(43, 29, 20, .5)
 html.day .head .nav-ask { color: var(--ink) !important; }
 
 /* phone menu: paper, ink text; the Ask Sarah and Gifts cards keep their own colours */
-@media (max-width: 760px) {
+@media (max-width: 1080px) {
   html.day .mnav { background: #f7efdf !important; background-image: radial-gradient(70% 50% at 100% 0, rgba(226, 179, 79, .2), transparent 70%), radial-gradient(70% 50% at 0 100%, rgba(110, 190, 120, .2), transparent 70%) !important; color: var(--ink) !important; }
   html.day .mnav a, html.day .mnav .mn-row, html.day .mnav h3, html.day .mnav p, html.day .mnav span, html.day .mnav small, html.day .mnav label, html.day .mnav input { color: var(--ink) !important; text-shadow: none !important; }
   html.day .mnav input { border-color: rgba(43, 29, 20, .25) !important; background: #fff !important; }
@@ -141,7 +141,7 @@ html.day .head .nav-ask { color: var(--ink) !important; }
   html.day .mnav hr, html.day .mnav .mn-sep { border-color: rgba(43, 29, 20, .14) !important; }
 }
 html.day .nav a, html.day .nav .nav-top, html.day .nav button { color: var(--ink) !important; }
-@media (max-width: 760px) { html.day .mnav .mn-ask i, html.day .mnav .mn-gift i { color: #1d1426 !important; } }
+@media (max-width: 1080px) { html.day .mnav .mn-ask i, html.day .mnav .mn-gift i { color: #1d1426 !important; } }
 
 /* ---------- afternoon palette: greens, gold and terracotta; no purple or violet ---------- */
 html.day {
@@ -177,7 +177,7 @@ html.day .gift-tile:nth-child(1) .gt-n { color: #2f6b3a !important; }
 html.day .gift-tile:nth-child(4) .gt-n { color: var(--g-terra) !important; }
 
 /* phone menu cards: green instead of plum */
-@media (max-width: 760px) {
+@media (max-width: 1080px) {
   html.day .mnav .mn-ask { background: linear-gradient(120deg, #2f5f33, #24452d) !important; box-shadow: inset 0 0 0 1.5px rgba(192, 138, 42, .7), 0 14px 30px -18px rgba(36, 69, 45, .6) !important; }
   html.day .mnav .mn-gift { background: repeating-linear-gradient(45deg, #b9e07a 0 10px, #e2b34f 10px 20px, #8fae7e 20px 30px, #f3ecd6 30px 40px) !important; }
   html.day .mnav .mn-gift > * { background-color: #2f5f33 !important; background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .12) 1.5px, transparent 2px) !important; background-size: 26px 26px !important; }
@@ -329,7 +329,7 @@ html.day .cs-say, html.day .cs-card:has(.cs-begin) .cs-say { background: url(../
 html.day .cs-opt, html.day .cs-card button:not(.cs-begin):not(.cs-go):not(.cs-x) { background: url(../assets/day/card-paper.webp) center / 300px auto !important; }
 
 /* the phone menu: a painted botanical panel; Ask Sarah and Gifts as washes, not flat greens */
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   html.day .mnav { background: #f6eedc url(../assets/day/menu-panel.webp) center / cover !important; }
   html.day .mnav .mn-ask { background: url(../assets/day/sage-wash.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(79, 112, 60, .4), 0 12px 24px -16px rgba(47, 74, 40, .5) !important; }
   html.day .mnav .mn-ask, html.day .mnav .mn-ask * { color: #1f3320 !important; }
@@ -346,7 +346,7 @@ html.day .nav-panel { background: #f6eedc url(../assets/day/paper.webp) center /
 html.day .head, html.day .head.scrolled { background: rgba(248, 240, 222, .55) url(../assets/day/paper.webp) center / 1400px auto !important; }
 html.day .head-tools button:not(.basket-pill):not(.theme-btn), html.day .theme-btn { background: url(../assets/day/card-paper.webp) center / 200px auto !important; }
 /* the menu's Gifts door: a honey watercolour parcel, no purple */
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   html.day .mnav .mn-gift { border: 0 !important; overflow: visible; }
   html.day .mnav .mn-gift .mg-main { background: none !important; color: #3d2508 !important; }
   html.day .mnav .mn-gift .mg-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 250, 230, .55) 0 8deg, transparent 8deg 18deg) !important; }
@@ -360,7 +360,7 @@ html.day .head-tools button:not(.basket-pill):not(.theme-btn), html.day .theme-b
   html.day .mnav .mn-search, html.day .mnav .mn-search input { background: none !important; background-image: none !important; }
   html.day .mnav .mn-search input { border-bottom: 1.5px solid rgba(79, 112, 60, .45) !important; }
 }
-@media (max-width: 900px) { html.day .mnav .mn-gift::before { background: url(../assets/day/honey-wash.webp) center / cover !important; box-shadow: none !important; } html.day .mnav .mn-gift::after { display: none !important; } }
+@media (max-width: 1080px) { html.day .mnav .mn-gift::before { background: url(../assets/day/honey-wash.webp) center / cover !important; box-shadow: none !important; } html.day .mnav .mn-gift::after { display: none !important; } }
 /* Ask Sarah: no paper slab under the header; the Begin arrow on a honey dab */
 html.day .cs-top, html.day .consult.wide .cs-top { background: none !important; background-image: none !important; }
 html.day .cs-in.scrolled .cs-top::before { background: url(../assets/day/paper.webp) center / cover !important; opacity: .92; }
@@ -503,3 +503,44 @@ html.day .st-n .st-ic[data-ic] svg { visibility: hidden; }
 html.day .pp-tabs { background: rgba(246, 236, 212, .9) url(../assets/day/paper.webp) center / 1400px auto !important; box-shadow: 0 1px 0 rgba(150, 112, 52, .3) !important; border-color: rgba(150, 112, 52, .25) !important; }
 html.day .pp-tabs button { color: #2b1d14 !important; background: transparent !important; }
 html.day .pp-tabs button:hover, html.day .pp-tabs button[aria-current], html.day .pp-tabs button.on { background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; }
+
+/* ===== legibility and header pass ===== */
+/* Ask Sarah: a soft paper veil over the painted border so every line reads */
+html.day .cs-card { background: linear-gradient(rgba(252, 246, 231, .84), rgba(252, 246, 231, .84)), url(../assets/day/sarah-panel.webp) center / cover, #f7efdc !important; }
+html.day .cs-sub, html.day .cs-fine, html.day .cs-card p { color: #2b1d14 !important; }
+html.day .cs-fine { color: rgba(43, 29, 20, .82) !important; }
+html.day .cs-close, html.day .cs-x { background: url(../assets/day/chip-dab.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; box-shadow: none !important; }
+html.day .cs-close *, html.day .cs-x * { background: none !important; color: #1f3320 !important; box-shadow: none !important; }
+/* header: search and Ask Sarah in the painted style */
+html.day .head .head-tools .find-btn.find-btn:not(.basket-pill):not(.theme-btn) { background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; box-shadow: none !important; color: #1f3320 !important; }
+html.day .head .head-tools .ask-chip.ask-chip:not(.basket-pill):not(.theme-btn) { background: url(../assets/day/btn-honey-long.webp) center / 100% 100% no-repeat !important; box-shadow: none !important; color: #3d2508 !important; padding-inline: 8px 18px; filter: drop-shadow(0 5px 7px rgba(120, 80, 20, .25)); }
+html.day .head-tools .ask-chip * { color: #3d2508 !important; }
+html.day .head-tools .ask-chip img { box-shadow: 0 0 0 2px #fff6dc !important; }
+/* product page, afternoon */
+html.day .pp-buy .kicker { color: #2f6b3a !important; }
+html.day .pp-name { color: #22160e !important; }
+html.day .pp-sub { color: rgba(43, 29, 20, .85) !important; }
+html.day .pp-rating, html.day .pp-ship { color: rgba(43, 29, 20, .85) !important; }
+html.day .pp-price { color: #22160e !important; border-color: rgba(150, 112, 52, .3) !important; }
+html.day .pp-price em { background: url(../assets/day/btn-honey.webp) center / 100% 100% no-repeat !important; color: #3d2508 !important; }
+html.day .qty { background: rgba(255, 250, 236, .8) !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .55) !important; background-image: none !important; }
+html.day .qty button { background: url(../assets/day/btn-sage.webp) center / 100% 100% no-repeat !important; color: #1f3320 !important; font-weight: 700; }
+html.day .qty output { color: #22160e !important; }
+html.day .pp-trust { border-color: rgba(150, 112, 52, .3) !important; }
+html.day .pp-trust li, html.day .ps-promise li { color: #2b1d14 !important; }
+html.day :is(.pp-trust .ti, .ps-promise .ti)[data-ic] { background: var(--ic) center / contain no-repeat !important; color: transparent !important; }
+html.day :is(.pp-trust .ti, .ps-promise .ti)[data-ic] svg { visibility: hidden; }
+html.day .ps-card { background: #f6e9c9 url(../assets/day/card-honey.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .25), 0 14px 28px -20px rgba(84, 56, 20, .5) !important; }
+html.day .ps-card h2, html.day .ps-card h3, html.day .ps-inside b { color: #22160e !important; }
+html.day .ps-inside i, html.day .ps-inside small { color: rgba(43, 29, 20, .78) !important; }
+html.day .ps-inside li + li { border-color: rgba(150, 112, 52, .25) !important; }
+html.day .pp-cols > .details-in > .first { color: #22160e !important; }
+/* menus: calmer painted backgrounds so every word reads */
+@media (max-width: 1080px) {
+  html.day .mnav { background: linear-gradient(rgba(248, 241, 226, .72), rgba(248, 241, 226, .72)), url(../assets/day/menu-panel.webp) center / cover, #f6eedc !important; }
+  html.day .mnav .mn-l, html.day .mnav .mn-big a, html.day .mnav .mn-small a { color: #22160e !important; }
+  html.day .mnav .mn-big small, html.day .mnav .mn-label { color: rgba(43, 29, 20, .78) !important; }
+}
+html.day .nav-panel { background: none !important; }
+html.day .nav-panel::before { background: linear-gradient(rgba(250, 244, 230, .7), rgba(250, 244, 230, .7)), url(../assets/day/paper.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .3), 0 30px 60px -30px rgba(84, 56, 20, .55) !important; }
+html.day .nav-panel small, html.day .nav-panel span { color: rgba(43, 29, 20, .85) !important; }

@@ -110,12 +110,12 @@ const loadTex = (name, url = A(`${IMG}/${name}.webp`)) => new Promise((res) => {
 
 // ---- the herb grove's scene: one painting of a moonlit glade behind the bed of plants, in place of the built scenery ----
 // the painting behind the grove can be changed: six scenes, the choice remembered on this device
-const SCENES = [['grove-bg', 'Moonlit glade'], ['grove-bg-walled', 'Walled herb garden'], ['grove-bg-glass', 'Glasshouse at night'], ['grove-bg-tea', 'Tea hills of Sri Lanka'], ['grove-bg-moon', 'Moon garden'], ['grove-bg-lotus', 'Lotus temple']];
-let sceneI = 1;   // the garden is always the walled herb garden (the scene picker was retired)
+const SCENES = [['grove-bg-walled', 'Walled herb garden']];   // the one garden scene
+let sceneI = 0;   // the garden is always the walled herb garden (the scene picker was retired)
 const prepBackdrop = (t) => { t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.needsUpdate = true; return t; };
 let backdrop = null; const GROVE = 1;   // layer 1: what is seen in the grove (the painting and the plants)
 function buildBackdrop() {
-  const t = tex[SCENES[sceneI][0]] || tex['grove-bg']; if (!t) return; prepBackdrop(t);
+  const t = tex[SCENES[sceneI][0]]; if (!t) return; prepBackdrop(t);
   backdrop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: t, depthTest: false, depthWrite: false, fog: false, color: 0x000000 }));
   backdrop.renderOrder = -999; backdrop.frustumCulled = false; backdrop.layers.set(GROVE); backdrop.visible = false;
   scene.add(camera); camera.add(backdrop); fitBackdrop();
