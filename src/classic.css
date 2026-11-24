@@ -2050,3 +2050,11 @@ html body .head .logo { width: 132px; height: 112px; }
 .qty button:hover { background: rgba(255, 255, 255, .12) !important; }
 .qty button:active { transform: scale(.92); }
 .qty output { min-width: 30px !important; font-size: 1.2rem !important; font-weight: 700; }
+/* the promise and inside cards fill their width: items flow into columns when the card is wide */
+.ps-promise ul { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 22px; }
+.ps-inside ul { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); column-gap: 26px; }
+.ps-inside li + li { border-top: 0; }
+.ps-inside li { border-bottom: 1px solid var(--rule, rgba(246, 240, 226, .16)); }
+.ps-card h3 { margin-bottom: 8px; }
+.ps-promise ul { grid-template-columns: 1fr; }
+@media (max-width: 980px) and (min-width: 561px) { .ps-promise ul { grid-template-columns: 1fr 1fr; } }

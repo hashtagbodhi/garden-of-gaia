@@ -626,3 +626,5 @@ html.day .qty { background: url(../assets/day/btn-sage-long.webp) center / 100% 
 html.day .qty button { background: none !important; color: #1a2e1b !important; font-weight: 600; text-shadow: 0 1px 0 rgba(255, 250, 236, .5); }
 html.day .qty button:hover { background: rgba(255, 250, 236, .35) !important; }
 html.day .qty output { color: #1a2e1b !important; text-shadow: 0 1px 0 rgba(255, 250, 236, .5); }
+html.day .ps-inside li { border-bottom-color: rgba(150, 112, 52, .22) !important; }
+html.day .ps-promise li { padding: 6px 0 !important; }
