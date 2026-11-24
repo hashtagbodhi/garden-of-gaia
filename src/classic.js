@@ -266,23 +266,8 @@ function home() {
 const promisesRow = () => el('section', { className: 'promises tone-marigold' }, sun('pr-sun'), ...[['leaf', 'Organic & pesticide-free', 'Grown in rich soil and hand harvested. Our Blue Lotus is tested and backed by a COA.'], ['plant-2', 'Farmer direct', 'Direct trade with multigenerational regenerative farmers in Sri Lanka. No middlemen.'], ['flower', 'Made in-house', 'Signature blends like Butterfly Chai and Full Spectrum Hibiscus, made by hand in small batches.']].map(([ic, t, d]) => el('div', { className: 'promise' }, icon(ic), el('h3', { textContent: t }), el('p', { textContent: d }))));
 // two homepage heroes to compare: the painted scene, and close-up plant films with one line over them.
 // A switch on the hero flips between them; the choice is remembered on this device.
-function heroPair() {
-  let mode = 'video'; try { mode = localStorage.getItem('gaia-hero') || 'video'; } catch (e) { /* private mode */ }
-  const painted = hero(), film = videoHero();
-  const vid = film.querySelector('video'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const opt = (k, t) => { const b = el('button', { type: 'button', className: 'hs-opt', textContent: t }); b.dataset.k = k; return b; };
-  const sw = el('div', { className: 'hero-switch', role: 'group', ariaLabel: 'Homepage hero' }, el('span', { className: 'hs-l', textContent: 'Hero' }), opt('video', 'Film'), opt('painted', 'Painted'));
-  const wrap = el('div', { className: 'hero-pair' }, film, painted, sw);
-  const set = (k) => {
-    mode = k; try { localStorage.setItem('gaia-hero', k); } catch (e) { /* private mode */ }
-    film.hidden = k !== 'video'; painted.hidden = k === 'video';
-    sw.querySelectorAll('.hs-opt').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === k)));
-    if (k === 'video' && !still) vid.play?.().catch(() => {}); else vid.pause?.();
-  };
-  sw.querySelectorAll('.hs-opt').forEach((b) => (b.onclick = () => set(b.dataset.k)));
-  set(mode === 'painted' ? 'painted' : 'video');
-  return wrap;
-}
+// the homepage hero is the painted scene only (the film hero was retired)
+function heroPair() { return hero(); }
 function videoHero() {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // close-ups from Pexels and Mixkit (both free for commercial use), cut to 2½ seconds each; phones get an upright cut
