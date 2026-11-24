@@ -546,3 +546,27 @@ html.day .nav-panel::before { background: linear-gradient(rgba(250, 244, 230, .7
 html.day .nav-panel small, html.day .nav-panel span { color: rgba(43, 29, 20, .85) !important; }
 /* buy box sits on a soft paper card so the painted border never runs behind the words */
 html.day .pp-buy { background: rgba(252, 246, 231, .88) !important; border-radius: 24px; padding: clamp(20px, 2.2vw, 30px) !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .2), 0 24px 50px -30px rgba(84, 56, 20, .45) !important; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+
+/* Sarah's speech pill keeps cream lettering on the green */
+html.day .cs-card .cs-say p, html.day .cs-card .cs-say, html.day .cs-card .cs-say * { color: #fbf3dd !important; text-shadow: 0 1px 2px rgba(0, 0, 0, .35) !important; }
+/* the promise: bigger painted badges */
+html.day .ps-promise li { grid-template-columns: 56px 1fr !important; gap: 16px !important; padding: 8px 0 !important; font-size: 1.05rem !important; }
+html.day .ps-promise .ti { width: 56px !important; height: 56px !important; }
+html.day .pp-trust .ti { width: 56px !important; height: 56px !important; }
+/* header tools, afternoon: one family. Round search and theme buttons, painted pills for Ask Sarah and the basket, all the same height */
+html.day .head .head-tools { gap: 12px !important; align-items: center; }
+html.day .head .head-tools .find-btn.find-btn:not(.basket-pill):not(.theme-btn), html.day .head .head-tools .theme-btn.theme-btn {
+  width: 48px !important; height: 48px !important; min-height: 48px; padding: 0 !important; border-radius: 50% !important; display: inline-grid !important; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #fffaf0, #f1e6cc 70%) !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .55), 0 6px 14px -8px rgba(84, 56, 20, .45) !important; color: #1f3a26 !important; filter: none !important; }
+html.day .head .head-tools .find-btn svg, html.day .head .head-tools .theme-btn svg { width: 22px !important; height: 22px !important; color: #1f3a26 !important; stroke: currentColor; }
+html.day .head .head-tools .find-btn:hover, html.day .head .head-tools .theme-btn:hover { box-shadow: inset 0 0 0 2px #2f6b3a, 0 8px 16px -8px rgba(84, 56, 20, .5) !important; }
+html.day .head .head-tools .ask-chip.ask-chip:not(.basket-pill):not(.theme-btn), html.day .head .head-tools .basket-pill { min-height: 48px !important; height: 48px; display: inline-flex !important; align-items: center; }
+@media (max-width: 760px) {
+  html.day .head .head-tools { gap: 6px !important; }
+  html.day .head .head-tools .find-btn.find-btn:not(.basket-pill):not(.theme-btn) { display: none !important; }   /* search lives in the menu on phones */
+  html.day .head .head-tools .theme-btn.theme-btn { width: 40px !important; height: 40px !important; min-height: 40px; }
+  html.day .head .head-tools .ask-chip.ask-chip:not(.basket-pill):not(.theme-btn), html.day .head .head-tools .basket-pill { min-height: 40px !important; height: 40px; }
+}
+/* menu button matches the round tools */
+html.day .head .head-tools .menu-btn, html.day .head .menu-btn { background: radial-gradient(circle at 35% 30%, #fffaf0, #f1e6cc 70%) !important; box-shadow: inset 0 0 0 1.5px rgba(79, 112, 60, .55), 0 6px 14px -8px rgba(84, 56, 20, .45) !important; color: #1f3a26 !important; filter: none !important; min-height: 48px; }
+@media (max-width: 760px) { html.day .head .menu-btn { min-height: 40px; } }
