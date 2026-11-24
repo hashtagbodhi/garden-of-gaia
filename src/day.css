@@ -599,3 +599,16 @@ html.day .sidx-list.none::after { color: rgba(43, 29, 20, .7) !important; }
 html.day .sidx .sidx-in { background: none !important; background-image: none !important; box-shadow: none !important; }
 html.day body.locked .head, html.day body.nav-open .head { background: rgba(248, 240, 222, .96) url(../assets/day/paper.webp) center / 1400px auto !important; }
 @media (max-width: 760px) { html.day .head .head-tools .ask-chip.ask-chip:not(.basket-pill):not(.theme-btn) { display: none !important; } }   /* phones, afternoon: Ask Sarah lives in the menu and the floating button */
+
+/* ===== basket, afternoon: readable head, a light painted shipping vine ===== */
+html.day .sheet { background: linear-gradient(180deg, rgba(250, 244, 230, .9) 0%, rgba(250, 244, 230, .78) 40%, rgba(250, 244, 230, .55) 100%), url(../assets/day/basket-strip.webp) center top / cover, #f7efdc !important; }
+html.day .sheet-head h2, html.day .sheet h2 { color: #22160e !important; text-shadow: 0 1px 0 rgba(255, 250, 238, .8) !important; }
+html.day .vine-t { color: #2b1d14 !important; text-shadow: 0 1px 0 rgba(255, 250, 238, .8) !important; }
+/* the empty vine is a faint sage sketch, not a dark ghost; the grown part keeps its colour */
+html.day .vine-bar::before { filter: grayscale(.35) sepia(.15) brightness(1.15) saturate(.8) !important; opacity: .32 !important; }
+html.day .vine-bar { background: none !important; box-shadow: none !important; }
+html.day .vine-bar i { filter: saturate(1.05) drop-shadow(0 2px 3px rgba(47, 74, 40, .25)) !important; box-shadow: none !important; }
+html.day .vine-bud { filter: drop-shadow(0 3px 5px rgba(84, 56, 20, .3)) !important; }
+html.day .sheet-sum { background: #f6e9c9 url(../assets/day/card-honey.webp) center / cover !important; box-shadow: 0 0 0 1px rgba(150, 112, 52, .25), 0 -10px 30px -20px rgba(84, 56, 20, .35) !important; }
+html.day .sheet-sum .subtotal, html.day .sheet-sum p { color: #2b1d14 !important; }
+html.day .sheet-sum .subtotal strong { color: #22160e !important; }

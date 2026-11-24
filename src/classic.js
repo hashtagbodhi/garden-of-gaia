@@ -99,7 +99,7 @@ function renderBasket() {
   const pool = catalog.filter((p) => !inB.has(p) && p.handle !== CARD && price(p) > 0 && p.variants.some((x) => x.available));
   const picks = (left > 0 && basket.length ? pool.filter((p) => price(p) >= left).sort((x, y) => price(x) - price(y)) : best.filter((p) => !inB.has(p))).slice(0, 4);
   const more = $('#basket-more'); more.replaceChildren();
-  if (picks.length) more.append(el('p', { className: 'label', textContent: left > 0 && basket.length ? 'Any of these brings free shipping' : 'Most loved' }), el('div', { className: 'more-row' }, ...picks.map((p) => {
+  if (picks.length) more.append(el('p', { className: 'label', textContent: left > 0 && basket.length ? 'Add any one of these for free shipping' : 'Most loved' }), el('div', { className: 'more-row' }, ...picks.map((p) => {
     const add = el('button', { className: 'more-add', textContent: '+ Add', ariaLabel: `Add ${p.name} to basket` });
     add.onclick = () => addToBasket((p.variants.find((x) => x.available) || p.variants[0]).id, 1, p.name);
     const n = el('a', { className: 'n', href: `#p--${p.handle}`, textContent: p.name }); n.onclick = closeBasket;
