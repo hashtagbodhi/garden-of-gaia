@@ -628,3 +628,7 @@ html.day .qty button:hover { background: rgba(255, 250, 236, .35) !important; }
 html.day .qty output { color: #1a2e1b !important; text-shadow: 0 1px 0 rgba(255, 250, 236, .5); }
 html.day .ps-inside li { border-bottom-color: rgba(150, 112, 52, .22) !important; }
 html.day .ps-promise li { padding: 6px 0 !important; }
+html.day .ps-promise li { border-color: rgba(150, 112, 52, .25) !important; }
+html.day .ps-promise li, html.day .ps-promise h3 { color: #22160e !important; }
+html.day .ps-promise .ti { width: 64px !important; height: 64px !important; }
+html.day .ps-promise li { grid-template-columns: none !important; justify-items: center; text-align: center; gap: 10px !important; padding: 16px 10px !important; font-size: .98rem !important; }
