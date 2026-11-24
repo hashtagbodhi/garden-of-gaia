@@ -1888,3 +1888,11 @@ html body .quote.note .n-prod:hover span { text-decoration: underline; }
   html body .kind .quote.note { flex: 0 0 84%; scroll-snap-align: center; }
 }
 html body .quote.note .n-who small { white-space: nowrap; } @media (max-width: 760px) { html body .quote.note .n-prod span { font-size: .85rem; } }
+
+/* ---- footer: the motto and its two buttons centred on one line; the animated white logo closes the page ---- */
+html body .foot-top { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 22px; }
+html body .foot-top .foot-line { margin: 0; text-align: center; }
+html body .foot-top .foot-acts { justify-content: center; }
+html body .foot-mark { display: block; width: min(380px, 70vw); max-width: none; margin: 44px auto 0; }
+html body .fm-vid { display: block; width: 100%; height: auto; aspect-ratio: 760 / 681; mix-blend-mode: screen; background: #000; }
+html body .foot-fine { text-align: center; } html body .foot-fine .fine { margin-left: auto; margin-right: auto; max-width: 70ch; }
