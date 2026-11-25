@@ -4,7 +4,7 @@ import '@fontsource-variable/eb-garamond/wght-italic.css';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/fraunces/full-italic.css';
 import '@fontsource-variable/cinzel';
-import '@fontsource/emilys-candy/latin-400.css';
+import '@fontsource/im-fell-english/latin-400.css';
 import './classic.css';
 import './sheet.css';
 import './day-auto.css';
@@ -607,29 +607,6 @@ function infoPage(id) {
 }
 
 /* ---------- chrome ---------- */
-// a test switch for the heading font, so the owner can try type that matches the packaging labels
-const HFONTS = [['', 'Original', ''], ['cinzel', 'Cinzel', "'Cinzel Variable', 'Cinzel', Georgia, serif"], ['marcellus', 'Marcellus', "'Marcellus SC', Georgia, serif"],
-  ['cormorant', 'Cormorant', "'Cormorant SC', Georgia, serif"], ['forum', 'Forum', "'Forum', Georgia, serif"], ['fell', 'IM Fell', "'IM Fell English SC', Georgia, serif"],
-  ['fell-caps', 'IM Fell · all capitals', "'IM Fell English SC', Georgia, serif"], ['fell-lc', 'IM Fell · lowercase', "'IM Fell English', Georgia, serif"]];
-const GFONTS = 'https://fonts.googleapis.com/css2?family=Marcellus+SC&family=Cormorant+SC:wght@500;600&family=Forum&family=IM+Fell+English+SC&family=IM+Fell+English&display=swap';
-function setHeadingFont(k) {
-  const f = HFONTS.find((x) => x[0] === k) || HFONTS[0], root = document.documentElement;
-  if (f[0]) {
-    if (f[0] !== 'cinzel' && !document.getElementById('gf-test')) document.head.append(Object.assign(document.createElement('link'), { id: 'gf-test', rel: 'stylesheet', href: GFONTS }));
-    root.dataset.hfont = f[0]; root.style.setProperty('--hf', f[2]);
-  } else { delete root.dataset.hfont; root.style.removeProperty('--hf'); }
-  store.set('gaia-hfont', f[0]);
-  document.querySelectorAll('.fp-opt').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === f[0])));
-}
-function fontPicker() {
-  const opts = HFONTS.map(([k, n, fam]) => { const b = el('button', { type: 'button', className: 'fp-opt', textContent: n }); b.dataset.k = k; if (fam) b.style.fontFamily = fam; b.onclick = () => setHeadingFont(k); return b; });
-  const box = el('div', { className: 'font-pick', role: 'group', ariaLabel: 'Heading font (test)' }, el('span', { className: 'fp-l', textContent: 'Heading font' }), ...opts);
-  queueMicrotask(() => setHeadingFont(store.get('gaia-hfont', '')));
-  // the font previews on the buttons load once the footer comes into view
-  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); if (!document.getElementById('gf-test')) document.head.append(Object.assign(document.createElement('link'), { id: 'gf-test', rel: 'stylesheet', href: GFONTS })); } });
-  io.observe(box);
-  return box;
-}
 function footer() {
   const f = $('#foot');
   const group = (title, kids, cls = '') => { const d = el('details', { className: `fg ${cls}`, open: true }, el('summary', {}, el('h3', { textContent: title })), ...kids); return d; };
@@ -652,7 +629,6 @@ function footer() {
   const lv = el('video', { className: 'fm-vid', muted: true, playsInline: true, loop: true, preload: 'none', poster: A('assets/video/logo-white.jpg'), ariaHidden: 'true' });
   lv.muted = true; lv.setAttribute('muted', ''); lv.setAttribute('playsinline', ''); lv.src = A('assets/video/logo-white.mp4');
   if (!still && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => { if (e.isIntersecting) lv.play?.().catch(() => {}); else lv.pause?.(); }, { threshold: 0.2 }).observe(lv);
-  f.append(fontPicker());
   f.append(el('a', { className: 'foot-mark', href: '#home', ariaLabel: 'The Garden of Gaia Apothecary, home' }, lv));
   const fold = () => f.querySelectorAll('details.fg').forEach((d) => { d.open = innerWidth > 760; });
   fold(); addEventListener('resize', fold);

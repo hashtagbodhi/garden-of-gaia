@@ -1,7 +1,7 @@
 /* The basket, shared by the garden and the website: a sheet that drops down from the top. */
 .sheet {
   --s-bg: #070d1a; --s-ink: #f4efe3; --s-ink2: rgba(244, 239, 227, .74); --s-ink3: rgba(244, 239, 227, .48); --s-rule: rgba(244, 239, 227, .14); --s-leaf: #b9f655;
-  --s-display: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --s-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --s-sans: 'Fraunces Variable', 'Fraunces', 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
+  --s-display: 'IM Fell English', 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --s-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; --s-sans: 'Fraunces Variable', 'Fraunces', 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
   position: fixed; z-index: 70; left: 0; right: 0; top: 0; max-height: min(86vh, 760px); display: flex; flex-direction: column;
   color: var(--s-ink); font-family: var(--s-serif);
   background: radial-gradient(70% 120% at 85% -10%, rgba(185, 246, 85, .14), transparent 60%), radial-gradient(60% 120% at 0 120%, rgba(150, 60, 170, .22), transparent 60%), linear-gradient(180deg, #0a1324, var(--s-bg));
@@ -143,7 +143,7 @@
 .snd[aria-pressed="false"]::after, .snd.off::after { content: ''; position: absolute; width: 22px; height: 1.5px; background: rgba(246, 240, 226, .6); rotate: -45deg; }
 
 /* Ask Sarah, always one tap away */
-.ask-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px 0 5px; border: 0; border-radius: 999px; cursor: pointer; background: linear-gradient(135deg, rgba(60, 38, 110, .9), rgba(14, 16, 36, .9)); box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .6), 0 0 22px -8px rgba(240, 195, 90, .7); font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif; font-size: 1.02rem; color: #f7dc97; white-space: nowrap; transition: transform .2s, box-shadow .25s; }
+.ask-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px 0 5px; border: 0; border-radius: 999px; cursor: pointer; background: linear-gradient(135deg, rgba(60, 38, 110, .9), rgba(14, 16, 36, .9)); box-shadow: inset 0 0 0 1px rgba(240, 195, 90, .6), 0 0 22px -8px rgba(240, 195, 90, .7); font-family: 'IM Fell English', 'EB Garamond Variable', 'EB Garamond', serif; font-size: 1.02rem; color: #f7dc97; white-space: nowrap; transition: transform .2s, box-shadow .25s; }
 .ask-chip img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; object-position: 50% 20%; box-shadow: 0 0 0 1px #f0c35a; }
 .ask-chip:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px #f0c35a, 0 0 28px -6px rgba(240, 195, 90, .9); }
 @media (prefers-reduced-motion: reduce) { .snd-bars i { animation: none; transform: scaleY(.7); } }
@@ -171,13 +171,13 @@
 .tkbar .tk { display: inline-flex !important; align-items: center; gap: 8px !important; padding: 0 !important; margin: 0 4px; }
 .tkbar .tk-t, .tkbar .tk-rest { display: inline-block; padding: 0 !important; }
 /* a: hand lettering · b: gold-edged pill · c: leaf tag · d: italic serif */
-.tkbar .tk-a .tk-t { font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif; font-size: 1.12rem; color: #fff6dc; text-shadow: 0 1px 0 rgba(18, 13, 36, .6); }
+.tkbar .tk-a .tk-t { font-family: 'IM Fell English', 'EB Garamond Variable', 'EB Garamond', serif; font-size: 1.12rem; color: #fff6dc; text-shadow: 0 1px 0 rgba(18, 13, 36, .6); }
 .tkbar .tk-b .tk-t { padding: 5px 14px !important; border-radius: 999px; background: rgba(18, 13, 36, .78); box-shadow: inset 0 0 0 1px #f0c35a; font-family: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; font-style: italic; font-size: 1rem; color: #f7dc97; }
 .tkbar .tk-c .tk-t { padding: 5px 12px !important; border-radius: 6px; background: #b9f655; color: #120d24; font-family: 'Fraunces Variable', 'Fraunces', 'EB Garamond Variable', 'EB Garamond', Georgia, serif; font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; rotate: -2deg; box-shadow: 2px 2px 0 #120d24; }
 .tkbar .tk-d .tk-t { font-family: 'EB Garamond Variable', 'EB Garamond', Georgia, serif; font-style: italic; font-size: 1.08rem; color: #fff6dc; text-decoration: underline wavy rgba(240, 195, 90, .9); text-underline-offset: 4px; text-decoration-thickness: 1px; }
-.tkbar .tk-offer .tk-burst { display: grid; place-items: center; height: 30px; padding: 0 14px; background: #f0c35a; color: #120d24; font-family: 'Emilys Candy', serif; font-weight: 400; font-size: 1.05rem; letter-spacing: .01em; rotate: -4deg; box-shadow: 3px 3px 0 #120d24;
+.tkbar .tk-offer .tk-burst { display: grid; place-items: center; height: 30px; padding: 0 14px; background: #f0c35a; color: #120d24; font-family: 'IM Fell English', serif; font-weight: 400; font-size: 1.05rem; letter-spacing: .01em; rotate: -4deg; box-shadow: 3px 3px 0 #120d24;
   clip-path: polygon(0 50%, 5% 20%, 2% 0, 14% 10%, 22% 0, 30% 12%, 40% 0, 50% 12%, 60% 0, 70% 12%, 78% 0, 86% 10%, 98% 0, 95% 20%, 100% 50%, 95% 80%, 98% 100%, 86% 90%, 78% 100%, 70% 88%, 60% 100%, 50% 88%, 40% 100%, 30% 88%, 22% 100%, 14% 90%, 2% 100%, 5% 80%); }
-.tkbar .tk-offer .tk-rest { font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif; font-size: 1.1rem; color: #fff6dc; text-shadow: 0 1px 0 rgba(18, 13, 36, .6); }
+.tkbar .tk-offer .tk-rest { font-family: 'IM Fell English', 'EB Garamond Variable', 'EB Garamond', serif; font-size: 1.1rem; color: #fff6dc; text-shadow: 0 1px 0 rgba(18, 13, 36, .6); }
 .tkbar .tk-m { display: inline-grid; place-items: center; margin: 0 14px; font-style: normal; font-size: .95rem; color: #f0c35a !important; }
 .tkbar .tk-m1 { color: #b9f655 !important; font-size: 1.1rem; }
 .tkbar .tk-m2 { color: #ff9ecb !important; }
@@ -194,7 +194,7 @@
 @media (prefers-reduced-motion: reduce) { .tkbar, .tkbar .tk-m { animation: none !important; } }
 
 /* ================= typography, maximalist: four voices, no sans =================
-   Emilys Candy  : names, titles, anything that should feel hand-lettered
+   IM Fell English : names, titles, anything that should feel hand-lettered
    EB Garamond   : reading text, italics for asides
    Fraunces      : the small working text (prices, counts, fine print), soft and a little wonky
    Cinzel        : engraved capitals for labels and kickers, like an apothecary drawer */
@@ -205,7 +205,7 @@
 .label, .kicker, .mn-label, .focus .label { font-size: .7rem; }
 .tkbar .tk-c .tk-t { font-family: var(--caps) !important; font-weight: 700; letter-spacing: .12em; }
 /* buttons speak in the brand's own hand or in italics, never in tracked capitals */
-.basket-pill, .view-switch .vs-opt { font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif !important; font-weight: 400 !important; font-size: 1rem !important; letter-spacing: .01em !important; }
+.basket-pill, .view-switch .vs-opt { font-family: 'IM Fell English', 'EB Garamond Variable', 'EB Garamond', serif !important; font-weight: 400 !important; font-size: 1rem !important; letter-spacing: .01em !important; }
 .basket-pill .count, .basket-pill #basket-count { font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif; font-weight: 700; }
 .view-switch .vs-opt { font-size: .92rem !important; }
 
@@ -229,7 +229,7 @@
 /* ================= the shipping vine, painted: a bare garland that comes into flower as the basket fills =================
    a butterfly rides the growing tip; the bud at the far end opens into a bloom when shipping is free */
 .vine { gap: 2px; }
-.vine-t { font-family: 'Emilys Candy', 'EB Garamond Variable', 'EB Garamond', serif !important; font-size: 1.08rem !important; letter-spacing: .01em; color: #f6efdc !important; }
+.vine-t { font-family: 'IM Fell English', 'EB Garamond Variable', 'EB Garamond', serif !important; font-size: 1.08rem !important; letter-spacing: .01em; color: #f6efdc !important; }
 .vine-bar { height: 40px; margin: 12px 46px 4px 0; border-radius: 0; background: none; }
 .vine-bar::before { content: ''; position: absolute; inset: 0; background: url(../assets/img/ship-vine.webp) left center / auto 100% repeat-x; filter: grayscale(.9) brightness(.55); opacity: .5; }
 .vine-bar i { inset: 0; width: auto; border-radius: 0; box-shadow: none; background: url(../assets/img/ship-vine.webp) left center / auto 100% repeat-x; -webkit-clip-path: inset(-12px calc(100% - var(--p, 0%)) -12px 0); clip-path: inset(-12px calc(100% - var(--p, 0%)) -12px 0); filter: drop-shadow(0 0 7px rgba(185, 246, 85, .5)); transition: clip-path .8s cubic-bezier(.2, .8, .2, 1), -webkit-clip-path .8s cubic-bezier(.2, .8, .2, 1); }
@@ -252,7 +252,7 @@ html body .snd, html body #sound-btn, .nav-sound, .mn-sound { display: none !imp
 html body .view-switch { display: inline-flex !important; align-items: center; gap: 20px !important; height: auto !important; padding: 9px 20px 10px !important; border-radius: 999px !important; background: rgba(8, 12, 26, .35) !important; box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .22) !important; }
 html body .view-switch .vs-opt svg { display: none !important; }
 html body .view-switch .vs-opt span { display: inline !important; font: inherit !important; }
-html body .view-switch .vs-opt, html body .view-switch .vs-opt.on { width: auto !important; min-height: 0 !important; padding: 0 !important; background: none !important; box-shadow: none !important; border-radius: 0 !important; font-family: 'Emilys Candy', 'EB Garamond', serif !important; font-weight: 400 !important; font-size: 1.12rem !important; line-height: 1 !important; letter-spacing: .01em !important; white-space: nowrap; text-decoration: none; }
+html body .view-switch .vs-opt, html body .view-switch .vs-opt.on { width: auto !important; min-height: 0 !important; padding: 0 !important; background: none !important; box-shadow: none !important; border-radius: 0 !important; font-family: 'IM Fell English', 'EB Garamond', serif !important; font-weight: 400 !important; font-size: 1.12rem !important; line-height: 1 !important; letter-spacing: .01em !important; white-space: nowrap; text-decoration: none; }
 html body .view-switch .vs-opt { color: rgba(246, 239, 220, .5) !important; transition: color .2s; }
 html body .view-switch a.vs-opt:hover { color: #f6efdc !important; }
 html body .view-switch .vs-opt.on { color: #f7dc97 !important; text-shadow: 0 0 16px rgba(240, 195, 90, .7); }
