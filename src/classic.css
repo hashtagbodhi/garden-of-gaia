@@ -2081,3 +2081,26 @@ html body .head .logo { width: 132px; height: 112px; }
 .details details > .dsub:first-of-type { margin-top: 4px !important; }
 .details .dglance { margin-top: 14px !important; padding-top: 12px; border-top: 1px solid var(--rule, rgba(246, 240, 226, .16)); font-style: italic; color: var(--ink-2); }
 .details .dglance b { font-style: normal; font-weight: 600; color: var(--ink); margin-right: 4px; }
+
+/* ===== night mode shares the painted footer and the painted badge icons ===== */
+html:not(.day) .foot { background-color: #0c1a12 !important; background-image: linear-gradient(rgba(5, 12, 9, .55), rgba(5, 12, 9, .72)), url(../assets/day/footer-green.webp) !important; background-size: cover !important; background-position: center top !important; }
+@media (max-width: 760px) { html:not(.day) .foot { background-image: linear-gradient(rgba(5, 12, 9, .55), rgba(5, 12, 9, .72)), url(../assets/day/footer-green-s.webp) !important; } }
+html:not(.day) .foot .promise, html:not(.day) .foot .fg { background: rgba(8, 20, 14, .5) !important; box-shadow: inset 0 0 0 1px rgba(246, 239, 220, .14) !important; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+/* the painted badges (leaf, lotus, flower, cup, bottle, jar, flame, gift) in both themes */
+[data-ic=leaf], [data-ic=seedling], [data-ic=plant] { --ic: url(../assets/day/ic-leaf.webp); }
+[data-ic=plant-2], [data-ic=lotus], [data-ic=sun] { --ic: url(../assets/day/ic-lotus.webp); }
+[data-ic=flower] { --ic: url(../assets/day/ic-flower.webp); }
+[data-ic=cup], [data-ic=steam] { --ic: url(../assets/day/ic-cup.webp); }
+[data-ic=bottle], [data-ic=package] { --ic: url(../assets/day/ic-bottle.webp); }
+[data-ic=droplet], [data-ic=jar] { --ic: url(../assets/day/ic-jar.webp); }
+[data-ic=flame] { --ic: url(../assets/day/ic-flame.webp); }
+[data-ic=gift] { --ic: url(../assets/day/ic-gift.webp); }
+html:not(.day) :is(.col-ic, .promise .ti, .door > .ti, .brew-steps .ti, .pa-card li .ti, .details summary .ti, .stamp-ic, .big-ic, .ing .ti, .pface.no .ti, .pp-trust .ti, .ps-promise .ti, .st-n .st-ic, .w-ic .ti)[data-ic] {
+  background: var(--ic) center / contain no-repeat !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; color: transparent !important; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .35)); }
+html:not(.day) :is(.col-ic, .promise .ti, .door > .ti, .brew-steps .ti, .pa-card li .ti, .details summary .ti, .stamp-ic, .big-ic, .ing .ti, .pface.no .ti, .pp-trust .ti, .ps-promise .ti, .st-n .st-ic, .w-ic .ti)[data-ic] svg { visibility: hidden; }
+html:not(.day) .promise .ti[data-ic] { width: 64px !important; height: 64px !important; }
+html:not(.day) .door > .ti[data-ic] { width: 84px !important; height: 84px !important; }
+html:not(.day) .col-ic[data-ic], html:not(.day) .brew-steps .ti[data-ic] { width: 58px !important; height: 58px !important; }
+html:not(.day) .st-n { background: none !important; box-shadow: none !important; border: 0 !important; }
+html:not(.day) .st-n .st-ic[data-ic] { width: 100% !important; height: 100% !important; }
+@media (max-width: 760px) { html:not(.day) .door > .ti[data-ic] { width: 68px !important; height: 68px !important; } }
